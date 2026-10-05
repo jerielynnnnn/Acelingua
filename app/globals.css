@@ -2,25 +2,290 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #2a255c;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
+  margin: 0;
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+::selection {
+  background: #c7a9d4;
+  color: #2a255c;
+}/* =====================================================
+   ACE FLOATING ANIMATION
+===================================================== */
+
+.ace-float {
+  transform: translate(-50%, -50%);
+  animation: aceFloat 3.5s ease-in-out infinite;
+}
+
+@keyframes aceFloat {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) translateY(0);
+  }
+
+  50% {
+    transform: translate(-50%, -50%) translateY(-10px);
+  }
+}
+
+
+/* =====================================================
+   ACELINGUA 3D ORBIT CONTAINER
+===================================================== */
+
+.ace-orbit {
+  width: 310px;
+  height: 310px;
+
+  transform: translate(-50%, -50%);
+
+  perspective: 900px;
+  transform-style: preserve-3d;
+
+  pointer-events: none;
+}
+
+
+/* =====================================================
+   SHARED ORBIT RING
+===================================================== */
+
+.ace-orbit-ring {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  width: 285px;
+  height: 285px;
+
+  margin-left: -142.5px;
+  margin-top: -142.5px;
+
+  border-radius: 50%;
+
+  transform-style: preserve-3d;
+
+  /* Helps make the lines visible */
+  box-shadow:
+    0 0 8px rgba(53, 88, 174, 0.05),
+    inset 0 0 8px rgba(53, 88, 174, 0.03);
+}
+
+
+/* =====================================================
+   BLUE ORBIT
+===================================================== */
+
+.ace-orbit-ring-1 {
+  border: 2px solid rgba(53, 88, 174, 0.55);
+
+  animation: aceOrbitOne 8s linear infinite;
+}
+
+@keyframes aceOrbitOne {
+  from {
+    transform:
+      rotateX(68deg)
+      rotateZ(0deg);
+  }
+
+  to {
+    transform:
+      rotateX(68deg)
+      rotateZ(360deg);
+  }
+}
+
+
+/* =====================================================
+   LAVENDER ORBIT
+===================================================== */
+
+.ace-orbit-ring-2 {
+  border: 2px solid rgba(199, 169, 212, 0.75);
+
+  animation: aceOrbitTwo 10s linear infinite;
+}
+
+@keyframes aceOrbitTwo {
+  from {
+    transform:
+      rotateY(68deg)
+      rotateZ(0deg);
+  }
+
+  to {
+    transform:
+      rotateY(68deg)
+      rotateZ(-360deg);
+  }
+}
+
+
+/* =====================================================
+   PINK DASHED ORBIT
+===================================================== */
+
+.ace-orbit-ring-3 {
+  border: 2px dashed rgba(182, 64, 116, 0.45);
+
+  animation: aceOrbitThree 13s linear infinite;
+}
+
+@keyframes aceOrbitThree {
+  from {
+    transform:
+      rotateX(58deg)
+      rotateY(38deg)
+      rotateZ(0deg);
+  }
+
+  to {
+    transform:
+      rotateX(58deg)
+      rotateY(38deg)
+      rotateZ(360deg);
+  }
+}
+
+
+/* =====================================================
+   ORBITING DOTS
+===================================================== */
+
+.ace-orbit-dot {
+  position: absolute;
+
+  left: 50%;
+  top: -6px;
+
+  display: block;
+
+  width: 11px;
+  height: 11px;
+
+  transform: translateX(-50%);
+
+  border-radius: 9999px;
+
+  box-shadow:
+    0 0 0 4px rgba(255, 255, 255, 0.6),
+    0 4px 12px rgba(7, 26, 74, 0.18);
+}
+
+
+/* Blue dot */
+
+.ace-orbit-dot-1 {
+  background: #3558ae;
+}
+
+
+/* Pink dot */
+
+.ace-orbit-dot-2 {
+  width: 9px;
+  height: 9px;
+
+  background: #f9c3d7;
+}
+
+
+/* Lavender dot */
+
+.ace-orbit-dot-3 {
+  width: 8px;
+  height: 8px;
+
+  background: #c7a9d4;
+}
+
+
+/* =====================================================
+   REDUCED MOTION
+===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .ace-float {
+    animation: none;
+    transform: translate(-50%, -50%);
+  }
+
+  .ace-orbit-ring {
+    animation: none;
+  }
+}
+/* =====================================================
+   RING 4 — RIGHT-SIDE ORBIT
+===================================================== */
+
+.ace-orbit-ring-4 {
+  width: 275px;
+  height: 275px;
+
+  margin-left: -137.5px;
+  margin-top: -137.5px;
+
+  border: 1.5px solid rgba(53, 88, 174, 0.32);
+
+  animation: aceOrbitFour 11s linear infinite;
+}
+
+@keyframes aceOrbitFour {
+  from {
+    transform:
+      rotateX(72deg)
+      rotateY(-48deg)
+      rotateZ(0deg);
+  }
+
+  to {
+    transform:
+      rotateX(72deg)
+      rotateY(-48deg)
+      rotateZ(-360deg);
+  }
+}
+
+
+/* =====================================================
+   FOURTH ORBIT DOT
+===================================================== */
+
+.ace-orbit-dot-4 {
+  width: 7px;
+  height: 7px;
+
+  background: #3558ae;
+
+  opacity: 0.7;
 }

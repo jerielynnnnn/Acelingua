@@ -9,9 +9,14 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@rive-app/react-canvas": "^4.36.0",
+    "@supabase/ssr": "^0.12.6",
+    "@supabase/supabase-js": "^2.115.0",
+    "lucide-react": "^1.48.0",
     "next": "16.3.4",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "styled-components": "^6.5.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
