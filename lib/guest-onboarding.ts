@@ -23,6 +23,9 @@ export function rememberGuestLesson(lesson: GuestLesson) {
 const saves = new Map<string, Promise<void>>();
 
 export async function saveGuestLesson(supabase: SupabaseClient, user: User) {
+  // The current intro is a preview: never transfer it into real lesson progress.
+  if (localStorage.getItem("acelingua_intro_completed") === "true"
+    || user.user_metadata.acelingua_onboarding?.introCompleted === true) return;
   const existing = saves.get(user.id);
   if (existing) return existing;
   const saving = persistGuestLesson(supabase, user);

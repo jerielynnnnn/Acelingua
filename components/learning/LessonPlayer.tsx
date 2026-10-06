@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { rememberGuestLesson, recordLessonCompletion, type GuestLesson } from "@/lib/guest-onboarding";
 import { getCourseUnits, getOrderedLessons, getPublishedCourse } from "@/lib/learning";
+import { loadRoadmap } from "@/lib/roadmap";
 
 type Word = { id: string; word: string; translation: string; pronunciation: string | null; example_sentence: string | null; example_translation: string | null };
 type Lesson = GuestLesson & { title: string; language: string; words: Word[] };
@@ -48,6 +49,11 @@ function LessonContent({ authenticated }: { authenticated: boolean }) {
         const lessons = getOrderedLessons(await getCourseUnits(supabase, course.id));
         const selected = user && selectedLesson ? lessons.find((item) => item.id === selectedLesson) : lessons[0];
         if (!selected) throw new Error("This lesson is not available yet. Please choose another language.");
+        if (authenticated && user) {
+          const roadmap = await loadRoadmap(supabase, user.id, course.id);
+          const state = roadmap.states.get(selected.id);
+          if (!state || state === "locked") throw new Error("This lesson is locked. Complete the earlier lessons first.");
+        }
         const wordResult = await supabase.from("vocabulary").select("id, word, translation, pronunciation, example_sentence, example_translation").eq("lesson_id", selected.id).order("created_at").order("id");
         if (wordResult.error) throw wordResult.error;
         if (!wordResult.data?.length) throw new Error("This introductory lesson has no vocabulary yet. Please choose another language.");

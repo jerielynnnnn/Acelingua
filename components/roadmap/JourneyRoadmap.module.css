@@ -1,0 +1,38 @@
+.journey { max-width: 760px; margin: 0 auto; padding: 28px 0 48px; }
+.introduction { display: flex; align-items: center; justify-content: center; gap: 10px; color: #3558ae; font-size: 12px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; margin-bottom: 44px; }
+.destinationHeader { text-align: center; max-width: 520px; margin: 0 auto 44px; }
+.pin { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border: 1px solid #c7a9d4; border-radius: 18px; background: #fff; color: #b64074; box-shadow: 0 6px 16px #071a4a08; }
+.futurePin { color: #7891ad; border-color: #cbdcea; }
+.eyebrow { margin-top: 16px; font-size: 10px; letter-spacing: .16em; font-weight: 800; text-transform: uppercase; color: #3558ae; }
+.destinationName { margin-top: 8px; font-weight: 850; font-size: clamp(24px, 4vw, 32px); letter-spacing: -.025em; }
+.unitTitle { font-size: 15px; font-weight: 650; margin-top: 6px; }
+.description { font-size: 13px; line-height: 1.8; color: #071a4a99; margin: 10px auto 0; max-width: 420px; }
+.trail { position: relative; max-width: 640px; margin: 0 auto; }
+.path { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.mobilePath { display: none; }
+.lessons { position: relative; list-style: none; margin: 0; padding: 0; }
+.lesson { position: relative; height: 232px; }
+.stop { position: absolute; left: var(--node-x); top: 0; transform: translateX(-50%); width: 220px; text-align: center; }
+.node { position: relative; display: flex; align-items: center; justify-content: center; width: 80px; height: 80px; border-radius: 50%; margin: 0 auto; border: 5px solid #eaf5ff; transition: transform .18s, box-shadow .18s; }
+.node:focus-visible { outline: 3px solid #b64074; outline-offset: 6px; }
+a.node:hover { transform: translateY(-3px); }
+.current { background: #3558ae; color: white; box-shadow: 0 6px 0 #254386, 0 0 0 7px #3558ae14, 0 12px 30px #3558ae25; }
+.completed { background: #c7a9d4; color: #071a4a; box-shadow: 0 5px 0 #b38bc5; }
+.locked { background: #dce9f5; color: #91a7bc; cursor: not-allowed; box-shadow: 0 4px 0 #ccdae7; }
+.status { position: absolute; left: 50%; top: -25px; transform: translateX(-50%); white-space: nowrap; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .09em; color: #637c99; }
+.currentStatus { background: #3558ae; color: white; border-radius: 20px; padding: 4px 11px; top: -32px; }
+.lessonDetails { margin-top: 15px; border-radius: 14px; background: #eaf5fff2; padding: 6px 10px; }
+.lessonNumber { color: #3558ae; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .09em; }
+.lessonTitle { font-size: 13px; font-weight: 750; line-height: 1.5; margin-top: 4px; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.rewards { margin-top: 6px; color: #071a4a88; font-size: 11px; }
+.transfer { width: 2px; height: 52px; margin: -8px auto 24px; background: repeating-linear-gradient(to bottom, #b8cde3 0 5px, transparent 5px 11px); }
+.currentMarker { position: absolute; width: 64px; height: 64px; top: -105px; left: 50%; transform: translateX(-50%); }
+.finish { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 12px; color: #3558ae; text-align: center; }
+@media (max-width: 639px) {
+  .desktopPath { display: none; }
+  .mobilePath { display: block; }
+  .stop { left: var(--mobile-node-x); width: min(190px, 70vw); }
+  .node { width: 72px; height: 72px; padding: 4px; border-width: 5px; }
+  .destinationHeader { padding: 0 12px; }
+}
+@media (prefers-reduced-motion: reduce) { .node { transition: none; } a.node:hover { transform: none; } }

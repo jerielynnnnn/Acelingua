@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/client";
+import { isAuthSessionMissingError } from "@supabase/supabase-js";
+import { loadRoadmap } from "@/lib/roadmap";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 
@@ -95,7 +97,7 @@ export default function DashboardPage() {
           error: authError,
         } = await supabase.auth.getUser();
 
-        if (authError) {
+        if (authError && !isAuthSessionMissingError(authError)) {
           throw authError;
         }
 
@@ -103,6 +105,7 @@ export default function DashboardPage() {
           router.replace("/login");
           return;
         }
+
 
         const today = new Date().toLocaleDateString("en-CA");
 
@@ -126,12 +129,7 @@ export default function DashboardPage() {
             .from("user_courses")
             .select("course_id")
             .eq("user_id", user.id)
-            .eq("status", "active")
-            .order("enrolled_at", {
-              ascending: false,
-            })
-            .limit(1)
-            .maybeSingle(),
+            .eq("status", "active"),
 
           supabase
             .from("daily_goals")
@@ -173,8 +171,10 @@ export default function DashboardPage() {
         let language: DashboardLanguage | null = null;
         let progress: DashboardProgress | null = null;
 
-        const courseId =
-          enrollmentResult.data?.course_id ?? null;
+        const activeCourses = enrollmentResult.data ?? [];
+        if (!enrollmentResult.error && !activeCourses.length) { router.replace("/onboarding/languages"); return; }
+        if (activeCourses.length > 1) errors.push("You have several active courses. Open Learn to choose your roadmap.");
+        const courseId = activeCourses.length === 1 ? activeCourses[0].course_id : null;
 
         /* COURSE DATA */
 
@@ -225,31 +225,15 @@ export default function DashboardPage() {
 
           /* COURSE PROGRESS */
 
-          const progressResult = await supabase
-            .from("course_progress")
-            .select(
-              "completed_lessons, total_lessons, progress_percentage"
-            )
-            .eq("user_id", user.id)
-            .eq("course_id", courseId)
-            .maybeSingle();
-
-          if (progressResult.error) {
-            errors.push(progressResult.error.message);
-          }
-
-          if (progressResult.data) {
+          try {
+            const roadmap = await loadRoadmap(supabase, user.id, courseId);
             progress = {
-              completed_lessons:
-                progressResult.data.completed_lessons,
-
-              total_lessons:
-                progressResult.data.total_lessons,
-
-              progress_percentage: Number(
-                progressResult.data.progress_percentage
-              ),
+              completed_lessons: roadmap.completed,
+              total_lessons: roadmap.total,
+              progress_percentage: roadmap.percentage,
             };
+          } catch (cause) {
+            errors.push(cause instanceof Error ? cause.message : "Unable to load course progress.");
           }
         }
 
@@ -571,16 +555,12 @@ export default function DashboardPage() {
                   )}
 
                   <Link
-                    href={
-                      data.course
-                        ? "/learn"
-                        : "/languages"
-                    }
+                    href="/learn"
                     className="mt-7 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-xs font-bold text-[#2A255C] transition hover:-translate-y-0.5 hover:bg-[#F9C3D7]"
                   >
                     {data.course
                       ? "Continue Learning"
-                      : "Choose a Language"}
+                      : "Choose your course"}
 
                     <ArrowRight size={15} />
                   </Link>
