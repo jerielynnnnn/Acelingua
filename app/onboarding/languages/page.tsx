@@ -9,6 +9,7 @@ import {
   Check,
   Loader2,
 } from "lucide-react";
+
 import { createClient } from "@/lib/supabase/client";
 
 type Language = {
@@ -38,18 +39,13 @@ export default function ChooseLanguagePage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [continuing, setContinuing] = useState(false);
 
+  /* =========================================================
+     LOAD ACTIVE LANGUAGES FROM SUPABASE
+  ========================================================= */
+
   useEffect(() => {
     const loadLanguages = async () => {
       const supabase = createClient();
-
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        router.push("/login");
-        return;
-      }
 
       const { data, error } = await supabase
         .from("languages")
@@ -67,9 +63,12 @@ export default function ChooseLanguagePage() {
     };
 
     loadLanguages();
-  }, [router]);
+  }, []);
 
-  /* Go to previous language */
+  /* =========================================================
+     CAROUSEL CONTROLS
+  ========================================================= */
+
   const previousLanguage = () => {
     if (languages.length === 0) return;
 
@@ -78,7 +77,6 @@ export default function ChooseLanguagePage() {
     );
   };
 
-  /* Go to next language */
   const nextLanguage = () => {
     if (languages.length === 0) return;
 
@@ -87,7 +85,6 @@ export default function ChooseLanguagePage() {
     );
   };
 
-  /* Get language based on relative position */
   const getLanguage = (offset: number) => {
     if (languages.length === 0) return null;
 
@@ -98,7 +95,10 @@ export default function ChooseLanguagePage() {
     return languages[index];
   };
 
-  /* Continue with centered language */
+  /* =========================================================
+     CONTINUE WITH SELECTED LANGUAGE
+  ========================================================= */
+
   const handleContinue = () => {
     const language = languages[currentIndex];
 
@@ -106,10 +106,53 @@ export default function ChooseLanguagePage() {
 
     setContinuing(true);
 
+    /*
+     * The learner is still a guest here.
+     *
+     * Do NOT create user_courses, course_progress,
+     * or lesson_progress yet.
+     *
+     * Save the selected language temporarily so we can
+     * restore it after registration/login.
+     */
+
+    localStorage.setItem(
+      "acelingua_selected_language",
+      language.code
+    );
+
+    localStorage.setItem(
+      "acelingua_selected_language_id",
+      language.id
+    );
+
+    localStorage.setItem(
+      "acelingua_onboarding_started",
+      "true"
+    );
+
+    /*
+     * IMPORTANT:
+     *
+     * We no longer send first-time learners to:
+     *
+     * /onboarding/course?language=<UUID>
+     *
+     * The learner first tries the introductory learning
+     * experience instead.
+     *
+     * Example:
+     * Japanese -> /learn/intro?language=ja
+     */
+
     router.push(
-      `/onboarding/course?language=${language.id}`
+      `/learn/intro?language=${encodeURIComponent(language.code)}`
     );
   };
+
+  /* =========================================================
+     LOADING
+  ========================================================= */
 
   if (loading) {
     return (
@@ -134,7 +177,10 @@ export default function ChooseLanguagePage() {
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#EAF5FF] text-[#071A4A]">
-      {/* HEADER */}
+      {/* =====================================================
+          HEADER
+      ===================================================== */}
+
       <header className="mx-auto flex h-20 max-w-7xl items-center px-6 md:px-10 lg:px-14">
         <Image
           src="/logo.png"
@@ -146,9 +192,13 @@ export default function ChooseLanguagePage() {
         />
       </header>
 
-      {/* MAIN */}
+      {/* =====================================================
+          MAIN
+      ===================================================== */}
+
       <section className="mx-auto flex max-w-6xl flex-col items-center px-5 pb-16 pt-5 md:pt-10">
         {/* HEADING */}
+
         <div className="text-center">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#3558AE]">
             Choose your language
@@ -159,18 +209,25 @@ export default function ChooseLanguagePage() {
           </h1>
 
           <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[#071A4A]/50">
-            Browse the languages and choose one to begin.
+            Choose a language and try your first lesson. No account
+            needed.
           </p>
         </div>
 
-        {/* ERROR */}
+        {/* ===================================================
+            ERROR
+        =================================================== */}
+
         {message && (
           <div className="mt-8 w-full max-w-xl rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-600">
             {message}
           </div>
         )}
 
-        {/* NO LANGUAGES */}
+        {/* ===================================================
+            NO LANGUAGES
+        =================================================== */}
+
         {languages.length === 0 ? (
           <div className="mt-12 rounded-2xl bg-white px-8 py-10 text-center shadow-sm">
             <p className="font-semibold">
@@ -179,10 +236,13 @@ export default function ChooseLanguagePage() {
           </div>
         ) : (
           <>
-            {/* CAROUSEL */}
+            {/* =================================================
+                CAROUSEL
+            ================================================= */}
+
             <div className="relative mt-12 flex w-full items-center justify-center">
-              
               {/* LEFT ARROW */}
+
               <button
                 type="button"
                 onClick={previousLanguage}
@@ -193,9 +253,10 @@ export default function ChooseLanguagePage() {
               </button>
 
               {/* CARDS */}
+
               <div className="flex w-full items-center justify-center gap-4 sm:gap-6">
-                
                 {/* PREVIOUS LANGUAGE */}
+
                 {previous && (
                   <button
                     type="button"
@@ -210,6 +271,7 @@ export default function ChooseLanguagePage() {
                 )}
 
                 {/* CURRENT LANGUAGE */}
+
                 {current && (
                   <div className="relative z-10 w-full max-w-[340px] shrink-0 transition-all duration-300">
                     <LanguageCard
@@ -220,6 +282,7 @@ export default function ChooseLanguagePage() {
                 )}
 
                 {/* NEXT LANGUAGE */}
+
                 {next && (
                   <button
                     type="button"
@@ -235,6 +298,7 @@ export default function ChooseLanguagePage() {
               </div>
 
               {/* RIGHT ARROW */}
+
               <button
                 type="button"
                 onClick={nextLanguage}
@@ -245,7 +309,10 @@ export default function ChooseLanguagePage() {
               </button>
             </div>
 
-            {/* DOTS */}
+            {/* =================================================
+                DOTS
+            ================================================= */}
+
             <div className="mt-7 flex items-center justify-center gap-2">
               {languages.map((language, index) => (
                 <button
@@ -262,7 +329,10 @@ export default function ChooseLanguagePage() {
               ))}
             </div>
 
-            {/* CONTINUE */}
+            {/* =================================================
+                CONTINUE
+            ================================================= */}
+
             <button
               type="button"
               onClick={handleContinue}
@@ -275,6 +345,7 @@ export default function ChooseLanguagePage() {
                     size={16}
                     className="animate-spin"
                   />
+
                   Continuing...
                 </>
               ) : (
@@ -317,6 +388,7 @@ function LanguageCard({
       }`}
     >
       {/* FLAG */}
+
       <div
         className={`relative w-full overflow-hidden bg-[#F7F9FC] ${
           active ? "h-[210px]" : "h-[150px]"
@@ -338,6 +410,7 @@ function LanguageCard({
       </div>
 
       {/* DETAILS */}
+
       <div
         className={`text-center ${
           active ? "px-6 py-6" : "px-4 py-5"

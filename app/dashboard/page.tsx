@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/client";
+import { saveGuestLesson } from "@/lib/guest-onboarding";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 
@@ -103,6 +104,8 @@ export default function DashboardPage() {
           router.replace("/login");
           return;
         }
+
+        await saveGuestLesson(supabase, user);
 
         const today = new Date().toLocaleDateString("en-CA");
 

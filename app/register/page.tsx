@@ -2,18 +2,19 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import {
   ArrowRight,
   Eye,
   EyeOff,
   Loader2,
-  MessageCircle,
-  Sparkles,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { readGuestLesson } from "@/lib/guest-onboarding";
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -44,7 +45,7 @@ export default function RegisterPage() {
 
     const supabase = createClient();
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -52,6 +53,7 @@ export default function RegisterPage() {
         data: {
           username,
           display_name: username,
+          guest_lesson: readGuestLesson(),
         },
       },
     });
@@ -59,6 +61,11 @@ export default function RegisterPage() {
     if (error) {
       setMessage(error.message);
       setLoading(false);
+      return;
+    }
+
+    if (data.session) {
+      router.replace("/dashboard");
       return;
     }
 
