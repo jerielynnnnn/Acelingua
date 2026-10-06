@@ -100,12 +100,17 @@ export default function ChooseLanguagePage() {
      CONTINUE WITH SELECTED LANGUAGE
   ========================================================= */
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     const language = languages[currentIndex];
 
-    if (!language) return;
+    if (!language || continuing) return;
 
     setContinuing(true);
+
+    try {
+    const supabase = createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError && authError.name !== "AuthSessionMissingError") throw authError;
 
     /*
      * The learner is still a guest here.
@@ -146,9 +151,20 @@ export default function ChooseLanguagePage() {
      * Japanese -> /learn/intro?language=ja
      */
 
+    if (user) {
+      localStorage.setItem("acelingua_onboarding_user_id", user.id);
+      localStorage.removeItem("acelingua_onboarding_completed_user_id");
+      router.push("/onboarding/continue");
+      return;
+    }
+
     router.push(
       `/learn/intro?language=${encodeURIComponent(language.code)}`
     );
+    } catch (cause) {
+      setMessage(cause instanceof Error ? cause.message : "Couldn't save your language. Please try again.");
+      setContinuing(false);
+    }
   };
 
   /* =========================================================

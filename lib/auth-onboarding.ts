@@ -4,9 +4,10 @@ export type OnboardingSelection = { languageId: string; languageCode: string };
 export const POST_AUTH_ROUTE = "/onboarding/continue";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export function readOnboardingSelection(): OnboardingSelection | null {
+export function readOnboardingSelection(userId?: string): OnboardingSelection | null {
   if (localStorage.getItem("acelingua_onboarding_started") !== "true"
-    || localStorage.getItem("acelingua_intro_completed") !== "true") return null;
+    || (localStorage.getItem("acelingua_intro_completed") !== "true"
+      && (!userId || localStorage.getItem("acelingua_onboarding_user_id") !== userId))) return null;
   const languageId = localStorage.getItem("acelingua_selected_language_id");
   const languageCode = localStorage.getItem("acelingua_selected_language");
   if (!languageId || !languageCode) throw new Error("Your language selection is missing. Please return to language selection.");
@@ -49,9 +50,8 @@ export async function continueAuthenticatedOnboarding(supabase: SupabaseClient, 
   const storedMetadata = metadataSelection(user);
   const owner = localStorage.getItem("acelingua_onboarding_user_id");
   const completedFor = localStorage.getItem("acelingua_onboarding_completed_user_id");
-  const localSelection = (owner && owner !== user.id) || completedFor === user.id ? null : readOnboardingSelection();
+  const localSelection = (owner && owner !== user.id) || completedFor === user.id ? null : readOnboardingSelection(user.id);
   const selection = storedMetadata ?? localSelection;
-  if (!selection) return "/dashboard";
 
   const avatarResult = await supabase.from("user_avatar_equipped").select("user_id")
     .eq("user_id", user.id).limit(1).maybeSingle();
@@ -59,6 +59,17 @@ export async function continueAuthenticatedOnboarding(supabase: SupabaseClient, 
   const enrollmentResult = await supabase.from("user_courses").select("course_id")
     .eq("user_id", user.id).limit(1).maybeSingle();
   if (enrollmentResult.error) throw databaseError("Checking your enrollment", enrollmentResult.error);
+
+  // A new Google account confirms its language after sign-in, even if this
+  // browser contains an earlier guest preview selection.
+  if (!enrollmentResult.data && user.app_metadata?.provider === "google" && owner !== user.id) {
+    return "/onboarding/languages";
+  }
+
+  if (!selection) {
+    if (!enrollmentResult.data) return "/onboarding/languages";
+    return avatarResult.data ? "/dashboard" : "/avatar/setup";
+  }
 
   // Unbound browser leftovers cannot enroll an established account into another course.
   if (!storedMetadata && (avatarResult.data || (owner !== user.id && enrollmentResult.data))) {

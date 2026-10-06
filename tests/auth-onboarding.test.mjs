@@ -75,8 +75,36 @@ test("beginner formatting is normalized; sole course is safe; ambiguous choices 
   assert.equal(selectStartingCourse([{ level: null }]).level, null);
   assert.throws(() => selectStartingCourse([{ level: "advanced" }, { level: "intermediate" }]), /starting course/);
 });
-test("normal returning login does not read or write enrollment", async () => {
-  assert.equal(await continueAuthenticatedOnboarding({ from: () => assert.fail("Unexpected query") }, user), "/dashboard");
+test("returning login checks setup and does not write enrollment", async () => {
+  const db = database({ avatar: true, existingAccount: true });
+  assert.equal(await continueAuthenticatedOnboarding(db, user), "/dashboard");
+  assert.deepEqual(db.writes, []);
+});
+
+test("new Google account without a selection must choose a language before avatar setup", async () => {
+  const db = database();
+  assert.equal(await continueAuthenticatedOnboarding(db, user), "/onboarding/languages");
+  assert.deepEqual(db.writes, []);
+});
+
+test("authenticated language selection enrolls without requiring a guest intro", async () => {
+  pending();
+  storage.delete("acelingua_intro_completed");
+  storage.set("acelingua_onboarding_user_id", user.id);
+  const db = database();
+  assert.equal(await continueAuthenticatedOnboarding(db, user), "/avatar/setup");
+  assert.deepEqual(db.writes.map(write => write.table), ["user_courses", "course_progress"]);
+  assert.equal(readOnboardingSelection(), null, "Guest selection still requires intro completion");
+});
+
+test("new Google account confirms language despite an unbound guest preview", async () => {
+  pending();
+  const db = database();
+  const googleUser = { ...user, app_metadata: { provider: "google" } };
+  assert.equal(await continueAuthenticatedOnboarding(db, googleUser), "/onboarding/languages");
+  assert.deepEqual(db.writes, []);
+  storage.set("acelingua_onboarding_user_id", user.id);
+  assert.equal(await continueAuthenticatedOnboarding(db, googleUser), "/avatar/setup");
 });
 test("stale unbound selection cannot enroll an established learner in another course", async () => {
   pending();
