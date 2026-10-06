@@ -1,0 +1,64 @@
+.shell { color: #2a255c; margin-top: 20px; border: 1px solid #eee8e6; border-radius: 20px; overflow: hidden; background: #fcf9f3; }
+.heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 22px 20px 12px; }
+.heading h3 { font-weight: 800; font-size: 18px; margin: 8px 0 4px; line-height: 1.3; }
+.heading p:not(.eyebrow) { font-size: 12px; color: #77718a; }
+.eyebrow { display: flex; align-items: center; gap: 5px; font-size: 9px; font-weight: 800; letter-spacing: 1.4px; color: #b64074; }
+.counter { display: flex; align-items: center; gap: 6px; border-radius: 20px; background: #fff; padding: 8px 11px; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+.legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; font-size: 10px; color: #77718a; padding: 10px 8px 16px; }
+.legend span { display: flex; align-items: center; gap: 5px; }
+.legend i { width: 7px; height: 7px; border-radius: 50%; }
+.doneDot { background: #2e947c; }.activeDot { background: #b64074; }
+.map { position: relative; margin: 0 10px; background-image: radial-gradient(#d8cfc4 0.7px, transparent 0.7px); background-size: 18px 18px; }
+.path { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.path path { fill: none; stroke-linecap: round; }
+.pathBase { stroke: #e8ddd0; stroke-width: 12px; }
+.pathDashes { stroke: #fffaf3; stroke-width: 2px; stroke-dasharray: 3 8; }
+.pathCompleted { stroke: #94cbbb; stroke-width: 5px; }
+.start { display: flex; gap: 8px; align-items: center; justify-content: center; padding-top: 12px; color: #948777; font-size: 8px; letter-spacing: 2px; font-weight: 800; }
+.nodes { list-style: none; padding: 0; margin: 0; }
+.node { position: absolute; width: clamp(108px, 43%, 190px); transform: translate(-50%, -50%); }
+.card { position: relative; display: flex; flex-direction: column; width: 100%; height: 152px; padding: 8px 8px 10px; border: 2px solid white; background: white; color: #2a255c; border-radius: 3px; text-align: left; text-decoration: none; box-shadow: 0 6px 14px #3b29451c; transform: rotate(var(--tilt)); transition: transform .2s, box-shadow .2s; font: inherit; }
+button.card { cursor: pointer; }
+.card:focus-visible, .demoControls button:focus-visible, .refresh:focus-visible { outline: 3px solid #3558ae; outline-offset: 5px; }
+.unlocked:hover, .completed:hover { transform: rotate(0deg) translateY(-3px); }
+.unlocked { box-shadow: 0 0 0 2px #c7a9d4, 0 6px 18px #b6407426; }
+.current { box-shadow: 0 0 0 3px #b64074, 0 0 24px #b6407440; }
+.tape { position: absolute; z-index: 2; width: 44px; height: 17px; left: calc(50% - 22px); top: -9px; background: #e9cda6cc; transform: rotate(-8deg); clip-path: polygon(2% 0, 96% 0, 100% 100%, 0 93%); }
+.art { position: relative; height: 68px; flex-shrink: 0; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; color: #6878a5; background: linear-gradient(160deg, #c8dfed, #f4d3d9); }
+.scene1 { background: linear-gradient(160deg, #eed4b3, #ead2dc); color: #ad7391; }
+.scene2 { background: linear-gradient(160deg, #cfe4d1, #e5e2bc); color: #599387; }
+.sun { position: absolute; width: 21px; height: 21px; border-radius: 50%; background: #fff2cf; top: 10px; right: 20px; }
+.artLabel { position: absolute; left: 5px; bottom: 4px; font-size: 7px; letter-spacing: 1px; color: #fff; font-weight: 800; }
+.cardTitle { margin-top: 8px; font-size: 11px; font-weight: 800; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.unitLabel { font-size: 8px; color: #8b849b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 3px; }
+.cardStatus { font-size: 8px; font-weight: 700; color: #b64074; margin-top: auto; padding-top: 3px; }
+.locked { filter: grayscale(1); opacity: .65; }
+.lockBadge { position: absolute; right: 8px; top: 30px; display: grid; place-items: center; height: 33px; width: 33px; background: #ffffffed; border-radius: 50%; color: #605d70; }
+.checkBadge { position: absolute; top: -9px; right: -9px; display: grid; place-items: center; width: 26px; height: 26px; border: 3px solid #fcf9f3; border-radius: 50%; background: #2e947c; color: white; }
+.completed .cardStatus { color: #2e947c; }
+.mascotPosition { position: absolute; z-index: 3; transform: translateX(-50%); pointer-events: none; transition: all .6s cubic-bezier(.22, 1, .36, 1); }
+.mascotHop { position: relative; animation: hop .6s cubic-bezier(.22, 1, .36, 1); }
+.mascot { display: grid; place-items: center; width: 51px; height: 51px; border: 3px solid white; border-radius: 19px; background: #c7a9d4; color: #2a255c; box-shadow: 0 4px 0 #8970a5, 0 8px 14px #2a255c22; }
+.mascotBubble { position: absolute; left: 50%; top: -23px; transform: translateX(-50%); white-space: nowrap; font-size: 9px; font-weight: 800; background: white; border: 1px solid #e8ddd0; border-radius: 12px; padding: 5px 8px; }
+.message { padding: 28px 20px; text-align: center; font-size: 13px; }
+.message button, .refresh { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; color: #3558ae; font-size: 11px; }
+.refresh { margin: 0 20px 18px; }
+.finish { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 16px; font-size: 12px; font-weight: 700; color: #2e947c; }
+.demoControls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; padding: 12px 18px; background: #f1e9f5; font-size: 11px; }
+.demoControls button { cursor: pointer; background: white; border-radius: 8px; padding: 7px 9px; color: #3558ae; font-weight: 700; }
+.demoControls button:disabled { opacity: .45; cursor: default; }
+.srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.landscape { margin: 0; border: 0; border-radius: 0; background: #d5e6e9; }
+.landscape .heading, .landscape .legend { display: none; }
+.landscape .map { margin: 0; background: linear-gradient(#d7e8ed20, #d7e8ed35), url('/dashboard/japan-adventure.jpg') center top / 100% auto repeat-y; }
+.landscape .start { color: #fff; text-shadow: 0 1px 4px #173747; padding-top: 20px; }
+.landscape .pathBase { stroke: #fff4ce; stroke-width: 10px; filter: drop-shadow(0 2px 2px #193f5a55); }
+.landscape .pathDashes { stroke: #b7ae7f; stroke-width: 2px; }
+.landscape .pathCompleted { stroke: #67b89c; }
+.landscape .card { box-shadow: 0 4px 16px #153f4d40; }
+.landscape .current { box-shadow: 0 0 0 3px #5489ab, 0 0 24px #fff8d8; }
+.landscape .locked { opacity: .85; }
+.landscape .refresh { margin-top: 12px; }
+@keyframes hop { 0%, 100% { transform: translateY(0) rotate(0); } 40% { transform: translateY(-25px) rotate(-8deg); } 70% { transform: translateY(-9px) rotate(5deg); } }
+@media (max-width: 380px) { .map { margin: 0 6px; } .card { padding: 6px; } .cardTitle { font-size: 10px; } .heading { padding: 16px 12px 10px; } .mascotBubble { font-size: 8px; padding: 4px; } }
+@media (prefers-reduced-motion: reduce) { .mascotPosition, .card { transition: none; } .mascotHop { animation: none; } }

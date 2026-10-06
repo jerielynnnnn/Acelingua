@@ -1,0 +1,19 @@
+{
+  "course": { "id": "demo-japanese", "title": "A little adventure in Japanese", "language_id": "ja" },
+  "units": [
+    { "id": "unit-1", "title": "First steps", "unit_order": 1, "course_id": "demo-japanese", "lessons": [
+      { "id": "lesson-1", "title": "Tokyo, Japan", "lesson_order": 1, "unit_id": "unit-1" },
+      { "id": "lesson-2", "title": "Hello, new friend", "lesson_order": 2, "unit_id": "unit-1" },
+      { "id": "lesson-3", "title": "A morning in Kyoto", "lesson_order": 3, "unit_id": "unit-1" }
+    ] },
+    { "id": "unit-2", "title": "Out in the city", "unit_order": 2, "course_id": "demo-japanese", "lessons": [
+      { "id": "lesson-4", "title": "The little tea shop", "lesson_order": 1, "unit_id": "unit-2" },
+      { "id": "lesson-5", "title": "Finding your way", "lesson_order": 2, "unit_id": "unit-2" },
+      { "id": "lesson-6", "title": "Next stop, Osaka", "lesson_order": 3, "unit_id": "unit-2" }
+    ] }
+  ],
+  "progress": [
+    { "user_id": "demo-user", "lesson_id": "lesson-1", "status": "completed" },
+    { "user_id": "demo-user", "lesson_id": "lesson-2", "status": "in_progress" }
+  ]
+}
