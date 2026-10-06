@@ -2,18 +2,23 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent, Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   ArrowRight,
   Eye,
   EyeOff,
   Loader2,
-  MessageCircle,
-  Sparkles,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { POST_AUTH_ROUTE } from "@/lib/auth-onboarding";
 
 export default function LoginPage() {
+  return <Suspense fallback={<main className="flex min-h-screen items-center justify-center bg-[#EAF5FF] text-[#071A4A]">Loading sign in...</main>}><LoginForm /></Suspense>;
+}
+
+function LoginForm() {
+  const callbackFailed = useSearchParams().get("error") === "auth";
   const supabase = createClient();
 
   const [email, setEmail] = useState("");
@@ -24,6 +29,8 @@ export default function LoginPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState("");
+
+  const visibleError = errorMessage || (callbackFailed ? "We couldn't verify your sign-in link. Please try signing in again or request a new verification email." : "");
 
   /* =========================================================
      EMAIL / PASSWORD LOGIN
@@ -46,7 +53,7 @@ export default function LoginPage() {
       return;
     }
 
-    window.location.href = "/dashboard";
+    window.location.href = POST_AUTH_ROUTE;
   }
 
   /* =========================================================
@@ -183,9 +190,9 @@ export default function LoginPage() {
                   ERROR MESSAGE
               ================================================= */}
 
-              {errorMessage && (
+              {visibleError && (
                 <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs leading-5 text-red-600">
-                  {errorMessage}
+                  {visibleError}
                 </div>
               )}
 

@@ -11,7 +11,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { readGuestLesson } from "@/lib/guest-onboarding";
+import { POST_AUTH_ROUTE, registrationOnboardingMetadata } from "@/lib/auth-onboarding";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -22,8 +22,26 @@ export default function RegisterPage() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [success, setSuccess] = useState(false);
+
+  async function handleGoogleRegister() {
+    setGoogleLoading(true);
+    setMessage("");
+    setSuccess(false);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
+      });
+      if (error) throw error;
+    } catch (cause) {
+      setMessage(cause instanceof Error ? cause.message : "Google sign-in failed. Please try again.");
+      setGoogleLoading(false);
+    }
+  }
 
   async function handleRegister(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -45,6 +63,15 @@ export default function RegisterPage() {
 
     const supabase = createClient();
 
+    let onboarding;
+    try {
+      onboarding = registrationOnboardingMetadata();
+    } catch (cause) {
+      setMessage(cause instanceof Error ? cause.message : "Please allow browser storage and try again.");
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -53,7 +80,7 @@ export default function RegisterPage() {
         data: {
           username,
           display_name: username,
-          guest_lesson: readGuestLesson(),
+          acelingua_onboarding: onboarding,
         },
       },
     });
@@ -65,7 +92,7 @@ export default function RegisterPage() {
     }
 
     if (data.session) {
-      router.replace("/dashboard");
+      router.replace(POST_AUTH_ROUTE);
       return;
     }
 
@@ -270,7 +297,7 @@ export default function RegisterPage() {
 
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || googleLoading}
                   className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#071A4A] text-sm font-bold text-white shadow-[0_8px_20px_rgba(7,26,74,0.14)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#3558AE] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {loading && (
@@ -282,6 +309,12 @@ export default function RegisterPage() {
                   {!loading && <ArrowRight size={15} />}
                 </button>
               </form>
+
+              <button type="button" onClick={handleGoogleRegister} disabled={loading || googleLoading}
+                className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#071A4A]/15 bg-white text-sm font-bold transition hover:bg-[#EAF5FF] disabled:opacity-60">
+                {googleLoading && <Loader2 size={16} className="animate-spin" />}
+                {googleLoading ? "Connecting to Google..." : "Continue with Google"}
+              </button>
 
               {/* Login link */}
 
