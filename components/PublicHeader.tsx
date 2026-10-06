@@ -45,7 +45,7 @@ export default function PublicHeader() {
 
             <nav className="hidden items-center gap-12 md:flex">
               <Link
-                href="/register"
+                href="/onboarding/languages"
                 className="text-sm font-semibold transition hover:text-[#3558AE]"
               >
                 Learn Now
@@ -104,7 +104,7 @@ export default function PublicHeader() {
         <div className="relative z-50 mx-5 rounded-2xl border border-white bg-white p-5 shadow-lg md:hidden">
           <nav className="flex flex-col gap-2">
             <Link
-              href="/register"
+              href="/onboarding/languages"
               onClick={() => setMenuOpen(false)}
               className="rounded-xl px-4 py-3 text-sm font-semibold transition hover:bg-[#EAF5FF]"
             >

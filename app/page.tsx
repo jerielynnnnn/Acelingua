@@ -89,7 +89,7 @@ const chatbotQuestions = [
   {
     question: "How do I start learning?",
     answer:
-      "Click Get Started, create your account, choose a language, and ACELingua will guide you through your learning journey.",
+      "Click Get Started, choose a language, and try your first lesson. You can create your account afterward to continue your learning journey.",
   },
   {
     question: "How do lessons work?",
@@ -338,7 +338,7 @@ export default function Home() {
             {/* GET STARTED */}
 
             <Link
-              href="/register"
+              href="/onboarding/languages"
               className="group inline-flex min-w-[145px] items-center justify-center gap-2 rounded-full bg-[#071A4A] px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#3558AE]"
             >
               Get Started
@@ -401,7 +401,7 @@ export default function Home() {
             {carouselLanguages.map((language, index) => (
               <Link
                 key={`${language.name}-${index}`}
-                href="/register"
+                href="/onboarding/languages"
                 className="group w-[170px] shrink-0 sm:w-[190px]"
               >
                 <div className="rounded-2xl border border-white bg-white/75 p-3 transition duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-lg">

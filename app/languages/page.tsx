@@ -75,6 +75,7 @@ export default function LanguagePage() {
   useEffect(() => {
     const loadData = async () => {
       const supabase = createClient();
+      let redirecting = false;
 
       try {
         /* GET USER */
@@ -84,13 +85,20 @@ export default function LanguagePage() {
           error: userError,
         } = await supabase.auth.getUser();
 
+        if (!user && (!userError || userError.name === "AuthSessionMissingError")) {
+          redirecting = true;
+          router.replace("/onboarding/languages");
+          return;
+        }
+
         if (userError) {
           setMessage(userError.message);
           return;
         }
 
         if (!user) {
-          router.replace("/login");
+          redirecting = true;
+          router.replace("/onboarding/languages");
           return;
         }
 
@@ -165,7 +173,7 @@ export default function LanguagePage() {
 
         /* GET PROGRESS */
 
-        const { data: progressData } = await supabase
+        const { data: progressData, error: progressError } = await supabase
           .from("course_progress")
           .select(`
             course_id,
@@ -173,6 +181,11 @@ export default function LanguagePage() {
           `)
           .eq("user_id", user.id)
           .in("course_id", courseIds);
+
+        if (progressError) {
+          setMessage(progressError.message);
+          return;
+        }
 
         /* COMBINE DATA */
 
@@ -240,7 +253,7 @@ export default function LanguagePage() {
           "Something went wrong while loading your languages."
         );
       } finally {
-        setLoading(false);
+        if (!redirecting) setLoading(false);
       }
     };
 
@@ -365,6 +378,7 @@ export default function LanguagePage() {
             YOUR LANGUAGES
         ================================================= */}
 
+        {!message && <>
         <section className="mt-10">
 
           <div className="flex items-center justify-between">
@@ -460,6 +474,7 @@ export default function LanguagePage() {
 
         </section>
 
+        </>}
       </div>
     </main>
   );

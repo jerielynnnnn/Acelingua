@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -181,7 +182,7 @@ export default function ChooseLanguagePage() {
           HEADER
       ===================================================== */}
 
-      <header className="mx-auto flex h-20 max-w-7xl items-center px-6 md:px-10 lg:px-14">
+      <header className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 md:px-10 lg:px-14">
         <Image
           src="/logo.png"
           alt="ACELINGUA"
@@ -190,6 +191,13 @@ export default function ChooseLanguagePage() {
           priority
           className="h-10 w-auto object-contain"
         />
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 rounded-full border border-[#071A4A]/15 bg-white/75 px-4 py-2.5 text-sm font-semibold text-[#071A4A] transition hover:bg-white hover:text-[#3558AE]"
+        >
+          <ArrowLeft size={16} aria-hidden="true" />
+          Back to home
+        </Link>
       </header>
 
       {/* =====================================================
