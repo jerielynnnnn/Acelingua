@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { isAuthSessionMissingError } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -85,11 +84,6 @@ export default function LanguagePage() {
           error: userError,
         } = await supabase.auth.getUser();
 
-        if (isAuthSessionMissingError(userError) || (!userError && !user)) {
-          router.replace("/login");
-          return;
-        }
-
         if (userError) {
           setMessage(userError.message);
           return;
@@ -171,7 +165,7 @@ export default function LanguagePage() {
 
         /* GET PROGRESS */
 
-        const { data: progressData, error: progressError } = await supabase
+        const { data: progressData } = await supabase
           .from("course_progress")
           .select(`
             course_id,
@@ -179,11 +173,6 @@ export default function LanguagePage() {
           `)
           .eq("user_id", user.id)
           .in("course_id", courseIds);
-
-        if (progressError) {
-          setMessage(progressError.message);
-          return;
-        }
 
         /* COMBINE DATA */
 
@@ -281,7 +270,7 @@ export default function LanguagePage() {
   };
 
   const addLanguage = (languageId: string) => {
-    router.push(`/onboarding/course?language=${languageId}`);
+    router.push(`/course?language=${languageId}`);
   };
 
   /* =======================================================
@@ -376,7 +365,7 @@ export default function LanguagePage() {
             YOUR LANGUAGES
         ================================================= */}
 
-        {!message && <section className="mt-10">
+        <section className="mt-10">
 
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold">
@@ -419,13 +408,13 @@ export default function LanguagePage() {
             </div>
           )}
 
-        </section>}
+        </section>
 
         {/* =================================================
             ADD LANGUAGE
         ================================================= */}
 
-        {!message && <section className="mt-12">
+        <section className="mt-12">
 
           <div>
             <h2 className="text-lg font-bold">
@@ -447,9 +436,7 @@ export default function LanguagePage() {
 
               <div>
                 <p className="text-sm font-bold">
-                  {languages.length === 0
-                    ? "No languages available yet"
-                    : "All available languages added"}
+                  All available languages added
                 </p>
 
                 <p className="mt-0.5 text-xs text-[#071A4A]/40">
@@ -471,7 +458,7 @@ export default function LanguagePage() {
             </div>
           )}
 
-        </section>}
+        </section>
 
       </div>
     </main>

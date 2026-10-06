@@ -2,19 +2,19 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import {
   ArrowRight,
   Eye,
   EyeOff,
   Loader2,
+  MessageCircle,
+  Sparkles,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { POST_AUTH_ROUTE, registrationOnboardingMetadata } from "@/lib/auth-onboarding";
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -63,6 +63,7 @@ export default function RegisterPage() {
 
     const supabase = createClient();
 
+    const { error } = await supabase.auth.signUp({
     let onboarding;
     try {
       onboarding = registrationOnboardingMetadata();

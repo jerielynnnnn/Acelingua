@@ -62,7 +62,7 @@ export default function PublicHeader() {
                 href="/about"
                 className="text-sm font-semibold transition hover:text-[#3558AE]"
               >
-                About
+                About Us
               </Link>
             </nav>
 
