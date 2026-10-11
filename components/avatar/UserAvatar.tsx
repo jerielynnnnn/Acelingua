@@ -6,7 +6,7 @@ import { useState } from "react";
 
 export type AvatarCategory = "base" | "face" | "hair" | "clothes";
 export type AvatarLayer = { category: AvatarCategory; name: string; imagePath: string };
-const layerOrder: AvatarCategory[] = ["base", "face", "clothes", "hair"];
+const layerOrder: AvatarCategory[] = ["base", "clothes", "face", "hair"];
 
 type Props = {
   layers: AvatarLayer[];
@@ -14,7 +14,7 @@ type Props = {
   onLayerError?: (category: AvatarCategory, imagePath: string) => void;
 };
 
-/** Artwork shares a canvas. White-backed starter layers use multiply blending. */
+/** Transparent artwork shares one aligned canvas across every learner page. */
 export default function UserAvatar({ layers, className = "", onLayerError }: Props) {
   const [failedPaths, setFailedPaths] = useState<string[]>([]);
   const ordered = layerOrder.flatMap((category) => layers.filter((layer) => layer.category === category));
@@ -33,9 +33,7 @@ export default function UserAvatar({ layers, className = "", onLayerError }: Pro
         unoptimized
         sizes="(max-width: 768px) 80vw, 400px"
         className="pointer-events-none absolute inset-0 h-full w-full object-contain"
-        // White is neutral with multiply, so opaque starter backgrounds no
-        // longer hide lower layers. Isolation keeps blending inside the avatar.
-        style={{ zIndex: layerOrder.indexOf(layer.category) + 1, mixBlendMode: "multiply" }}
+        style={{ zIndex: layerOrder.indexOf(layer.category) + 1 }}
         onError={() => {
           setFailedPaths((paths) => paths.includes(layer.imagePath) ? paths : [...paths, layer.imagePath]);
           onLayerError?.(layer.category, layer.imagePath);

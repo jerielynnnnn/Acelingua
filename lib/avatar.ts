@@ -15,6 +15,25 @@ export type AvatarSelection = Record<AvatarCategory, string | null>;
 export type EquippedAvatar = { user_id: string; base_id: string | null; face_id: string | null; hair_id: string | null; clothes_id: string | null };
 export const avatarItemFields = "id, name, category, image_path, price_coins, price_gems, is_default, is_active";
 
+export async function loadLearnerAvatar(supabase: SupabaseClient, userId: string) {
+  const [catalog, ownership, equipped] = await Promise.all([
+    supabase.from("avatar_items").select(avatarItemFields).eq("is_active", true).order("name").order("id"),
+    supabase.from("user_avatar_items").select("avatar_item_id").eq("user_id", userId),
+    supabase.from("user_avatar_equipped").select("user_id, base_id, face_id, hair_id, clothes_id").eq("user_id", userId).maybeSingle(),
+  ]);
+  for (const result of [catalog, ownership, equipped]) if (result.error) throw new Error(`Loading your avatar: ${result.error.message}`);
+  return { items: (catalog.data ?? []) as AvatarItem[],
+    ownedIds: new Set<string>((ownership.data ?? []).map(row => row.avatar_item_id)),
+    equipped: equipped.data as EquippedAvatar | null };
+}
+
+export function avatarLayers(items: AvatarItem[], selection: AvatarSelection) {
+  return avatarCategories.flatMap(category => {
+    const item = items.find(candidate => candidate.id === selection[category] && candidate.category === category);
+    return item ? [{ category, name: item.name, imagePath: item.image_path }] : [];
+  });
+}
+
 export function isFreeStarter(item: AvatarItem) {
   return item.is_active && item.price_coins === 0 && item.price_gems === 0;
 }
