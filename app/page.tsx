@@ -1,14 +1,11 @@
 "use client";
-
 import Image from "next/image";
 import Link from "next/link";
-
 import {
   Play,
   Send,
   X as CloseIcon,
 } from "lucide-react";
-
 import {
   useEffect,
   useRef,
@@ -16,65 +13,56 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
-
 import PublicHeader from "@/components/PublicHeader";
-
-/* =========================================================
-   AVAILABLE LANGUAGES
-========================================================= */
-
 const languages = [
   {
     name: "Japanese",
+    code: "ja",
     nativeName: "日本語",
     flag: "/flags/japan.jpg",
   },
   {
     name: "Korean",
+    code: "ko",
     nativeName: "한국어",
     flag: "/flags/korea.jpg",
   },
   {
     name: "Mandarin",
+    code: "zh",
     nativeName: "中文",
     flag: "/flags/china.jpg",
   },
   {
     name: "Spanish",
+    code: "es",
     nativeName: "Español",
     flag: "/flags/spanish.jpg",
   },
   {
     name: "German",
+    code: "de",
     nativeName: "Deutsch",
     flag: "/flags/german.jpg",
   },
   {
     name: "Thai",
+    code: "th",
     nativeName: "ไทย",
     flag: "/flags/thailand.jpg",
   },
   {
     name: "French",
+    code: "fr",
     nativeName: "Français",
     flag: "/flags/france.jpg",
   },
 ];
-
-/* =========================================================
-   CHATBOT TYPES
-========================================================= */
-
 type ChatMessage = {
   id: number;
   sender: "user" | "bot";
   text: string;
 };
-
-/* =========================================================
-   CHATBOT QUESTIONS
-========================================================= */
-
 const chatbotQuestions = [
   {
     question: "What is ACELingua?",
@@ -107,287 +95,297 @@ const chatbotQuestions = [
       "Yes. ACELingua includes avatar customization with outfits, hairstyles, accessories, and unlockable items.",
   },
 ];
-
-/* =========================================================
-   HOME PAGE
-========================================================= */
-
 export default function Home() {
   const carouselRef = useRef<HTMLDivElement>(null);
   const pausedRef = useRef(false);
-
-  /* =======================================================
-     AUTOMATIC LANGUAGE CAROUSEL
-  ======================================================= */
-
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
   useEffect(() => {
     const carousel = carouselRef.current;
-
     if (!carousel) return;
-
     const interval = window.setInterval(() => {
       if (pausedRef.current) return;
-
       carousel.scrollLeft += 1;
-
-      /*
-       * The language list is duplicated.
-       * Once we reach the second copy, return to the beginning.
-       */
-
       const halfway = carousel.scrollWidth / 2;
-
       if (carousel.scrollLeft >= halfway) {
         carousel.scrollLeft = 0;
       }
     }, 20);
-
     return () => {
       window.clearInterval(interval);
     };
   }, []);
-
   const carouselLanguages = [...languages, ...languages];
-
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#EAF5FF] text-[#071A4A]">
-      {/* ===================================================
-          SOCIAL MEDIA SIDEBAR
-      =================================================== */}
+    <main className="acelingua-home min-h-svh overflow-x-hidden bg-[#EAF5FF] text-[#071A4A]">
+      {/* Original 3D orbit animation with a shared responsive center. */}
+      <style jsx global>{`
+        @media (min-width: 1600px) {
+          html:has(.acelingua-home) {
+            font-size: clamp(16px, 1vw, 64px);
+          }
+        }
 
+        /* The orbit and mascot share this exact center at every zoom. */
+        .acelingua-home .ace-orbit-stage {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          transform: none;
+          perspective: 900px;
+          transform-style: preserve-3d;
+          pointer-events: none;
+        }
+
+        /* Match the original 285px rings within the original 310px stage.
+           CSS 'translate' centers them independently of the animated transform.
+           This is important: animate ROTATION only, never the center point. */
+        .acelingua-home .ace-orbit-stage .ace-orbit-ring {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          width: 91.93548%;
+          height: 91.93548%;
+          margin: 0;
+          translate: -50% -50%;
+          border-radius: 50%;
+          transform-style: preserve-3d;
+          box-shadow:
+            0 0 8px rgba(53, 88, 174, 0.05),
+            inset 0 0 8px rgba(53, 88, 174, 0.03);
+          will-change: transform;
+        }
+
+        /* Original ACELingua 3D orbit motions and original speeds. */
+        .acelingua-home .ace-orbit-stage .ace-orbit-ring-1 {
+          border: 2px solid rgba(53, 88, 174, 0.55);
+          animation: aceOrbitOne 8s linear infinite;
+        }
+        .acelingua-home .ace-orbit-stage .ace-orbit-ring-2 {
+          border: 2px solid rgba(199, 169, 212, 0.75);
+          animation: aceOrbitTwo 10s linear infinite;
+        }
+        .acelingua-home .ace-orbit-stage .ace-orbit-ring-3 {
+          border: 2px dashed rgba(182, 64, 116, 0.45);
+          animation: aceOrbitThree 13s linear infinite;
+        }
+        .acelingua-home .ace-orbit-stage .ace-orbit-ring-4 {
+          width: 88.70968%;
+          height: 88.70968%;
+          border: 1.5px solid rgba(53, 88, 174, 0.32);
+          animation: aceOrbitFour 11s linear infinite;
+        }
+
+        @keyframes aceOrbitOne {
+          from { transform: rotateX(68deg) rotateZ(0deg); }
+          to   { transform: rotateX(68deg) rotateZ(360deg); }
+        }
+        @keyframes aceOrbitTwo {
+          from { transform: rotateY(68deg) rotateZ(0deg); }
+          to   { transform: rotateY(68deg) rotateZ(-360deg); }
+        }
+        @keyframes aceOrbitThree {
+          from { transform: rotateX(58deg) rotateY(38deg) rotateZ(0deg); }
+          to   { transform: rotateX(58deg) rotateY(38deg) rotateZ(360deg); }
+        }
+        @keyframes aceOrbitFour {
+          from { transform: rotateX(72deg) rotateY(-48deg) rotateZ(0deg); }
+          to   { transform: rotateX(72deg) rotateY(-48deg) rotateZ(-360deg); }
+        }
+
+        /* Original moving dots positioned on the original ring paths. */
+        .acelingua-home .ace-orbit-stage .ace-orbit-dot {
+          position: absolute;
+          left: 50%;
+          top: -6px;
+          display: block;
+          width: 11px;
+          height: 11px;
+          transform: translateX(-50%);
+          border-radius: 9999px;
+          box-shadow:
+            0 0 0 4px rgba(255, 255, 255, 0.6),
+            0 4px 12px rgba(7, 26, 74, 0.18);
+        }
+        .acelingua-home .ace-orbit-stage .ace-orbit-dot-1 {
+          background: #3558ae;
+        }
+        .acelingua-home .ace-orbit-stage .ace-orbit-dot-2 {
+          width: 9px;
+          height: 9px;
+          background: #f9c3d7;
+        }
+        .acelingua-home .ace-orbit-stage .ace-orbit-dot-3 {
+          width: 8px;
+          height: 8px;
+          background: #c7a9d4;
+        }
+        .acelingua-home .ace-orbit-stage .ace-orbit-dot-4 {
+          width: 7px;
+          height: 7px;
+          background: #3558ae;
+          opacity: 0.7;
+        }
+
+        /* ACE floats in place without changing the orbit's center. */
+        .acelingua-home .ace-orbit-mascot {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          animation: aceOriginalFloatCentered 3.5s ease-in-out infinite;
+          will-change: transform;
+        }
+        @keyframes aceOriginalFloatCentered {
+          0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+          50% { transform: translate(-50%, -50%) translateY(-10px); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .acelingua-home .ace-orbit-mascot,
+          .acelingua-home .ace-orbit-stage .ace-orbit-ring {
+            animation: none;
+          }
+          .acelingua-home .ace-orbit-stage .ace-orbit-ring-1 { transform: rotateX(68deg); }
+          .acelingua-home .ace-orbit-stage .ace-orbit-ring-2 { transform: rotateY(68deg); }
+          .acelingua-home .ace-orbit-stage .ace-orbit-ring-3 { transform: rotateX(58deg) rotateY(38deg); }
+          .acelingua-home .ace-orbit-stage .ace-orbit-ring-4 { transform: rotateX(72deg) rotateY(-48deg); }
+        }
+      `}</style>
       <SocialSidebar />
-
-      {/* ===================================================
-          FLOATING ACE CHATBOT
-      =================================================== */}
-
       <FloatingChatbot />
-
-      {/* ===================================================
-          REUSABLE PUBLIC HEADER
-      =================================================== */}
-
+      <VideoModal isOpen={isVideoOpen} onClose={() => setIsVideoOpen(false)} />
       <PublicHeader />
-
-      {/* ===================================================
-          HERO SECTION
-      =================================================== */}
-
-      <section className="flex min-h-[570px] items-center justify-center px-6 pb-10 pt-4">
+      <div className="mx-auto flex min-h-[calc(100svh-6rem)] w-full max-w-[100rem] flex-col justify-center pb-8">
+      <section className="flex min-h-[35.625rem] items-center justify-center px-6 pb-10 pt-4">
         <div className="w-full text-center">
-          {/* =================================================
-              ACE FLOATING AREA
-          ================================================= */}
-
-          <div className="relative mx-auto h-[330px] w-[650px] max-w-full">
-            {/* ===============================================
-                SOFT GLOW
-            =============================================== */}
-
-            <div className="absolute left-1/2 top-1/2 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/40 blur-3xl" />
-
-            {/* ===============================================
-                3D ORBIT SYSTEM
-            =============================================== */}
-
-            <div className="ace-orbit absolute left-1/2 top-1/2 z-10">
-              {/* Orbit 1 */}
-
-              <div className="ace-orbit-ring ace-orbit-ring-1">
-                <span className="ace-orbit-dot ace-orbit-dot-1" />
-              </div>
-
-              {/* Orbit 2 */}
-
-              <div className="ace-orbit-ring ace-orbit-ring-2">
-                <span className="ace-orbit-dot ace-orbit-dot-2" />
-              </div>
-
-              {/* Orbit 3 */}
-
-              <div className="ace-orbit-ring ace-orbit-ring-3">
-                <span className="ace-orbit-dot ace-orbit-dot-3" />
-              </div>
-
-              {/* Orbit 4 */}
-
-              <div className="ace-orbit-ring ace-orbit-ring-4">
-                <span className="ace-orbit-dot ace-orbit-dot-4" />
+          <div className="relative mx-auto h-[20.625rem] w-[40.625rem] max-w-full">
+            {/* Original 3D orbital lines + ACE, sharing ONE responsive center. */}
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+              <div className="relative h-[18rem] w-[18rem] sm:h-[19.375rem] sm:w-[19.375rem]">
+                <div className="absolute inset-0 rounded-full bg-white/40 blur-3xl" />
+                <div className="ace-orbit ace-orbit-stage z-10" aria-hidden="true">
+                  <div className="ace-orbit-ring ace-orbit-ring-1">
+                    <span className="ace-orbit-dot ace-orbit-dot-1" />
+                  </div>
+                  <div className="ace-orbit-ring ace-orbit-ring-2">
+                    <span className="ace-orbit-dot ace-orbit-dot-2" />
+                  </div>
+                  <div className="ace-orbit-ring ace-orbit-ring-3">
+                    <span className="ace-orbit-dot ace-orbit-dot-3" />
+                  </div>
+                  <div className="ace-orbit-ring ace-orbit-ring-4">
+                    <span className="ace-orbit-dot ace-orbit-dot-4" />
+                  </div>
+                </div>
+                <div className="ace-orbit-mascot z-20">
+                  <Image
+                    src="/icon head.png"
+                    alt="Ace ACELingua mascot"
+                    width={220}
+                    height={220}
+                    priority
+                    quality={100}
+                    className="block h-[10.625rem] w-[10.625rem] object-contain drop-shadow-[0_18px_16px_rgba(7,26,74,0.18)]"
+                  />
+                </div>
               </div>
             </div>
-
-            {/* ===============================================
-                ACE HEAD
-            =============================================== */}
-
-            <div className="ace-float absolute left-1/2 top-1/2 z-20">
-              <Image
-                src="/icon head.png"
-                alt="Ace ACELingua mascot"
-                width={220}
-                height={220}
-                priority
-                quality={100}
-                className="h-[170px] w-[170px] object-contain drop-shadow-[0_18px_16px_rgba(7,26,74,0.18)]"
-              />
-            </div>
-
-            {/* ===============================================
-                SPANISH BUBBLE
-            =============================================== */}
-
-            <div className="absolute left-[20px] top-[45px] z-30 sm:left-[45px]">
+            <div className="absolute left-[1.25rem] top-[2.8125rem] z-30 sm:left-[2.8125rem]">
               <div className="relative rounded-2xl border border-[#3558AE]/15 bg-white px-4 py-2.5 shadow-[0_5px_18px_rgba(7,26,74,0.08)]">
                 <p className="text-xs font-semibold text-[#071A4A]">
-                  <span className="mr-1.5 text-[10px] font-extrabold text-[#3558AE]">
+                  <span className="mr-1.5 text-[0.625rem] font-extrabold text-[#3558AE]">
                     ES
                   </span>
-
                   ¡Hola!
                 </p>
-
                 <div className="absolute -bottom-1.5 right-5 h-3 w-3 rotate-45 border-b border-r border-[#3558AE]/15 bg-white" />
               </div>
             </div>
-
-            {/* ===============================================
-                GERMAN BUBBLE
-            =============================================== */}
-
-            <div className="absolute right-[20px] top-[65px] z-30 sm:right-[45px]">
+            <div className="absolute right-[1.25rem] top-[4.0625rem] z-30 sm:right-[2.8125rem]">
               <div className="relative rounded-2xl border border-[#3558AE]/15 bg-white px-4 py-2.5 shadow-[0_5px_18px_rgba(7,26,74,0.08)]">
                 <p className="text-xs font-semibold text-[#071A4A]">
-                  <span className="mr-1.5 text-[10px] font-extrabold text-[#3558AE]">
+                  <span className="mr-1.5 text-[0.625rem] font-extrabold text-[#3558AE]">
                     DE
                   </span>
-
                   Hallo!
                 </p>
-
                 <div className="absolute -bottom-1.5 left-5 h-3 w-3 rotate-45 border-b border-r border-[#3558AE]/15 bg-white" />
               </div>
             </div>
-
-            {/* ===============================================
-                            JAPANESE BUBBLE
-                =============================================== */}
-
-            <div className="absolute bottom-[35px] right-[30px] z-30 sm:right-[75px]">
+            <div className="absolute bottom-[2.1875rem] right-[1.875rem] z-30 sm:right-[4.6875rem]">
               <div className="relative rounded-2xl border border-[#3558AE]/15 bg-white px-4 py-2.5 shadow-[0_5px_18px_rgba(7,26,74,0.08)]">
                 <div className="text-left">
                   <p className="text-xs font-semibold text-[#071A4A]">
-            <span className="mr-1.5 text-[10px] font-extrabold text-[#3558AE]">
+            <span className="mr-1.5 text-[0.625rem] font-extrabold text-[#3558AE]">
               JP
             </span>
               こんにちは
             </p>
             </div>
-
-            <p className="mt-0.5 text-[9px] font-medium text-[#071A4A]/45">
+            <p className="mt-0.5 text-[0.5625rem] font-medium text-[#071A4A]/45">
               Kon · ni · chi · wa
             </p>
-
     <div className="absolute -top-1.5 left-5 h-3 w-3 rotate-45 border-l border-t border-[#3558AE]/15 bg-white" />
       </div>
     </div>
-
-            {/* ===============================================
-                KOREAN BUBBLE
-            =============================================== */}
-
-            <div className="absolute bottom-[50px] left-[25px] z-30 sm:left-[65px]">
+            <div className="absolute bottom-[3.125rem] left-[1.5625rem] z-30 sm:left-[4.0625rem]">
               <div className="relative rounded-2xl border border-[#3558AE]/15 bg-white px-4 py-2.5 shadow-[0_5px_18px_rgba(7,26,74,0.08)]">
                 <p className="text-xs font-semibold text-[#071A4A]">
-                  <span className="mr-1.5 text-[10px] font-extrabold text-[#3558AE]">
+                  <span className="mr-1.5 text-[0.625rem] font-extrabold text-[#3558AE]">
                     KR
                   </span>
-
                   안녕하세요
-                  
                 </p>
-
-                <p className="mt-0.5 text-[9px] font-medium text-[#071A4A]/45">
+                <p className="mt-0.5 text-[0.5625rem] font-medium text-[#071A4A]/45">
                   An · nyeong · ha · se · yo
                 </p>
-
                 <div className="absolute -top-1.5 right-5 h-3 w-3 rotate-45 border-l border-t border-[#3558AE]/15 bg-white" />
               </div>
             </div>
           </div>
-
-          {/* =================================================
-              DESCRIPTION
-          ================================================= */}
-
           <div className="-mt-2">
             <h1 className="text-2xl font-extrabold tracking-tight text-[#071A4A] sm:text-3xl">
               Learn. Speak. Explore.
             </h1>
-
             <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[#071A4A]/55 sm:text-base">
               Learn languages through interactive lessons, practice, and
               rewarding progress.
             </p>
           </div>
-
-          {/* =================================================
-              BUTTONS
-          ================================================= */}
-
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            {/* GET STARTED */}
-
             <Link
               href="/onboarding/languages"
               className="group inline-flex min-w-[145px] items-center justify-center gap-2 rounded-full bg-[#071A4A] px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#3558AE]"
             >
               Get Started
-
               <span className="transition group-hover:translate-x-1">
                 ›
               </span>
             </Link>
-
-            {/* HOW IT WORKS */}
-
-            <Link
-              href="/how-it-works"
-              className="inline-flex min-w-[145px] items-center justify-center gap-2 rounded-full border border-[#071A4A]/30 bg-transparent px-6 py-3 text-sm font-semibold transition hover:bg-white/60"
+                        <button
+              type="button"
+              onClick={() => setIsVideoOpen(true)}
+              aria-label="Watch the How It Works video"
+              className="group inline-flex min-w-[145px] items-center justify-center gap-2 rounded-full border border-[#071A4A]/25 bg-white/50 px-6 py-3 text-sm font-semibold shadow-[0_4px_15px_rgba(7,26,74,0.04)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#3558AE]/40 hover:bg-white hover:shadow-[0_9px_25px_rgba(7,26,74,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3558AE] motion-reduce:transition-none"
             >
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#071A4A] text-white">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#071A4A] text-white transition-transform duration-300 group-hover:scale-110 group-hover:bg-[#3558AE] motion-reduce:transition-none">
                 <Play size={10} fill="currentColor" />
               </span>
-
-              How It Works
-            </Link>
+              Watch Video
+            </button>
           </div>
         </div>
       </section>
-
-      {/* ===================================================
-          LANGUAGE SECTION
-      =================================================== */}
-
       <section className="pb-12">
-        {/* =================================================
-            SECTION HEADING
-        ================================================= */}
-
         <div className="mb-6 text-center">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#3558AE]">
             Languages
           </p>
-
           <h2 className="mt-2 text-xl font-extrabold sm:text-2xl">
             Explore languages
           </h2>
         </div>
-
-        {/* =================================================
-            AUTOMATIC FLAG CAROUSEL
-        ================================================= */}
-
-        <div className="mx-auto w-full max-w-[850px] overflow-hidden px-4 sm:px-0">
+        <div className="mx-auto w-full max-w-[53.125rem] overflow-hidden px-4 sm:px-0">
           <div
             ref={carouselRef}
             onMouseEnter={() => {
@@ -401,13 +399,22 @@ export default function Home() {
             {carouselLanguages.map((language, index) => (
               <Link
                 key={`${language.name}-${index}`}
-                href="/onboarding/languages"
-                className="group w-[170px] shrink-0 sm:w-[190px]"
+                href={`/onboarding/languages?language=${encodeURIComponent(language.code)}`}
+                onClick={() => {
+                  // Remember what the user clicked even if a redirect strips the query.
+                  try {
+                    window.sessionStorage.setItem(
+                      "acelingua_pending_language",
+                      language.code
+                    );
+                  } catch {
+                    // The URL parameter remains the primary selection mechanism.
+                  }
+                }}
+                className="group w-[10.625rem] shrink-0 sm:w-[11.875rem]"
               >
                 <div className="rounded-2xl border border-white bg-white/75 p-3 transition duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-lg">
-                  {/* FLAG */}
-
-                  <div className="relative h-[95px] w-full overflow-hidden rounded-xl border border-[#071A4A]/5 bg-white sm:h-[105px]">
+                  <div className="relative h-[5.9375rem] w-full overflow-hidden rounded-xl border border-[#071A4A]/5 bg-white sm:h-[6.5625rem]">
                     <Image
                       src={language.flag}
                       alt={`${language.name} flag`}
@@ -416,14 +423,10 @@ export default function Home() {
                       className="object-cover transition duration-500 group-hover:scale-105"
                     />
                   </div>
-
-                  {/* LANGUAGE DETAILS */}
-
                   <div className="px-1 pb-1 pt-3 text-center">
                     <p className="text-sm font-bold text-[#071A4A]">
                       {language.name}
                     </p>
-
                     <p className="mt-0.5 text-xs text-[#071A4A]/40">
                       {language.nativeName}
                     </p>
@@ -433,35 +436,209 @@ export default function Home() {
             ))}
           </div>
         </div>
-
-        {/* =================================================
-            VIEW ALL LANGUAGES
-        ================================================= */}
-
         <div className="mt-6 text-center">
           <Link
             href="/languages"
             className="group inline-flex items-center text-sm font-semibold text-[#3558AE] transition hover:text-[#071A4A]"
           >
             View all languages
-
             <span className="ml-1 transition group-hover:translate-x-1">
               →
             </span>
           </Link>
         </div>
       </section>
+      </div>
     </main>
   );
 }
-
-/* =========================================================
-   FLOATING ACE CHATBOT
-========================================================= */
-
+/** ACELingua cinematic video lightbox. */
+function VideoModal({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+}) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const [isMounted, setIsMounted] = useState(isOpen);
+  const [isVisible, setIsVisible] = useState(false);
+  const [progress, setProgress] = useState(0);
+  function stopVideo() {
+    const video = videoRef.current;
+    if (!video) return;
+    // Pause immediately, even while the modal fades out.
+    video.pause();
+    if (video.readyState > 0) video.currentTime = 0;
+    setProgress(0);
+  }
+  function closeVideo() {
+    stopVideo();
+    onClose();
+  }
+  // Mount before animating in; animate out before unmounting.
+  useEffect(() => {
+    if (isOpen) {
+      setIsMounted(true);
+      let secondFrame = 0;
+      const firstFrame = window.requestAnimationFrame(() => {
+        secondFrame = window.requestAnimationFrame(() => setIsVisible(true));
+      });
+      return () => {
+        window.cancelAnimationFrame(firstFrame);
+        window.cancelAnimationFrame(secondFrame);
+      };
+    }
+    setIsVisible(false);
+    videoRef.current?.pause();
+    const exitTimer = window.setTimeout(() => setIsMounted(false), 380);
+    return () => window.clearTimeout(exitTimer);
+  }, [isOpen]);
+  // Lock background scrolling and support the Escape key.
+  useEffect(() => {
+    if (!isMounted) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeButtonRef.current?.focus();
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape" && isOpen) {
+        event.preventDefault();
+        const video = videoRef.current;
+        if (video) {
+          video.pause();
+          if (video.readyState > 0) video.currentTime = 0;
+        }
+        setProgress(0);
+        onClose();
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      videoRef.current?.pause();
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isMounted, isOpen, onClose]);
+  function handleTimeUpdate() {
+    const video = videoRef.current;
+    if (video && Number.isFinite(video.duration) && video.duration > 0) {
+      setProgress((video.currentTime / video.duration) * 100);
+    }
+  }
+  if (!isMounted) return null;
+  return (
+    <div
+      role="presentation"
+      onClick={closeVideo}
+      className={`fixed inset-0 z-[200] flex items-center justify-center overflow-y-auto p-3 transition-opacity duration-[380ms] ease-out sm:p-7 ${
+        isVisible ? "opacity-100" : "opacity-0"
+      }`}
+    >
+      {/* Cinema lights: all visual layers ignore clicks so the backdrop closes. */}
+      <div className="pointer-events-none absolute inset-0 bg-[#020712]/85 backdrop-blur-[9px]" />
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[65vh] w-[80vw] max-w-[1100px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#3558AE]/20 blur-[100px]" />
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="acelingua-video-title"
+        aria-describedby="acelingua-video-description"
+        onClick={(event) => event.stopPropagation()}
+        className={`relative my-auto w-full max-w-[59.375rem] transform-gpu overflow-hidden rounded-[24px] border border-white/15 bg-[#071A4A] shadow-[0_35px_110px_rgba(0,0,0,0.65)] transition-[transform,opacity] duration-[380ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none sm:rounded-[30px] ${
+          isVisible
+            ? "translate-y-0 scale-100 opacity-100"
+            : "translate-y-8 scale-[0.94] opacity-0"
+        }`}
+      >
+        {/* Thin gradient highlight on the top edge. */}
+        <div className="h-[3px] w-full bg-gradient-to-r from-[#C7A9D4] via-[#6D94F5] to-[#F9C3D7]" />
+        {/* Branded header. */}
+        <header className="relative flex items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/15 bg-white/10 sm:h-12 sm:w-12">
+              <Image
+                src="/icon head.png"
+                alt="Ace mascot"
+                width={48}
+                height={48}
+                className="h-full w-full object-contain p-1"
+              />
+            </div>
+            <div className="min-w-0">
+              <div className="mb-1 flex items-center gap-2">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#C7A9D4] opacity-70 motion-reduce:animate-none" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#C7A9D4]" />
+                </span>
+                <span className="text-[0.5625rem] font-bold uppercase tracking-[0.22em] text-[#C7A9D4] sm:text-[0.625rem]">
+                  ACELingua · Quick Tour
+                </span>
+              </div>
+              <h2
+                id="acelingua-video-title"
+                className="truncate text-sm font-bold tracking-tight text-white sm:text-lg"
+              >
+                Discover How It Works
+              </h2>
+            </div>
+          </div>
+          <button
+            ref={closeButtonRef}
+            type="button"
+            onClick={closeVideo}
+            aria-label="Close video"
+            className="group flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white/80 outline-none transition-all duration-300 hover:rotate-90 hover:border-white/30 hover:bg-white/20 hover:text-white focus-visible:ring-2 focus-visible:ring-[#C7A9D4] motion-reduce:transition-none"
+          >
+            <CloseIcon className="h-5 w-5" />
+          </button>
+        </header>
+        {/* Native HTML5 player, framed like a little cinema screen. */}
+        <div className="px-2 pb-2 sm:px-5">
+          <div className="relative overflow-hidden rounded-[16px] border border-white/15 bg-black shadow-[0_18px_55px_rgba(0,0,0,0.35)] sm:rounded-[20px]">
+            <video
+              ref={videoRef}
+              src="/Videos/acelingua.mp4"
+              controls
+              autoPlay
+              playsInline
+              preload="metadata"
+              onTimeUpdate={handleTimeUpdate}
+              onLoadedMetadata={handleTimeUpdate}
+              className="block aspect-video max-h-[70vh] w-full bg-black object-contain"
+            >
+              Your browser does not support HTML5 video.
+            </video>
+          </div>
+        </div>
+        {/* Extra branded progress indicator and quiet footer. */}
+        <div className="px-5 pb-5 pt-3 sm:px-7 sm:pb-6 sm:pt-4">
+          <div
+            aria-hidden="true"
+            className="h-[3px] overflow-hidden rounded-full bg-white/10"
+          >
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-[#C7A9D4] via-[#7AA3FF] to-[#F9C3D7] transition-[width] duration-150 ease-linear"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+            <p
+              id="acelingua-video-description"
+              className="text-[0.6875rem] font-medium tracking-wide text-white/70 sm:text-xs"
+            >
+              Learn. Speak. Explore. <span className="text-white/35">Your journey starts here.</span>
+            </p>
+            <span className="text-[0.625rem] text-white/40 sm:text-[0.6875rem]">
+              Press Esc or click outside to close
+            </span>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
 function FloatingChatbot() {
   const [open, setOpen] = useState(false);
-
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 1,
@@ -469,32 +646,17 @@ function FloatingChatbot() {
       text: "Hi! I'm Ace 👋 How can I help you with ACELingua today?",
     },
   ]);
-
   const [input, setInput] = useState("");
-
   const [isTyping, setIsTyping] = useState(false);
-
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-
-  /* =======================================================
-     AUTO SCROLL
-  ======================================================= */
-
   useEffect(() => {
     if (!open) return;
-
     messagesEndRef.current?.scrollIntoView({
       behavior: "smooth",
     });
   }, [messages, isTyping, open]);
-
-  /* =======================================================
-     AUTO ANSWER
-  ======================================================= */
-
   function getAutoAnswer(question: string) {
     const normalized = question.toLowerCase();
-
     if (
       normalized.includes("what is acelingua") ||
       normalized.includes("about acelingua") ||
@@ -502,7 +664,6 @@ function FloatingChatbot() {
     ) {
       return chatbotQuestions[0].answer;
     }
-
     if (
       normalized.includes("language") ||
       normalized.includes("japanese") ||
@@ -515,7 +676,6 @@ function FloatingChatbot() {
     ) {
       return chatbotQuestions[1].answer;
     }
-
     if (
       normalized.includes("start") ||
       normalized.includes("register") ||
@@ -524,7 +684,6 @@ function FloatingChatbot() {
     ) {
       return chatbotQuestions[2].answer;
     }
-
     if (
       normalized.includes("lesson") ||
       normalized.includes("course") ||
@@ -533,7 +692,6 @@ function FloatingChatbot() {
     ) {
       return chatbotQuestions[3].answer;
     }
-
     if (
       normalized.includes("xp") ||
       normalized.includes("coin") ||
@@ -542,7 +700,6 @@ function FloatingChatbot() {
     ) {
       return chatbotQuestions[4].answer;
     }
-
     if (
       normalized.includes("avatar") ||
       normalized.includes("outfit") ||
@@ -552,7 +709,6 @@ function FloatingChatbot() {
     ) {
       return chatbotQuestions[5].answer;
     }
-
     if (
       normalized.includes("hello") ||
       normalized.includes("hi") ||
@@ -560,76 +716,53 @@ function FloatingChatbot() {
     ) {
       return "Hi! 👋 I'm Ace. Ask me anything about ACELingua, available languages, lessons, rewards, or getting started.";
     }
-
     if (
       normalized.includes("thank") ||
       normalized.includes("thanks")
     ) {
       return "You're welcome! I'm happy to help. 😊";
     }
-
     return "I can help you with ACELingua, available languages, lessons, registration, XP, coins, rewards, and avatar customization. Try one of the quick questions below.";
   }
-
-  /* =======================================================
-     SEND MESSAGE
-  ======================================================= */
-
   function sendMessage(question: string) {
     const cleanedQuestion = question.trim();
-
     if (!cleanedQuestion || isTyping) return;
-
     const userMessage: ChatMessage = {
       id: Date.now(),
       sender: "user",
       text: cleanedQuestion,
     };
-
     setMessages((current) => [...current, userMessage]);
-
     setInput("");
-
     setIsTyping(true);
-
     const exactAnswer = chatbotQuestions.find(
       (item) =>
         item.question.toLowerCase() === cleanedQuestion.toLowerCase(),
     )?.answer;
-
     window.setTimeout(() => {
       const botMessage: ChatMessage = {
         id: Date.now() + 1,
         sender: "bot",
         text: exactAnswer ?? getAutoAnswer(cleanedQuestion),
       };
-
       setMessages((current) => [...current, botMessage]);
-
       setIsTyping(false);
     }, 650);
   }
-
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
     sendMessage(input);
   }
-
   return (
     <>
-      {/* =====================================================
-          CHAT WINDOW
-      ====================================================== */}
-
       <div
         className={`
           fixed
-          bottom-[105px]
+          bottom-[6.5625rem]
           right-4
           z-[80]
           w-[calc(100%-32px)]
-          max-w-[365px]
+          max-w-[22.8125rem]
           origin-bottom-right
           overflow-hidden
           rounded-[26px]
@@ -637,13 +770,10 @@ function FloatingChatbot() {
           border-[#3558AE]/10
           bg-white
           shadow-[0_25px_80px_rgba(7,26,74,0.20)]
-
           transition-all
           duration-300
           ease-out
-
           sm:right-7
-
           ${
             open
               ? "pointer-events-auto translate-y-0 scale-100 opacity-100"
@@ -651,14 +781,8 @@ function FloatingChatbot() {
           }
         `}
       >
-        {/* =================================================
-            CHAT HEADER
-        ================================================== */}
-
         <div className="flex items-center justify-between bg-[#071A4A] px-5 py-4">
           <div className="flex items-center gap-3">
-            {/* ACE AVATAR */}
-
             <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#EAF5FF]">
               <Image
                 src="/icon head.png"
@@ -668,24 +792,18 @@ function FloatingChatbot() {
                 className="h-full w-full object-contain p-1"
               />
             </div>
-
             <div>
               <div className="flex items-center gap-2">
                 <p className="text-sm font-bold text-white">
                   Ace
                 </p>
-
                 <span className="h-2 w-2 rounded-full bg-[#62DD92]" />
               </div>
-
-              <p className="text-[10px] text-white/60">
+              <p className="text-[0.625rem] text-white/60">
                 ACELingua Assistant
               </p>
             </div>
           </div>
-
-          {/* CLOSE */}
-
           <button
             type="button"
             onClick={() => setOpen(false)}
@@ -695,12 +813,7 @@ function FloatingChatbot() {
             <CloseIcon className="h-4 w-4" />
           </button>
         </div>
-
-        {/* =================================================
-            MESSAGES
-        ================================================== */}
-
-        <div className="max-h-[300px] min-h-[260px] space-y-4 overflow-y-auto bg-[#F8FBFF] px-4 py-5">
+        <div className="max-h-[18.75rem] min-h-[260px] space-y-4 overflow-y-auto bg-[#F8FBFF] px-4 py-5">
           {messages.map((message) => (
             <div
               key={message.id}
@@ -710,8 +823,6 @@ function FloatingChatbot() {
                   : "justify-start"
               }`}
             >
-              {/* ACE ICON */}
-
               {message.sender === "bot" && (
                 <div className="mr-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#3558AE]/10 bg-white">
                   <Image
@@ -723,18 +834,14 @@ function FloatingChatbot() {
                   />
                 </div>
               )}
-
-              {/* MESSAGE BUBBLE */}
-
               <div
                 className={`
                   max-w-[78%]
                   px-4
                   py-3
                   text-left
-                  text-[12px]
+                  text-[0.75rem]
                   leading-5
-
                   ${
                     message.sender === "user"
                       ? "rounded-[18px] rounded-br-[5px] bg-[#3558AE] text-white"
@@ -746,11 +853,6 @@ function FloatingChatbot() {
               </div>
             </div>
           ))}
-
-          {/* =================================================
-              TYPING INDICATOR
-          ================================================== */}
-
           {isTyping && (
             <div className="flex items-center gap-2">
               <div className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full border border-[#3558AE]/10 bg-white">
@@ -762,29 +864,19 @@ function FloatingChatbot() {
                   className="h-full w-full object-contain p-0.5"
                 />
               </div>
-
               <div className="flex items-center gap-1 rounded-[16px] rounded-bl-[5px] border border-[#071A4A]/5 bg-white px-4 py-3">
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#071A4A]/35 [animation-delay:-0.3s]" />
-
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#071A4A]/35 [animation-delay:-0.15s]" />
-
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#071A4A]/35" />
               </div>
             </div>
           )}
-
           <div ref={messagesEndRef} />
         </div>
-
-        {/* =================================================
-            QUICK QUESTIONS
-        ================================================== */}
-
         <div className="border-t border-[#071A4A]/5 bg-white px-4 py-3">
-          <p className="mb-2 text-left text-[9px] font-bold uppercase tracking-[0.15em] text-[#071A4A]/35">
+          <p className="mb-2 text-left text-[0.5625rem] font-bold uppercase tracking-[0.15em] text-[#071A4A]/35">
             Quick questions
           </p>
-
           <div className="flex gap-2 overflow-x-auto pb-1">
             {chatbotQuestions.slice(0, 4).map((item) => (
               <button
@@ -800,18 +892,15 @@ function FloatingChatbot() {
                   bg-[#EAF5FF]
                   px-3
                   py-2
-                  text-[10px]
+                  text-[0.625rem]
                   font-semibold
                   text-[#3558AE]
-
                   transition-all
                   duration-200
-
                   hover:-translate-y-0.5
                   hover:border-[#3558AE]
                   hover:bg-[#3558AE]
                   hover:text-white
-
                   disabled:cursor-not-allowed
                   disabled:opacity-50
                 "
@@ -821,11 +910,6 @@ function FloatingChatbot() {
             ))}
           </div>
         </div>
-
-        {/* =================================================
-            INPUT
-        ================================================== */}
-
         <form
           onSubmit={handleSubmit}
           className="flex items-center gap-2 border-t border-[#071A4A]/5 bg-white p-3"
@@ -845,22 +929,18 @@ function FloatingChatbot() {
               bg-[#F7FAFD]
               px-4
               py-2.5
-              text-[12px]
+              text-[0.75rem]
               text-[#071A4A]
               outline-none
-
               transition-all
               duration-200
-
               placeholder:text-[#071A4A]/35
-
               focus:border-[#3558AE]/40
               focus:bg-white
               focus:ring-2
               focus:ring-[#3558AE]/10
             "
           />
-
           <button
             type="submit"
             disabled={!input.trim() || isTyping}
@@ -875,13 +955,10 @@ function FloatingChatbot() {
               rounded-full
               bg-[#071A4A]
               text-white
-
               transition-all
               duration-200
-
               hover:scale-105
               hover:bg-[#3558AE]
-
               disabled:cursor-not-allowed
               disabled:opacity-40
             "
@@ -890,11 +967,6 @@ function FloatingChatbot() {
           </button>
         </form>
       </div>
-
-      {/* =====================================================
-          FLOATING CHATBOT BUTTON
-      ====================================================== */}
-
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}
@@ -906,8 +978,8 @@ function FloatingChatbot() {
           right-4
           z-[81]
           flex
-          h-[68px]
-          w-[68px]
+          h-[4.25rem]
+          w-[4.25rem]
           items-center
           justify-center
           rounded-full
@@ -915,45 +987,34 @@ function FloatingChatbot() {
           border-[#3558AE]/15
           bg-white
           shadow-[0_12px_40px_rgba(7,26,74,0.18)]
-
           transition-all
           duration-300
           ease-out
-
           hover:-translate-y-1
           hover:scale-105
           hover:shadow-[0_18px_48px_rgba(7,26,74,0.24)]
-
           sm:right-7
         "
       >
-        {/* PULSE */}
-
         {!open && (
           <span className="absolute inset-0 animate-ping rounded-full border border-[#3558AE]/20" />
         )}
-
-        {/* ACE LOGO */}
-
         <div
           className={`
             relative
             z-10
             flex
-            h-[57px]
-            w-[57px]
+            h-[3.5625rem]
+            w-[3.5625rem]
             items-center
             justify-center
             overflow-hidden
             rounded-full
             bg-[#EAF5FF]
-
             transition-all
             duration-300
-
             group-hover:-rotate-6
             group-hover:scale-105
-
             ${
               open
                 ? "scale-75 opacity-0"
@@ -969,9 +1030,6 @@ function FloatingChatbot() {
             className="h-full w-full object-contain p-1"
           />
         </div>
-
-        {/* CLOSE ICON */}
-
         <div
           className={`
             absolute
@@ -980,10 +1038,8 @@ function FloatingChatbot() {
             items-center
             justify-center
             text-[#071A4A]
-
             transition-all
             duration-300
-
             ${
               open
                 ? "rotate-0 scale-100 opacity-100"
@@ -993,9 +1049,6 @@ function FloatingChatbot() {
         >
           <CloseIcon className="h-6 w-6" />
         </div>
-
-        {/* ONLINE DOT */}
-
         {!open && (
           <span className="absolute bottom-[5px] right-[4px] z-20 h-4 w-4 rounded-full border-[3px] border-white bg-[#56D88A]" />
         )}
@@ -1003,11 +1056,6 @@ function FloatingChatbot() {
     </>
   );
 }
-
-/* =========================================================
-   SOCIAL MEDIA SIDEBAR
-========================================================= */
-
 function SocialSidebar() {
   return (
     <aside
@@ -1023,24 +1071,16 @@ function SocialSidebar() {
         lg:flex
       "
     >
-      {/* FACEBOOK */}
-
       <SocialLink
         href="#"
         label="Facebook"
         icon={<FacebookLogo />}
       />
-
-      {/* INSTAGRAM */}
-
       <SocialLink
         href="#"
         label="Instagram"
         icon={<InstagramLogo />}
       />
-
-      {/* X */}
-
       <SocialLink
         href="#"
         label="X"
@@ -1049,11 +1089,6 @@ function SocialSidebar() {
     </aside>
   );
 }
-
-/* =========================================================
-   SOCIAL MEDIA LINK
-========================================================= */
-
 function SocialLink({
   href,
   label,
@@ -1070,11 +1105,6 @@ function SocialLink({
       target={href === "#" ? undefined : "_blank"}
       rel={href === "#" ? undefined : "noopener noreferrer"}
       onClick={(event) => {
-        /*
-         * Prevent the page from jumping to the top while
-         * you have not added the real social links yet.
-         */
-
         if (href === "#") {
           event.preventDefault();
         }
@@ -1093,11 +1123,9 @@ function SocialLink({
         bg-white
         text-[#071A4A]
         shadow-[0_7px_25px_rgba(7,26,74,0.08)]
-
         transition-all
         duration-300
         ease-out
-
         hover:w-[140px]
         hover:-translate-x-1
         hover:border-[#3558AE]/20
@@ -1106,8 +1134,6 @@ function SocialLink({
         hover:shadow-[0_12px_30px_rgba(7,26,74,0.18)]
       "
     >
-      {/* ICON */}
-
       <div
         className="
           flex
@@ -1116,18 +1142,13 @@ function SocialLink({
           shrink-0
           items-center
           justify-center
-
           transition-all
           duration-300
-
           group-hover:scale-110
         "
       >
         {icon}
       </div>
-
-      {/* SOCIAL NAME */}
-
       <span
         className="
           -translate-x-2
@@ -1136,11 +1157,9 @@ function SocialLink({
           text-xs
           font-semibold
           opacity-0
-
           transition-all
           delay-75
           duration-300
-
           group-hover:translate-x-0
           group-hover:opacity-100
         "
@@ -1150,11 +1169,6 @@ function SocialLink({
     </a>
   );
 }
-
-/* =========================================================
-   FACEBOOK LOGO
-========================================================= */
-
 function FacebookLogo() {
   return (
     <svg
@@ -1167,11 +1181,6 @@ function FacebookLogo() {
     </svg>
   );
 }
-
-/* =========================================================
-   INSTAGRAM LOGO
-========================================================= */
-
 function InstagramLogo() {
   return (
     <svg
@@ -1192,13 +1201,11 @@ function InstagramLogo() {
         rx="5"
         ry="5"
       />
-
       <circle
         cx="12"
         cy="12"
         r="4"
       />
-
       <circle
         cx="17.5"
         cy="6.5"
@@ -1209,11 +1216,6 @@ function InstagramLogo() {
     </svg>
   );
 }
-
-/* =========================================================
-   X LOGO
-========================================================= */
-
 function XLogo() {
   return (
     <svg

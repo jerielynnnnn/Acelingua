@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Loader2, Pause, Play, RotateCcw, Volume2, VolumeX } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 type Language = { id: string; code: string; name: string; native_name: string | null; flag_emoji: string | null };
@@ -16,9 +16,29 @@ type Activity = { id: string; title: string; instructions: string | null; activi
 type Question = { id: string; activity_id: string; question_text: string; question_type: string; correct_answer: string; options: unknown; explanation: string | null; question_order: number };
 type Intro = { language: Language; course: Course; unit: Unit; lesson: Lesson; words: Word[]; activities: Activity[]; questions: Question[] };
 type Stage = "welcome" | "learn" | "practice" | "complete";
+
+// AUDIO PLACEHOLDERS — leave blank until your MP3 recordings are ready.
+// Example: ja: { "こんにちは": "/audio/ja/konnichiwa.mp3" }
+// Keys are language codes from Supabase and vocabulary.word values.
+const LANGUAGE_AUDIO: Record<string, Record<string, string>> = {
+  ja: {}, // Japanese
+  ko: {"안녕하세요": "/audio/ko/annyeonghaseyo.mp3", "안녕히 가세요": "/audio/ko/annyeonghigaseyo.mp3"}, // Korean
+  en: {}, // English
+  es: {}, // Spanish
+  fr: {}, // French
+  de: {}, // German
+  zh: {}, // Chinese
+  it: {}, // Italian
+  pt: {}, // Portuguese
+  ru: {}, // Russian
+  ar: {}, // Arabic
+  hi: {}, // Hindi
+  th: {}, // Thai
+  vi: {}, // Vietnamese
+};
+
 const buttonStyle = "inline-flex items-center justify-center gap-2 rounded-full bg-[#071A4A] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#3558AE] disabled:cursor-not-allowed disabled:opacity-50";
 
-// Only use database options that can be displayed and checked unambiguously.
 function choicesFor(question: Question): string[] {
   let options = question.options;
   if (typeof options === "string") {
@@ -30,14 +50,86 @@ function choicesFor(question: Question): string[] {
 }
 
 function Loading() {
-  return <div role="status" className="py-16 text-center"><Loader2 className="mx-auto animate-spin text-[#3558AE]" size={30} /><p className="mt-4">Loading your first lesson...</p></div>;
+  return <div role="status" className="mx-auto flex max-w-sm flex-col items-center py-20 text-center"><Loader2 className="animate-spin text-[#3558AE]" size={30} /><p className="mt-4 text-sm">Loading your first lesson...</p></div>;
+}
+
+function PronunciationPlayer({ languageCode, word }: { languageCode: string; word: Word }) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [autoPlay, setAutoPlay] = useState(true);
+  const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState<1 | 0.75>(1);
+  const [message, setMessage] = useState("");
+  const src = LANGUAGE_AUDIO[languageCode.toLowerCase()]?.[word.word]?.trim() ?? "";
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.pause();
+    audio.currentTime = 0;
+    setPlaying(false);
+    setMessage("");
+    audio.playbackRate = speed;
+    if (src && autoPlay) {
+      void audio.play().then(() => setPlaying(true)).catch(() => setMessage("Tap Play to hear the pronunciation."));
+    }
+  }, [src, word.id, autoPlay, speed]);
+
+  async function togglePlay() {
+    const audio = audioRef.current;
+    if (!audio || !src) return;
+    if (!audio.paused) { audio.pause(); setPlaying(false); return; }
+    try {
+      if (audio.ended) audio.currentTime = 0;
+      audio.playbackRate = speed;
+      await audio.play();
+      setPlaying(true);
+      setMessage("");
+    } catch {
+      setMessage("Audio could not play. Check the MP3 file path.");
+    }
+  }
+
+  async function replay() {
+    const audio = audioRef.current;
+    if (!audio || !src) return;
+    audio.currentTime = 0;
+    try { await audio.play(); setPlaying(true); setMessage(""); }
+    catch { setMessage("Audio could not play. Check the MP3 file path."); }
+  }
+
+  return (
+    <div className="mt-7 rounded-[26px] border border-[#DDE8F8] bg-gradient-to-br from-[#F6FAFF] to-white p-5 text-left shadow-[0_8px_30px_rgba(7,26,74,0.04)] sm:p-6">
+      <audio ref={audioRef} src={src || undefined} preload="auto" onEnded={() => setPlaying(false)} onPause={() => setPlaying(false)} onPlay={() => setPlaying(true)} onError={() => { setPlaying(false); if (src) setMessage("Audio file unavailable. Check its path."); }} />
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#E5EEFF] text-[#3558AE]"><Volume2 size={22} /></span>
+          <div><h3 className="text-sm font-extrabold text-[#071A4A]">Listen & pronounce</h3><p className="mt-1 text-xs text-[#60708E]">Hear how this phrase sounds</p></div>
+        </div>
+        <button type="button" aria-label={autoPlay ? "Disable autoplay" : "Enable autoplay"} aria-pressed={autoPlay} onClick={() => setAutoPlay(!autoPlay)} className="flex items-center gap-2 rounded-full border border-[#DDE8F8] bg-white px-3 py-2 text-xs font-semibold text-[#3558AE] transition hover:bg-[#EAF5FF]">
+          {autoPlay ? <Volume2 size={14} /> : <VolumeX size={14} />}<span>Auto {autoPlay ? "on" : "off"}</span>
+        </button>
+      </div>
+      <div className="mt-5 flex items-center gap-3">
+        <button type="button" disabled={!src} onClick={() => void togglePlay()} aria-label={playing ? "Pause pronunciation" : "Play pronunciation"} className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#071A4A] text-white shadow-[0_8px_18px_rgba(7,26,74,0.2)] transition hover:scale-105 hover:bg-[#3558AE] disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:scale-100">
+          {playing ? <Pause size={22} fill="currentColor" /> : <Play size={22} fill="currentColor" className="ml-1" />}
+        </button>
+        <div className="min-w-0 flex-1"><p className="truncate text-sm font-bold text-[#071A4A]">{word.word}</p><div className="mt-2 flex h-5 items-center gap-[3px]" aria-hidden="true">{Array.from({ length: 24 }, (_, i) => <span key={i} className={`w-[3px] rounded-full bg-[#7295D6] ${playing ? "animate-pulse" : "opacity-45"}`} style={{ height: `${6 + ((i * 11) % 15)}px`, animationDelay: `${i * 65}ms` }} />)}</div></div>
+        <button type="button" disabled={!src} onClick={() => void replay()} aria-label="Replay pronunciation" title="Replay" className="rounded-full border border-[#DDE8F8] bg-white p-3 text-[#3558AE] transition hover:bg-[#EAF5FF] disabled:opacity-35"><RotateCcw size={18} /></button>
+      </div>
+      <div className="mt-5 flex items-center justify-between gap-3 border-t border-[#E4EBF5] pt-4">
+        <span className="text-xs font-medium text-[#60708E]">{src ? (playing ? "Playing pronunciation" : "Ready to listen") : "Audio recording coming soon"}</span>
+        <button type="button" disabled={!src} onClick={() => setSpeed(speed === 1 ? 0.75 : 1)} className="rounded-full bg-[#EAF1FF] px-3 py-1.5 text-xs font-bold text-[#3558AE] disabled:opacity-40">{speed === 1 ? "1× Normal" : "0.75× Slow"}</button>
+      </div>
+      {message && <p role="status" className="mt-3 text-xs text-[#B64074]">{message}</p>}
+    </div>
+  );
 }
 
 export default function IntroPage() {
   return <main className="min-h-screen bg-[#EAF5FF] px-5 py-6 text-[#071A4A]">
     <header className="mx-auto flex max-w-2xl items-center justify-between">
       <Link href="/onboarding/languages" aria-label="Back to languages" className="rounded-full p-3 transition hover:bg-white"><ArrowLeft size={22} /></Link>
-      <Link href="/" aria-label="ACELINGUA home"><Image src="/logo.png" alt="ACELINGUA" width={48} height={48} className="h-11 w-auto" /></Link>
+      <Link href="/" aria-label="ACELINGUA home" className="flex shrink-0 items-center justify-center"><Image src="/logo.png" alt="ACELINGUA Logo" width={160} height={160} priority unoptimized className="h-11 w-auto shrink-0 object-contain" /></Link>
     </header>
     <Suspense fallback={<Loading />}><IntroSelection /></Suspense>
   </main>;
@@ -63,44 +155,34 @@ function IntroExperience({ code }: { code: string }) {
       try {
         if (!code.trim()) throw new Error("Choose a language first so Ace can prepare your preview.");
         const supabase = createClient();
-        const languageResult = await supabase.from("languages")
-          .select("id, code, name, native_name, flag_emoji").eq("code", code).eq("is_active", true).maybeSingle();
+        const languageResult = await supabase.from("languages").select("id, code, name, native_name, flag_emoji").eq("code", code).eq("is_active", true).maybeSingle();
         if (languageResult.error) throw languageResult.error;
         if (!languageResult.data) throw new Error("This language isn't available right now. Please choose another language.");
         const language: Language = languageResult.data;
-        const courseResult = await supabase.from("courses").select("id, title, description, level")
-          .eq("language_id", language.id).eq("is_published", true)
-          .order("created_at").order("id");
+        const courseResult = await supabase.from("courses").select("id, title, description, level").eq("language_id", language.id).eq("is_published", true).order("created_at").order("id");
         if (courseResult.error) throw courseResult.error;
         const courses: Course[] = courseResult.data ?? [];
         if (!courses.length) throw new Error(`A published course for ${language.name} isn't available yet.`);
-        const course = courses.find((item) => item.level?.trim().toLowerCase() === "beginner")
-          ?? (courses.length === 1 ? courses[0] : undefined);
+        const course = courses.find((item) => item.level?.trim().toLowerCase() === "beginner") ?? (courses.length === 1 ? courses[0] : undefined);
         if (!course) throw new Error(`We couldn't identify a starting course for ${language.name}. Please check back soon.`);
-        const unitResult = await supabase.from("units").select("id, title, description, unit_order, location_name")
-          .eq("course_id", course.id).eq("is_published", true).order("unit_order").order("id").limit(1).maybeSingle();
+        const unitResult = await supabase.from("units").select("id, title, description, unit_order, location_name").eq("course_id", course.id).eq("is_published", true).order("unit_order").order("id").limit(1).maybeSingle();
         if (unitResult.error) throw unitResult.error;
         if (!unitResult.data) throw new Error("This course doesn't have a published unit yet. Please check back soon.");
         const unit: Unit = unitResult.data;
-        const lessonResult = await supabase.from("lessons").select("id, title, description, lesson_order, xp_reward, coin_reward")
-          .eq("unit_id", unit.id).eq("is_published", true).order("lesson_order").order("id").limit(1).maybeSingle();
+        const lessonResult = await supabase.from("lessons").select("id, title, description, lesson_order, xp_reward, coin_reward").eq("unit_id", unit.id).eq("is_published", true).order("lesson_order").order("id").limit(1).maybeSingle();
         if (lessonResult.error) throw lessonResult.error;
         if (!lessonResult.data) throw new Error("The first unit doesn't have a published lesson yet. Please check back soon.");
         const lesson: Lesson = lessonResult.data;
         const [wordResult, activityResult] = await Promise.all([
-          supabase.from("vocabulary").select("id, word, pronunciation, translation, example_sentence, example_translation")
-            .eq("lesson_id", lesson.id).order("id"),
-          supabase.from("activities").select("id, title, instructions, activity_type, activity_order")
-            .eq("lesson_id", lesson.id).order("activity_order").order("id"),
+          supabase.from("vocabulary").select("id, word, pronunciation, translation, example_sentence, example_translation").eq("lesson_id", lesson.id).order("id"),
+          supabase.from("activities").select("id, title, instructions, activity_type, activity_order").eq("lesson_id", lesson.id).order("activity_order").order("id"),
         ]);
         if (wordResult.error) throw wordResult.error;
         if (activityResult.error) throw activityResult.error;
         const activities: Activity[] = activityResult.data ?? [];
         let questions: Question[] = [];
         if (activities.length) {
-          const questionResult = await supabase.from("questions")
-            .select("id, activity_id, question_text, question_type, correct_answer, options, explanation, question_order")
-            .in("activity_id", activities.map((activity) => activity.id)).order("question_order").order("id");
+          const questionResult = await supabase.from("questions").select("id, activity_id, question_text, question_type, correct_answer, options, explanation, question_order").in("activity_id", activities.map((activity) => activity.id)).order("question_order").order("id");
           if (questionResult.error) throw questionResult.error;
           questions = questionResult.data ?? [];
         }
@@ -116,8 +198,7 @@ function IntroExperience({ code }: { code: string }) {
   if (error) return <section role="alert" className="mx-auto mt-12 max-w-xl rounded-3xl bg-white p-8 text-center shadow-sm"><h1 className="text-2xl font-extrabold">Your preview is unavailable</h1><p className="mt-4 leading-7">{error}</p><Link className={`${buttonStyle} mt-6`} href="/onboarding/languages">Back to languages</Link></section>;
   if (!data) return <Loading />;
 
-  const practice = data.activities.flatMap((activity) => data.questions.filter((question) => question.activity_id === activity.id))
-    .find((question) => question.question_type === "multiple_choice" && choicesFor(question).length);
+  const practice = data.activities.flatMap((activity) => data.questions.filter((question) => question.activity_id === activity.id)).find((question) => question.question_type === "multiple_choice" && choicesFor(question).length);
   const practiceActivity = data.activities.find((activity) => activity.id === practice?.activity_id);
   const word = data.words[wordIndex];
   const steps: Stage[] = ["welcome", "learn", "practice", "complete"];
@@ -125,7 +206,6 @@ function IntroExperience({ code }: { code: string }) {
 
   function finish() {
     try {
-      // Preview completion is browser state only, never permanent learner progress.
       localStorage.setItem("acelingua_intro_lesson_id", data!.lesson.id);
       localStorage.setItem("acelingua_intro_completed", "true");
       setStorageError("");
@@ -134,16 +214,10 @@ function IntroExperience({ code }: { code: string }) {
       setStorageError("We couldn't save your preview state. Please allow browser storage and try again.");
     }
   }
-
-  function afterLearning() {
-    if (practice) setStage("practice");
-    else finish();
-  }
+  function afterLearning() { if (practice) setStage("practice"); else finish(); }
 
   return <section className="mx-auto mt-6 max-w-2xl pb-10">
-    <ol aria-label="Preview progress" className="mb-8 grid grid-cols-4 gap-2">
-      {steps.map((step, index) => <li key={step} aria-current={stage === step ? "step" : undefined} className="text-center text-xs font-semibold capitalize"><div className={`mb-2 h-2 rounded-full ${index <= stepIndex ? "bg-[#3558AE]" : "bg-[#C7A9D4]/35"}`} />{step}</li>)}
-    </ol>
+    <ol aria-label="Preview progress" className="mb-8 grid grid-cols-4 gap-2">{steps.map((step, index) => <li key={step} aria-current={stage === step ? "step" : undefined} className="text-center text-xs font-semibold capitalize"><div className={`mb-2 h-2 rounded-full ${index <= stepIndex ? "bg-[#3558AE]" : "bg-[#C7A9D4]/35"}`} />{step}</li>)}</ol>
     <div className="rounded-3xl border border-white bg-white p-6 shadow-[0_12px_40px_rgba(7,26,74,0.08)] sm:p-10">
       <div className="mb-7 flex items-center gap-4"><Image src="/icon head.png" alt="Ace, your learner guide" width={80} height={80} className="h-16 w-16 shrink-0 object-contain" /><p className="rounded-2xl bg-[#EAF5FF] px-4 py-3 text-sm leading-6">{stage === "welcome" ? `Ready for your first ${data.language.name} lesson?` : stage === "complete" ? "Great start! Keep exploring with me." : "Take your time. Every phrase is a step forward!"}</p></div>
       <p className="text-xs font-bold uppercase tracking-wider text-[#3558AE]">{data.language.flag_emoji} {data.language.name} {data.language.native_name && `· ${data.language.native_name}`}</p>
@@ -157,8 +231,14 @@ function IntroExperience({ code }: { code: string }) {
       </>}
       {stage === "learn" && <>
         <h1 className="mt-3 text-2xl font-extrabold">{word ? "Learn this phrase" : data.lesson.title}</h1>
-        {word ? <div className="mt-6 text-center"><p className="text-xs text-[#071A4A]/55">Phrase {wordIndex + 1} of {data.words.length}</p><h2 className="mt-6 break-words text-4xl font-bold sm:text-5xl">{word.word}</h2>{word.pronunciation && <p className="mt-4 text-lg text-[#3558AE]">{word.pronunciation}</p>}<p className="mt-4 text-2xl">{word.translation}</p>{word.example_sentence && <div className="mt-6 rounded-2xl bg-[#EAF5FF] p-4 text-base"><p>{word.example_sentence}</p>{word.example_translation && <p className="mt-2 text-sm text-[#071A4A]/65">{word.example_translation}</p>}</div>}</div>
-          : <div className="mt-5 space-y-4"><p className="text-sm leading-6 text-[#071A4A]/65">{data.activities.length || data.questions.length ? "Vocabulary cards aren't available yet. Explore the lesson's available activities below." : "Learning content for this preview is coming soon. You can still explore the lesson information and create your account."}</p>{data.lesson.description && <p>{data.lesson.description}</p>}{data.activities.map((activity) => <div key={activity.id} className="rounded-2xl bg-[#EAF5FF] p-4"><h2 className="font-bold">{activity.title}</h2>{activity.instructions && <p className="mt-2 text-sm leading-6">{activity.instructions}</p>}</div>)}</div>}
+        {word ? <div className="mt-6 text-center">
+          <p className="text-xs text-[#071A4A]/55">Phrase {wordIndex + 1} of {data.words.length}</p>
+          <h2 className="mt-6 break-words text-4xl font-bold sm:text-5xl">{word.word}</h2>
+          {word.pronunciation && <p className="mt-4 text-lg text-[#3558AE]">{word.pronunciation}</p>}
+          <p className="mt-4 text-2xl">{word.translation}</p>
+          <PronunciationPlayer key={`${data.language.code}-${word.id}`} languageCode={data.language.code} word={word} />
+          {word.example_sentence && <div className="mt-6 rounded-2xl bg-[#EAF5FF] p-4 text-base"><p>{word.example_sentence}</p>{word.example_translation && <p className="mt-2 text-sm text-[#071A4A]/65">{word.example_translation}</p>}</div>}
+        </div> : <div className="mt-5 space-y-4"><p className="text-sm leading-6 text-[#071A4A]/65">{data.activities.length || data.questions.length ? "Vocabulary cards aren't available yet. Explore the lesson's available activities below." : "Learning content for this preview is coming soon. You can still explore the lesson information and create your account."}</p>{data.lesson.description && <p>{data.lesson.description}</p>}{data.activities.map((activity) => <div key={activity.id} className="rounded-2xl bg-[#EAF5FF] p-4"><h2 className="font-bold">{activity.title}</h2>{activity.instructions && <p className="mt-2 text-sm leading-6">{activity.instructions}</p>}</div>)}</div>}
         <button type="button" className={`${buttonStyle} mt-7`} onClick={() => word && wordIndex < data.words.length - 1 ? setWordIndex(wordIndex + 1) : afterLearning()}>{word && wordIndex < data.words.length - 1 ? "Next phrase" : practice ? "Continue to practice" : "Finish preview"}<ArrowRight size={17} /></button>
         {!practice && <p className="mt-3 text-xs text-[#071A4A]/55">A multiple-choice practice question is not available for this preview yet.</p>}
       </>}
