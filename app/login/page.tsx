@@ -53,6 +53,7 @@ function LoginForm() {
       return;
     }
 
+    try { localStorage.setItem("acelingua_onboarding_source", "existing_user"); } catch { /* Authentication can continue without guest storage. */ }
     window.location.href = POST_AUTH_ROUTE;
   }
 

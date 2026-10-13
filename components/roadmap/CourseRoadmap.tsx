@@ -8,10 +8,15 @@ import JourneyRoadmap from "./JourneyRoadmap";
 import { isAuthSessionMissingError } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { loadRoadmap } from "@/lib/roadmap";
+import LearnerShell from "@/components/dashboard/LearnerShell";
+import LearningLibrary from "@/components/learning/LearningLibrary";
+import CountryScenery from "@/components/world/CountryScenery";
+import { languageLocations } from "@/lib/world/languageLocations";
 
 type Snapshot = Awaited<ReturnType<typeof loadRoadmap>>;
 export default function CourseRoadmap() {
   const requested = useSearchParams().get("course");
+  if (!requested) return <LearnerShell><LearningLibrary /></LearnerShell>;
   return <RoadmapContent key={requested ?? "active"} requested={requested} />;
 }
 
@@ -42,6 +47,9 @@ function RoadmapContent({ requested }: { requested: string | null }) {
           return;
         }
         const result = await loadRoadmap(supabase, user.id, requested ?? ids[0]);
+        const access = await supabase.from("course_progress").update({ last_accessed_at: new Date().toISOString() })
+          .eq("user_id", user.id).eq("course_id", result.course.id);
+        if (access.error) throw new Error(`We couldn't save your active course: ${access.error.message}`);
         if (!cancelled) setData(result);
       } catch (cause) {
         if (!cancelled) setError(cause instanceof Error ? cause.message : "Unable to load your roadmap. Please try again.");
@@ -53,11 +61,15 @@ function RoadmapContent({ requested }: { requested: string | null }) {
 
   return <main className="min-h-screen bg-[#EAF5FF] px-5 py-8 text-[#071A4A]">
     <div className="mx-auto max-w-6xl">
-      <Link href="/dashboard" className="text-sm font-bold text-[#3558AE]">← Dashboard</Link>
+      <Link href="/learn" className="text-sm font-bold text-[#3558AE]">← My library</Link>
       {error ? <section role="alert" className="mt-8 rounded-3xl bg-white p-7"><h1 className="text-xl font-bold">Roadmap unavailable</h1><p className="mt-3">{error}</p><button onClick={() => { setError(""); setData(null); setAttempt(attempt + 1); }} className="mt-5 rounded-full bg-[#071A4A] px-6 py-3 text-white">Retry</button><Link href="/learn" className="ml-4 text-[#3558AE]">Choose course</Link></section>
         : choices.length ? <section className="mt-8 rounded-3xl bg-white p-7"><h1 className="text-2xl font-bold">Choose your course</h1><p className="mt-3">You have more than one active course.</p><div className="mt-5 space-y-3">{choices.map((course) => <Link key={course.id} href={`/learn?course=${encodeURIComponent(course.id)}`} className="block rounded-xl bg-[#EAF5FF] p-4 font-bold">{course.title}</Link>)}</div></section>
         : !data ? <div role="status" className="py-20 text-center"><Loader2 className="mx-auto animate-spin" /><p className="mt-4">Loading your roadmap...</p></div>
         : <>
+          <div className="relative mt-7 overflow-hidden rounded-[32px] border border-white bg-white shadow-sm">
+            <CountryScenery languageCode={data.language.code} className="h-52 w-full sm:h-72" />
+            <div className="absolute bottom-5 left-5 rounded-2xl bg-white/95 px-5 py-3 shadow-sm sm:left-8"><p className="text-[10px] font-bold uppercase tracking-widest text-[#3558AE]">Your language destination</p><p className="mt-1 text-xl font-extrabold">{languageLocations[data.language.code]?.country ?? data.language.name}<span className="ml-3 text-sm font-medium text-[#62759C]">{data.language.name}</span></p></div>
+          </div>
           <header className="relative my-8 overflow-hidden rounded-[32px] border border-white bg-white/85 p-7 shadow-[0_12px_40px_rgba(7,26,74,0.04)] sm:p-10">
             <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-24 h-80 w-80 rounded-full border-[40px] border-[#C7A9D4]/15" />
             <div className="relative grid gap-8 md:grid-cols-[1fr_280px] md:items-center">
@@ -65,7 +77,7 @@ function RoadmapContent({ requested }: { requested: string | null }) {
               <div className="rounded-2xl bg-[#EAF5FF] p-6"><p className="text-xs font-bold uppercase tracking-widest text-[#3558AE]">Journey progress</p><p className="mt-3 text-3xl font-extrabold">{data.percentage}<span className="text-lg">%</span></p><p className="mt-1 text-xs text-[#071A4A]/60">{data.completed} / {data.total} lessons completed</p><progress aria-label="Course progress" value={data.completed} max={data.total || 1} className="mt-4 h-2 w-full accent-[#3558AE]" /></div>
             </div>
           </header>
-          <JourneyRoadmap units={data.units} states={data.states} progress={data.progress} courseId={data.course.id} />
+          <JourneyRoadmap units={data.units} states={data.states} progress={data.progress} courseId={data.course.id} languageCode={data.language.code} />
         </>}
     </div>
   </main>;

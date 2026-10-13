@@ -45,14 +45,16 @@ export default function LearnerShell({ children }: { children: ReactNode }) {
       }
     }
     void load();
-    return () => { cancelled = true; };
+    const refreshBalance = () => { void load(); };
+    window.addEventListener("acelingua:balance-updated", refreshBalance);
+    return () => { cancelled = true; window.removeEventListener("acelingua:balance-updated", refreshBalance); };
   }, [router, attempt]);
   return <div className="min-h-screen bg-[#F4F9FD] text-[#071A4A]">
     <DashboardSidebar />
     <div className="min-h-screen md:pl-19">
       {session?.header && <DashboardHeader {...session.header} />}
       <nav aria-label="Learner navigation" className="flex gap-2 overflow-x-auto border-b border-[#071A4A]/5 bg-white p-3 md:hidden">
-        {[['Dashboard', '/dashboard'], ['Learn', '/learn'], ['Avatar', '/avatar'], ['World', '/world']].map(([name, href]) => <Link key={href} href={href} aria-current={pathname === href || pathname.startsWith(href + '/') ? "page" : undefined} className="rounded-xl px-3 py-2 text-sm font-bold aria-[current=page]:bg-[#EAF5FF] focus-visible:outline-2 focus-visible:outline-[#3558AE]">{name}</Link>)}
+        {[['Dashboard', '/dashboard'], ['Learn', '/learn'], ['Avatar', '/avatar'], ['World', '/world'], ['Store', '/store']].map(([name, href]) => <Link key={href} href={href} aria-current={pathname === href || pathname.startsWith(href + '/') ? "page" : undefined} className="rounded-xl px-3 py-2 text-sm font-bold aria-[current=page]:bg-[#EAF5FF] focus-visible:outline-2 focus-visible:outline-[#3558AE]">{name}</Link>)}
       </nav>
       {error ? <main className="mx-auto max-w-xl p-8"><h1 className="text-2xl font-bold">Let&apos;s try again</h1><p role="alert" className="mt-4">{error}</p><button onClick={() => { setError(""); setAttempt(n => n + 1); }} className="mt-5 rounded-full bg-[#071A4A] px-6 py-3 font-bold text-white">Retry</button></main>
         : !session ? <main role="status" className="flex min-h-[70vh] flex-col items-center justify-center gap-4"><Loader2 className="animate-spin" /><p>Loading your journey...</p></main>

@@ -1,0 +1,20 @@
+.layout { display: grid; gap: 20px; grid-template-columns: minmax(210px, .88fr) minmax(0, 2.16fr) minmax(230px, .96fr); align-items: start; }
+.leftColumn, .rightColumn { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.avatar { order: 0; }.selector { order: 1; }
+.roadmap { min-width: 0; }
+.card { background: white; border: 1px solid #071a4a09; border-radius: 24px; padding: 22px; box-shadow: 0 8px 28px #071a4a03; min-width: 0; }
+.card h2 { font-size: 15px; font-weight: 850; }
+.card p { line-height: 1.7; }
+@media (max-width: 1199px) and (min-width: 768px) {
+  .layout { grid-template-columns: minmax(0, 1fr) minmax(240px, .48fr); }
+  .roadmap { grid-column: 1; grid-row: 1 / span 2; }
+  .leftColumn { grid-column: 2; grid-row: 1; }
+  .rightColumn { grid-column: 2; grid-row: 2; }
+}
+@media (max-width: 767px) {
+  .layout { display: flex; flex-direction: column; }
+  .leftColumn, .rightColumn { display: contents; }
+  .layout > *, .card { width: 100%; }
+  .stats { order: 0; }.selector { order: 1; }.roadmap { order: 2; }.avatar { order: 3; }.goal { order: 4; }.shop { order: 5; }.achievements { order: 6; }
+  .card { padding: 18px; }
+}

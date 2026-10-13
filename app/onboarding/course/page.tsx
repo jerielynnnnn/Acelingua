@@ -3,12 +3,14 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { publishedCourseAvailability } from "@/lib/language-catalog";
 
 type Course = {
   id: string;
   title: string;
   description: string | null;
   level: string;
+  playable: boolean;
 };
 
 export default function ChooseCoursePage() {
@@ -72,7 +74,14 @@ function ChooseCourseContent() {
       if (error) {
         setMessage(error.message);
       } else {
-        setCourses(data ?? []);
+        try {
+          const available = await Promise.all((data ?? []).map(async course => ({ ...course,
+            playable: (await publishedCourseAvailability(supabase, course.id, true)).playable,
+          })));
+          setCourses(available);
+        } catch (cause) {
+          setMessage(cause instanceof Error ? cause.message : "We couldn't check course availability.");
+        }
       }
 
       setLoading(false);
@@ -132,9 +141,10 @@ function ChooseCourseContent() {
 
               <button
                 type="button"
+                disabled={!course.playable}
                 onClick={() => handleCourseSelect(course.id)}
               >
-                Start Course
+                {course.playable ? "Start Course" : "Course in Preparation"}
               </button>
             </div>
           ))}

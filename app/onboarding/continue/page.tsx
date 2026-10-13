@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { continueAuthenticatedOnboarding } from "@/lib/auth-onboarding";
+import { prepareRegistrationPreview, transferPreview } from "@/lib/transfer-preview";
 
 export default function ContinueOnboardingPage() {
   const router = useRouter();
@@ -23,7 +24,11 @@ export default function ContinueOnboardingPage() {
           return;
         }
         if (authError) throw authError;
-        const destination = await continueAuthenticatedOnboarding(supabase, user);
+        const prepared = await prepareRegistrationPreview(supabase, user);
+        const destination = await continueAuthenticatedOnboarding(supabase, prepared);
+        // Let learners create their avatar before a preview-transfer failure can
+        // block onboarding. Avatar finalization retries the preserved preview.
+        if (destination === "/dashboard") await transferPreview(supabase, prepared);
         if (!cancelled) router.replace(destination);
       } catch (cause) {
         if (!cancelled) setError(cause instanceof Error ? cause.message : "We couldn't finish preparing your account. Please retry.");

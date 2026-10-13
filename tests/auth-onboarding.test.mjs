@@ -3,9 +3,12 @@ import { readFileSync } from "node:fs";
 import { test, beforeEach } from "node:test";
 import ts from "typescript";
 
-const source = readFileSync(new URL("../lib/auth-onboarding.ts", import.meta.url), "utf8");
+const catalogSource = readFileSync(new URL("../lib/language-catalog.ts", import.meta.url), "utf8");
+const catalogOutput = ts.transpileModule(catalogSource, { compilerOptions: { module: ts.ModuleKind.ES2022 } }).outputText;
+const catalogUrl = "data:text/javascript;base64," + Buffer.from(catalogOutput).toString("base64");
+const source = readFileSync(new URL("../lib/auth-onboarding.ts", import.meta.url), "utf8").replace('"@/lib/language-catalog"', JSON.stringify(catalogUrl));
 const output = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ES2022 } }).outputText;
-const { continueAuthenticatedOnboarding, readOnboardingSelection, selectStartingCourse } = await import(
+const { continueAuthenticatedOnboarding, readOnboardingSelection, selectStartingCourse, enrollStartingCourse } = await import(
   `data:text/javascript;base64,${Buffer.from(output).toString("base64")}`,
 );
 const languageId = "9e3b5bd7-f38e-42cc-8301-100e0fad7873";
@@ -26,16 +29,17 @@ function pending() {
 }
 
 // A narrow Supabase test double models RLS failures and atomic conflict handling.
-function database({ avatar = false, existingAccount = false, failure = null } = {}) {
+function database({ avatar = false, existingAccount = false, failure = null, vocabulary = 3, publishedLessons = true } = {}) {
   const records = { enrollment: null, progress: null };
   const writes = [];
   return {
     records, writes,
     from(table) {
-      let values, options;
+      let values, options, head = false;
       const filters = {};
       const query = {
-        select() { return query; },
+        select(columns, config) { head = Boolean(config?.head); return query; },
+        range() { return query; },
         eq(key, value) { filters[key] = value; return query; },
         order() { return query; },
         limit() { return query; },
@@ -59,7 +63,10 @@ function database({ avatar = false, existingAccount = false, failure = null } = 
             else if (table === "course_progress") data = records.progress;
             else if (table === "languages") data = { id: languageId, code: "ja" };
             else if (table === "courses") data = [{ id: "course", title: "Japanese Beginner", level: "Beginner" }];
-            else if (table === "lessons") return { data: null, error: null, count: 12 };
+            else if (table === "lessons") return { data: head ? null : publishedLessons ? [{ id: "lesson" }] : [], error: null, count: publishedLessons ? 12 : 0 };
+            else if (table === "units") data = [{ id: "unit", unit_order: 1 }];
+            else if (table === "vocabulary") return { data: null, error: null, count: vocabulary };
+            else if (table === "activities") data = [];
             else assert.fail(`Unexpected table ${table}`);
             return { data, error: null };
           }).then(resolve, reject);
@@ -79,6 +86,49 @@ test("returning login checks setup and does not write enrollment", async () => {
   const db = database({ avatar: true, existingAccount: true });
   assert.equal(await continueAuthenticatedOnboarding(db, user), "/dashboard");
   assert.deepEqual(db.writes, []);
+});
+
+test("enrollment rejects missing published lessons or unusable intro before writing", async () => {
+  for (const config of [{ publishedLessons: false }, { vocabulary: 0 }]) {
+    const db = database(config);
+    await assert.rejects(enrollStartingCourse(db, user, { languageId, languageCode: "ja" }), /Course in Preparation/);
+    assert.deepEqual(db.writes, []);
+  }
+});
+
+test("direct registration without language resumes selection", async () => {
+  const db = database();
+  assert.equal(await continueAuthenticatedOnboarding(db, { ...user, user_metadata: { acelingua_onboarding: { source: "direct_registration" } } }), "/onboarding/languages");
+  assert.deepEqual(db.writes, []);
+});
+
+test("direct registration still chooses language when signup has default avatar and enrollment", async () => {
+  const db = database({ avatar: true, existingAccount: true });
+  assert.equal(await continueAuthenticatedOnboarding(db, { ...user, user_metadata: { acelingua_onboarding: { source: "direct_registration" } } }), "/onboarding/languages");
+  assert.deepEqual(db.writes, []);
+});
+
+test("World enrolls the selected language directly and repeated starts retain progress", async () => {
+  const db = database({ avatar: true, existingAccount: true });
+  const selection = { languageId, languageCode: "ja" };
+  assert.equal(await enrollStartingCourse(db, user, selection), "course");
+  db.records.progress.completed_lessons = 4;
+  assert.equal(await enrollStartingCourse(db, user, selection), "course");
+  assert.equal(db.records.progress.completed_lessons, 4);
+  assert.deepEqual(db.writes.map(write => write.table), ["user_courses", "course_progress"]);
+  assert.equal(storage.size, 0, "World enrollment does not replace onboarding state");
+});
+
+test("interrupted avatar finalization resumes avatar even when equipped", async () => {
+  const db = database({ avatar: true, existingAccount: true });
+  const signup = { ...user, user_metadata: { acelingua_onboarding: { source: "guest_preview", languageId, languageCode: "ja", introCompleted: true } } };
+  assert.equal(await continueAuthenticatedOnboarding(db, signup), "/avatar/setup");
+});
+
+test("Google registration with bound signup metadata skips repeating the preview", async () => {
+  const db = database();
+  const signup = { ...user, app_metadata: { provider: "google" }, user_metadata: { acelingua_onboarding: { source: "guest_preview", languageId, languageCode: "ja", introCompleted: true } } };
+  assert.equal(await continueAuthenticatedOnboarding(db, signup), "/avatar/setup");
 });
 
 test("new Google account without a selection must choose a language before avatar setup", async () => {

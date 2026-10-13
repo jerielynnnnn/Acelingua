@@ -2,127 +2,26 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Suspense, useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, ArrowRight, CheckCircle2, Loader2, Pause, Play, RotateCcw, Volume2, VolumeX } from "lucide-react";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { readPreview } from "@/lib/guest-preview";
+import VocabularyCard from "@/components/learning/VocabularyCard";
+import GuestPreviewActivities from "@/components/learning/GuestPreviewActivities";
 
 type Language = { id: string; code: string; name: string; native_name: string | null; flag_emoji: string | null };
 type Course = { id: string; title: string; description: string | null; level: string | null };
 type Unit = { id: string; title: string; description: string | null; unit_order: number; location_name: string | null };
 type Lesson = { id: string; title: string; description: string | null; lesson_order: number; xp_reward: number; coin_reward: number };
 type Word = { id: string; word: string; pronunciation: string | null; translation: string; example_sentence: string | null; example_translation: string | null };
-type Activity = { id: string; title: string; instructions: string | null; activity_type: string; activity_order: number };
-type Question = { id: string; activity_id: string; question_text: string; question_type: string; correct_answer: string; options: unknown; explanation: string | null; question_order: number };
-type Intro = { language: Language; course: Course; unit: Unit; lesson: Lesson; words: Word[]; activities: Activity[]; questions: Question[] };
+type Intro = { language: Language; course: Course; unit: Unit; lesson: Lesson; words: Word[] };
 type Stage = "welcome" | "learn" | "practice" | "complete";
-
-// AUDIO PLACEHOLDERS — leave blank until your MP3 recordings are ready.
-// Example: ja: { "こんにちは": "/audio/ja/konnichiwa.mp3" }
-// Keys are language codes from Supabase and vocabulary.word values.
-const LANGUAGE_AUDIO: Record<string, Record<string, string>> = {
-  ja: {}, // Japanese
-  ko: {"안녕하세요": "/audio/ko/annyeonghaseyo.mp3", "안녕히 가세요": "/audio/ko/annyeonghigaseyo.mp3"}, // Korean
-  en: {}, // English
-  es: {}, // Spanish
-  fr: {}, // French
-  de: {}, // German
-  zh: {}, // Chinese
-  it: {}, // Italian
-  pt: {}, // Portuguese
-  ru: {}, // Russian
-  ar: {}, // Arabic
-  hi: {}, // Hindi
-  th: {}, // Thai
-  vi: {}, // Vietnamese
-};
 
 const buttonStyle = "inline-flex items-center justify-center gap-2 rounded-full bg-[#071A4A] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#3558AE] disabled:cursor-not-allowed disabled:opacity-50";
 
-function choicesFor(question: Question): string[] {
-  let options = question.options;
-  if (typeof options === "string") {
-    try { options = JSON.parse(options); } catch { return []; }
-  }
-  if (!Array.isArray(options) || !options.every((option) => typeof option === "string")) return [];
-  const choices = [...new Set(options as string[])].filter((option) => option.trim());
-  return choices.length >= 2 && choices.includes(question.correct_answer) ? choices : [];
-}
-
 function Loading() {
   return <div role="status" className="mx-auto flex max-w-sm flex-col items-center py-20 text-center"><Loader2 className="animate-spin text-[#3558AE]" size={30} /><p className="mt-4 text-sm">Loading your first lesson...</p></div>;
-}
-
-function PronunciationPlayer({ languageCode, word }: { languageCode: string; word: Word }) {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [autoPlay, setAutoPlay] = useState(true);
-  const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState<1 | 0.75>(1);
-  const [message, setMessage] = useState("");
-  const src = LANGUAGE_AUDIO[languageCode.toLowerCase()]?.[word.word]?.trim() ?? "";
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.pause();
-    audio.currentTime = 0;
-    setPlaying(false);
-    setMessage("");
-    audio.playbackRate = speed;
-    if (src && autoPlay) {
-      void audio.play().then(() => setPlaying(true)).catch(() => setMessage("Tap Play to hear the pronunciation."));
-    }
-  }, [src, word.id, autoPlay, speed]);
-
-  async function togglePlay() {
-    const audio = audioRef.current;
-    if (!audio || !src) return;
-    if (!audio.paused) { audio.pause(); setPlaying(false); return; }
-    try {
-      if (audio.ended) audio.currentTime = 0;
-      audio.playbackRate = speed;
-      await audio.play();
-      setPlaying(true);
-      setMessage("");
-    } catch {
-      setMessage("Audio could not play. Check the MP3 file path.");
-    }
-  }
-
-  async function replay() {
-    const audio = audioRef.current;
-    if (!audio || !src) return;
-    audio.currentTime = 0;
-    try { await audio.play(); setPlaying(true); setMessage(""); }
-    catch { setMessage("Audio could not play. Check the MP3 file path."); }
-  }
-
-  return (
-    <div className="mt-7 rounded-[26px] border border-[#DDE8F8] bg-gradient-to-br from-[#F6FAFF] to-white p-5 text-left shadow-[0_8px_30px_rgba(7,26,74,0.04)] sm:p-6">
-      <audio ref={audioRef} src={src || undefined} preload="auto" onEnded={() => setPlaying(false)} onPause={() => setPlaying(false)} onPlay={() => setPlaying(true)} onError={() => { setPlaying(false); if (src) setMessage("Audio file unavailable. Check its path."); }} />
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#E5EEFF] text-[#3558AE]"><Volume2 size={22} /></span>
-          <div><h3 className="text-sm font-extrabold text-[#071A4A]">Listen & pronounce</h3><p className="mt-1 text-xs text-[#60708E]">Hear how this phrase sounds</p></div>
-        </div>
-        <button type="button" aria-label={autoPlay ? "Disable autoplay" : "Enable autoplay"} aria-pressed={autoPlay} onClick={() => setAutoPlay(!autoPlay)} className="flex items-center gap-2 rounded-full border border-[#DDE8F8] bg-white px-3 py-2 text-xs font-semibold text-[#3558AE] transition hover:bg-[#EAF5FF]">
-          {autoPlay ? <Volume2 size={14} /> : <VolumeX size={14} />}<span>Auto {autoPlay ? "on" : "off"}</span>
-        </button>
-      </div>
-      <div className="mt-5 flex items-center gap-3">
-        <button type="button" disabled={!src} onClick={() => void togglePlay()} aria-label={playing ? "Pause pronunciation" : "Play pronunciation"} className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#071A4A] text-white shadow-[0_8px_18px_rgba(7,26,74,0.2)] transition hover:scale-105 hover:bg-[#3558AE] disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:scale-100">
-          {playing ? <Pause size={22} fill="currentColor" /> : <Play size={22} fill="currentColor" className="ml-1" />}
-        </button>
-        <div className="min-w-0 flex-1"><p className="truncate text-sm font-bold text-[#071A4A]">{word.word}</p><div className="mt-2 flex h-5 items-center gap-[3px]" aria-hidden="true">{Array.from({ length: 24 }, (_, i) => <span key={i} className={`w-[3px] rounded-full bg-[#7295D6] ${playing ? "animate-pulse" : "opacity-45"}`} style={{ height: `${6 + ((i * 11) % 15)}px`, animationDelay: `${i * 65}ms` }} />)}</div></div>
-        <button type="button" disabled={!src} onClick={() => void replay()} aria-label="Replay pronunciation" title="Replay" className="rounded-full border border-[#DDE8F8] bg-white p-3 text-[#3558AE] transition hover:bg-[#EAF5FF] disabled:opacity-35"><RotateCcw size={18} /></button>
-      </div>
-      <div className="mt-5 flex items-center justify-between gap-3 border-t border-[#E4EBF5] pt-4">
-        <span className="text-xs font-medium text-[#60708E]">{src ? (playing ? "Playing pronunciation" : "Ready to listen") : "Audio recording coming soon"}</span>
-        <button type="button" disabled={!src} onClick={() => setSpeed(speed === 1 ? 0.75 : 1)} className="rounded-full bg-[#EAF1FF] px-3 py-1.5 text-xs font-bold text-[#3558AE] disabled:opacity-40">{speed === 1 ? "1× Normal" : "0.75× Slow"}</button>
-      </div>
-      {message && <p role="status" className="mt-3 text-xs text-[#B64074]">{message}</p>}
-    </div>
-  );
 }
 
 export default function IntroPage() {
@@ -137,17 +36,26 @@ export default function IntroPage() {
 
 function IntroSelection() {
   const code = useSearchParams().get("language") ?? "";
-  return <IntroExperience key={code} code={code} />;
+  const [storedCode, setStoredCode] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    Promise.resolve().then(() => {
+      if (cancelled) return;
+      try { setStoredCode(localStorage.getItem("acelingua_selected_language") ?? ""); }
+      catch { setStoredCode(""); }
+    });
+    return () => { cancelled = true; };
+  }, []);
+  if (!code && storedCode === null) return <Loading />;
+  const selected = code || storedCode || "";
+  return <IntroExperience key={selected} code={selected} />;
 }
 
 function IntroExperience({ code }: { code: string }) {
-  const router = useRouter();
   const [data, setData] = useState<Intro | null>(null);
   const [error, setError] = useState("");
   const [stage, setStage] = useState<Stage>("welcome");
   const [wordIndex, setWordIndex] = useState(0);
-  const [answer, setAnswer] = useState<string | null>(null);
-  const [storageError, setStorageError] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -173,20 +81,14 @@ function IntroExperience({ code }: { code: string }) {
         if (lessonResult.error) throw lessonResult.error;
         if (!lessonResult.data) throw new Error("The first unit doesn't have a published lesson yet. Please check back soon.");
         const lesson: Lesson = lessonResult.data;
-        const [wordResult, activityResult] = await Promise.all([
-          supabase.from("vocabulary").select("id, word, pronunciation, translation, example_sentence, example_translation").eq("lesson_id", lesson.id).order("id"),
-          supabase.from("activities").select("id, title, instructions, activity_type, activity_order").eq("lesson_id", lesson.id).order("activity_order").order("id"),
-        ]);
+        const wordResult = await supabase.from("vocabulary").select("id, word, pronunciation, translation, example_sentence, example_translation").eq("lesson_id", lesson.id).order("id");
         if (wordResult.error) throw wordResult.error;
-        if (activityResult.error) throw activityResult.error;
-        const activities: Activity[] = activityResult.data ?? [];
-        let questions: Question[] = [];
-        if (activities.length) {
-          const questionResult = await supabase.from("questions").select("id, activity_id, question_text, question_type, correct_answer, options, explanation, question_order").in("activity_id", activities.map((activity) => activity.id)).order("question_order").order("id");
-          if (questionResult.error) throw questionResult.error;
-          questions = questionResult.data ?? [];
+        if (!wordResult.data?.length) throw new Error("This preview has no vocabulary yet. Please choose another language.");
+        if (!cancelled) {
+          setData({ language, course, unit, lesson, words: wordResult.data });
+          const saved = readPreview();
+          if (saved?.lessonId === lesson.id && saved.answers.length) setStage(saved.completed ? "complete" : "practice");
         }
-        if (!cancelled) setData({ language, course, unit, lesson, words: wordResult.data ?? [], activities, questions });
       } catch (cause) {
         if (!cancelled) setError(cause instanceof Error ? cause.message : "We couldn't load your preview. Please try again shortly.");
       }
@@ -198,23 +100,11 @@ function IntroExperience({ code }: { code: string }) {
   if (error) return <section role="alert" className="mx-auto mt-12 max-w-xl rounded-3xl bg-white p-8 text-center shadow-sm"><h1 className="text-2xl font-extrabold">Your preview is unavailable</h1><p className="mt-4 leading-7">{error}</p><Link className={`${buttonStyle} mt-6`} href="/onboarding/languages">Back to languages</Link></section>;
   if (!data) return <Loading />;
 
-  const practice = data.activities.flatMap((activity) => data.questions.filter((question) => question.activity_id === activity.id)).find((question) => question.question_type === "multiple_choice" && choicesFor(question).length);
-  const practiceActivity = data.activities.find((activity) => activity.id === practice?.activity_id);
   const word = data.words[wordIndex];
   const steps: Stage[] = ["welcome", "learn", "practice", "complete"];
   const stepIndex = steps.indexOf(stage);
 
-  function finish() {
-    try {
-      localStorage.setItem("acelingua_intro_lesson_id", data!.lesson.id);
-      localStorage.setItem("acelingua_intro_completed", "true");
-      setStorageError("");
-      setStage("complete");
-    } catch {
-      setStorageError("We couldn't save your preview state. Please allow browser storage and try again.");
-    }
-  }
-  function afterLearning() { if (practice) setStage("practice"); else finish(); }
+  function afterLearning() { setStage("practice"); }
 
   return <section className="mx-auto mt-6 max-w-2xl pb-10">
     <ol aria-label="Preview progress" className="mb-8 grid grid-cols-4 gap-2">{steps.map((step, index) => <li key={step} aria-current={stage === step ? "step" : undefined} className="text-center text-xs font-semibold capitalize"><div className={`mb-2 h-2 rounded-full ${index <= stepIndex ? "bg-[#3558AE]" : "bg-[#C7A9D4]/35"}`} />{step}</li>)}</ol>
@@ -233,25 +123,11 @@ function IntroExperience({ code }: { code: string }) {
         <h1 className="mt-3 text-2xl font-extrabold">{word ? "Learn this phrase" : data.lesson.title}</h1>
         {word ? <div className="mt-6 text-center">
           <p className="text-xs text-[#071A4A]/55">Phrase {wordIndex + 1} of {data.words.length}</p>
-          <h2 className="mt-6 break-words text-4xl font-bold sm:text-5xl">{word.word}</h2>
-          {word.pronunciation && <p className="mt-4 text-lg text-[#3558AE]">{word.pronunciation}</p>}
-          <p className="mt-4 text-2xl">{word.translation}</p>
-          <PronunciationPlayer key={`${data.language.code}-${word.id}`} languageCode={data.language.code} word={word} />
-          {word.example_sentence && <div className="mt-6 rounded-2xl bg-[#EAF5FF] p-4 text-base"><p>{word.example_sentence}</p>{word.example_translation && <p className="mt-2 text-sm text-[#071A4A]/65">{word.example_translation}</p>}</div>}
-        </div> : <div className="mt-5 space-y-4"><p className="text-sm leading-6 text-[#071A4A]/65">{data.activities.length || data.questions.length ? "Vocabulary cards aren't available yet. Explore the lesson's available activities below." : "Learning content for this preview is coming soon. You can still explore the lesson information and create your account."}</p>{data.lesson.description && <p>{data.lesson.description}</p>}{data.activities.map((activity) => <div key={activity.id} className="rounded-2xl bg-[#EAF5FF] p-4"><h2 className="font-bold">{activity.title}</h2>{activity.instructions && <p className="mt-2 text-sm leading-6">{activity.instructions}</p>}</div>)}</div>}
-        <button type="button" className={`${buttonStyle} mt-7`} onClick={() => word && wordIndex < data.words.length - 1 ? setWordIndex(wordIndex + 1) : afterLearning()}>{word && wordIndex < data.words.length - 1 ? "Next phrase" : practice ? "Continue to practice" : "Finish preview"}<ArrowRight size={17} /></button>
-        {!practice && <p className="mt-3 text-xs text-[#071A4A]/55">A multiple-choice practice question is not available for this preview yet.</p>}
+          <VocabularyCard key={word.id} word={word} languageCode={data.language.code} />
+        </div> : null}
+        <button type="button" className={`${buttonStyle} mt-7`} onClick={() => word && wordIndex < data.words.length - 1 ? setWordIndex(wordIndex + 1) : afterLearning()}>{word && wordIndex < data.words.length - 1 ? "Next phrase" : "Continue to practice"}<ArrowRight size={17} /></button>
       </>}
-      {stage === "practice" && practice && <>
-        <h1 className="mt-3 text-2xl font-extrabold">A little practice</h1>
-        {practiceActivity?.instructions && <p className="mt-3 text-sm leading-6 text-[#071A4A]/65">{practiceActivity.instructions}</p>}
-        <h2 className="mt-6 break-words text-xl font-bold">{practice.question_text}</h2>
-        <div role="group" aria-label="Answer choices" className="mt-5 grid gap-3">{choicesFor(practice).map((choice) => <button key={choice} type="button" aria-pressed={answer === choice} disabled={answer === practice.correct_answer} onClick={() => setAnswer(choice)} className={`rounded-2xl border p-4 text-left font-semibold transition disabled:cursor-default ${answer === choice ? answer === practice.correct_answer ? "border-[#3558AE] bg-[#EAF5FF]" : "border-[#B64074] bg-[#F9C3D7]/30" : "border-[#071A4A]/15 hover:border-[#3558AE]"}`}>{choice}</button>)}</div>
-        <div role="status" aria-live="polite" className="mt-4 text-sm leading-6">{answer !== null && (answer === practice.correct_answer ? <><p className="font-bold text-[#3558AE]">Correct!</p>{practice.explanation && <p>{practice.explanation}</p>}</> : <p className="text-[#B64074]">Try again. Choose another answer.</p>)}</div>
-        <button type="button" disabled={answer !== practice.correct_answer} className={`${buttonStyle} mt-6`} onClick={finish}>Finish preview <ArrowRight size={17} /></button>
-      </>}
-      {stage === "complete" && <div className="mt-6 text-center"><CheckCircle2 size={54} className="mx-auto text-[#3558AE]" /><h1 className="mt-4 text-3xl font-extrabold">Great start!</h1><p className="mt-4 leading-7">You completed your first ACELINGUA preview.</p><p className="mt-3 font-bold">{data.language.name} · {data.lesson.title}</p><p className="mt-4 text-sm leading-6 text-[#071A4A]/65">Create an account to continue your journey. This guest preview awards no XP or coins.</p><button type="button" className={`${buttonStyle} mt-7`} onClick={() => router.push("/register")}>Create your account to continue <ArrowRight size={17} /></button></div>}
-      {storageError && <p role="alert" className="mt-5 rounded-xl bg-[#F9C3D7]/30 p-4 text-sm text-[#B64074]">{storageError}</p>}
+      {(stage === "practice" || stage === "complete") && <GuestPreviewActivities languageId={data.language.id} languageCode={data.language.code} courseId={data.course.id} lessonId={data.lesson.id} words={data.words} onComplete={() => setStage("complete")} />}
     </div>
   </section>;
 }

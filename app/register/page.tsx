@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import {
   ArrowRight,
   Eye,
@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { POST_AUTH_ROUTE, registrationOnboardingMetadata } from "@/lib/auth-onboarding";
+import { readPreview } from "@/lib/guest-preview";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -25,6 +26,19 @@ export default function RegisterPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [success, setSuccess] = useState(false);
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    async function restore() {
+      const { data: { user } } = await createClient().auth.getUser();
+      if (!cancelled && user) {
+        setReady(true); setSuccess(true);
+        setMessage("You're signed in. Continue setting up or return to your dashboard.");
+      }
+    }
+    void restore().catch(() => { /* The form can still display sign-up errors. */ });
+    return () => { cancelled = true; };
+  }, []);
 
   async function handleGoogleRegister() {
     setGoogleLoading(true);
@@ -32,6 +46,7 @@ export default function RegisterPage() {
     setSuccess(false);
     try {
       const supabase = createClient();
+      localStorage.setItem("acelingua_registration_pending", "true");
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: { redirectTo: `${window.location.origin}/auth/callback` },
@@ -64,6 +79,7 @@ export default function RegisterPage() {
     const supabase = createClient();
 
     let onboarding;
+    const preview = readPreview();
     try {
       onboarding = registrationOnboardingMetadata();
     } catch (cause) {
@@ -80,7 +96,8 @@ export default function RegisterPage() {
         data: {
           username,
           display_name: username,
-          acelingua_onboarding: onboarding,
+          acelingua_onboarding: { ...onboarding, ...(onboarding.source === "guest_preview" && preview?.completed ? { courseId: preview.courseId } : {}) },
+          acelingua_guest_preview: preview?.completed ? preview : null,
         },
       },
     });
@@ -92,7 +109,14 @@ export default function RegisterPage() {
     }
 
     if (data.session) {
-      router.replace(POST_AUTH_ROUTE);
+      if (onboarding.source === "guest_preview") {
+        router.replace(POST_AUTH_ROUTE);
+        return;
+      }
+      setReady(true);
+      setSuccess(true);
+      setMessage("Your account is ready! Start your language adventure with Ace.");
+      setLoading(false);
       return;
     }
 
@@ -281,6 +305,7 @@ export default function RegisterPage() {
 
                 {/* Message */}
 
+                {success && <button type="button" onClick={() => router.push(ready ? POST_AUTH_ROUTE : "/login")} className="mb-5 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#071A4A] text-sm font-bold text-white">Get Started <ArrowRight size={15} /></button>}
                 {message && (
                   <div
                     className={`rounded-xl border px-4 py-3 text-xs leading-5 ${

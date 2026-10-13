@@ -24,7 +24,10 @@ import {
 
 
 
-import { createClient } from "@/lib/supabase/client";
+import { createClient, createPublicClient } from "@/lib/supabase/client";
+import { publishedCourseAvailability } from "@/lib/language-catalog";
+import { withTimeout } from "@/lib/request-timeout";
+import { isAuthSessionMissingError } from "@supabase/supabase-js";
 
 
 
@@ -61,6 +64,13 @@ const languageFlags: Record<string, string> = {
   fr: "/flags/france.jpg",
 
 };
+
+const greetings: Record<string, string> = {
+  ja: "こんにちは · Konnichiwa", ko: "안녕하세요 · Annyeonghaseyo",
+  en: "Hello!", fil: "Kumusta!", tl: "Kumusta!", zh: "你好 · Nǐ hǎo",
+  es: "¡Hola!", de: "Hallo!", th: "สวัสดี · Sawatdee", fr: "Bonjour!",
+};
+const flags: Record<string, string> = { en: "🇬🇧", fil: "🇵🇭", tl: "🇵🇭" };
 
 
 
@@ -112,6 +122,10 @@ export default function ChooseLanguagePage() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const [continuing, setContinuing] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
+  const [availability, setAvailability] = useState<Record<string, boolean>>({});
+  const [attempt, setAttempt] = useState(0);
+  const [availabilityError, setAvailabilityError] = useState("");
 
 
 
@@ -124,69 +138,47 @@ export default function ChooseLanguagePage() {
 
 
   useEffect(() => {
+    let cancelled = false;
+    async function loadLanguages() {
+      try {
+        const result = await createPublicClient().from("languages").select("id, code, name, native_name").eq("is_active", true).order("name");
+        if (result.error) throw new Error(result.error.message);
+        if (cancelled) return;
+        const rows: Language[] = result.data ?? [];
+        setLanguages(rows);
+        const requested = readRequestedLanguage();
+        const index = rows.findIndex(language => normalizeLanguage(language.code) === requested || normalizeLanguage(language.name) === requested);
+        if (index >= 0) setCurrentIndex(index);
+      } catch (cause) {
+        if (!cancelled) setMessage(cause instanceof Error ? cause.message : "We couldn't load languages. Please retry.");
+      } finally { if (!cancelled) setLoading(false); }
+    }
+    void loadLanguages();
+    // Auth only changes the explanatory text; it cannot block public discovery.
+    void withTimeout(createClient().auth.getUser(), 10000, "Session check timed out").then(({ data: { user } }) => {
+      if (!cancelled) setAuthenticated(Boolean(user));
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [attempt]);
 
-    const loadLanguages = async () => {
-
-      const supabase = createClient();
-
-
-
-      const { data, error } = await supabase
-
-        .from("languages")
-
-        .select("id, code, name, native_name")
-
-        .eq("is_active", true)
-
-        .order("name");
-
-
-
-      if (error) {
-
-        setMessage(error.message);
-
-      } else {
-
-        const availableLanguages: Language[] = data ?? [];
-        setLanguages(availableLanguages);
-
-        // The active language is selected AFTER the Supabase list is loaded.
-        // Example: ?language=ko -> Korean centered, even though .order("name")
-        // would normally show French first.
-        const requestedCode = readRequestedLanguage();
-        if (requestedCode) {
-          const selectedIndex = availableLanguages.findIndex((language) =>
-            normalizeLanguage(language.code) === requestedCode ||
-            normalizeLanguage(language.name) === requestedCode
-          );
-
-          if (selectedIndex !== -1) {
-            setCurrentIndex(selectedIndex);
-          } else {
-            setMessage(
-              `The selected language (${requestedCode}) is not active in Supabase. ` +
-              "Check the languages table."
-            );
-          }
-        }
-
+  const selectedLanguageId = languages[currentIndex]?.id;
+  useEffect(() => {
+    if (!selectedLanguageId) return;
+    let cancelled = false;
+    async function checkSelected() {
+      try {
+        const supabase = createPublicClient();
+        const courses = await supabase.from("courses").select("id").eq("language_id", selectedLanguageId).eq("is_published", true).order("created_at").order("id").limit(1).maybeSingle();
+        if (courses.error) throw new Error(courses.error.message);
+        const ready = courses.data ? (await withTimeout(publishedCourseAvailability(supabase, courses.data.id, false), 20000, "Checking this language took too long. Please retry.")).previewAvailable : false;
+        if (!cancelled) { setAvailability(previous => ({ ...previous, [selectedLanguageId!]: ready })); setAvailabilityError(""); }
+      } catch (cause) {
+        if (!cancelled) setAvailabilityError(cause instanceof Error ? cause.message : "We couldn't check this language. Please retry.");
       }
-
-
-
-      setLoading(false);
-
-    };
-
-
-
-    loadLanguages();
-
-  }, []);
-
-
+    }
+    void checkSelected();
+    return () => { cancelled = true; };
+  }, [selectedLanguageId, attempt]);
 
   /* =========================================================*
 
@@ -256,13 +248,14 @@ export default function ChooseLanguagePage() {
 
 
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
+    try {
 
     const language = languages[currentIndex];
 
 
 
-    if (!language) return;
+    if (!language || !availability[language.id]) return;
 
 
 
@@ -348,11 +341,27 @@ export default function ChooseLanguagePage() {
 
 
 
-    router.push(
-
-      `/learn/intro?language=${encodeURIComponent(language.code)}`
-
-    );
+    const supabase = createClient();
+    const { data: { user }, error } = await withTimeout(supabase.auth.getUser(), 10000, "Your session check took too long. Please retry or sign in again.");
+    if (error && !isAuthSessionMissingError(error)) throw error;
+    localStorage.removeItem("acelingua_intro_completed");
+    if (user) {
+      localStorage.setItem("acelingua_onboarding_user_id", user.id);
+      localStorage.removeItem("acelingua_onboarding_completed_user_id");
+      const { error: metadataError } = await supabase.auth.updateUser({ data: {
+        acelingua_onboarding: { languageId: language.id, languageCode: language.code, source: "direct_registration", introCompleted: true },
+      } });
+      if (metadataError) throw metadataError;
+      router.push("/onboarding/continue");
+    } else {
+      localStorage.removeItem("acelingua_onboarding_user_id");
+      localStorage.setItem("acelingua_onboarding_source", "guest_preview");
+      router.push(`/learn/intro?language=${encodeURIComponent(language.code)}`);
+    }
+    } catch (cause) {
+      setMessage(cause instanceof Error ? cause.message : "We couldn't save your selection. Please try again.");
+      setContinuing(false);
+    }
 
   };
 
@@ -478,9 +487,7 @@ export default function ChooseLanguagePage() {
 
           <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[#071A4A]/50">
 
-            Choose a language and try your first lesson. No account
-
-            needed.
+            {authenticated ? "Choose your first language, then create your avatar." : "Choose a language and try your first lesson. No account needed."}
 
           </p>
 
@@ -507,6 +514,8 @@ export default function ChooseLanguagePage() {
         )}
 
 
+
+        {(message || availabilityError) && <div className="mt-5 text-center">{availabilityError && <p role="alert" className="mb-3 text-sm text-[#B64074]">{availabilityError}</p>}<button type="button" onClick={() => { setMessage(""); setAvailabilityError(""); setAttempt(n => n + 1); }} className="rounded-full bg-white px-6 py-3 text-sm font-bold text-[#3558AE]">Retry loading</button></div>}
 
         {/* ===================================================*
 
@@ -732,7 +741,7 @@ export default function ChooseLanguagePage() {
 
               onClick={handleContinue}
 
-              disabled={continuing}
+              disabled={continuing || !availability[current?.id ?? ""]}
 
               className="mt-8 flex min-w-[190px] items-center justify-center gap-2 rounded-full bg-[#071A4A] px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#071A4A]/10 transition hover:-translate-y-0.5 hover:bg-[#3558AE] disabled:cursor-not-allowed disabled:opacity-60"
 
@@ -760,7 +769,7 @@ export default function ChooseLanguagePage() {
 
                 <>
 
-                  Continue
+                  {availability[current?.id ?? ""] === undefined ? "Checking availability..." : availability[current?.id ?? ""] ? "Continue" : "Course in Preparation"}
 
                   <ArrowRight size={16} />
 
@@ -868,7 +877,7 @@ function LanguageCard({
 
           <div className="flex h-full w-full items-center justify-center text-5xl">
 
-            🌐
+            {flags[language.code] ?? "🌐"}
 
           </div>
 
@@ -905,6 +914,7 @@ function LanguageCard({
           {language.name}
 
         </h2>
+        {greetings[language.code] && <p className="mt-3 text-sm font-semibold text-[#3558AE]">{greetings[language.code]}</p>}
 
 
 

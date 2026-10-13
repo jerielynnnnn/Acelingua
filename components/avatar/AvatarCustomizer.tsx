@@ -8,6 +8,7 @@ import { ArrowRight, Check, Loader2, Lock, RotateCcw, Shuffle } from "lucide-rea
 import { isAuthSessionMissingError } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import UserAvatar from "@/components/avatar/UserAvatar";
+import { transferPreview } from "@/lib/transfer-preview";
 import { avatarCategories, avatarCategoryLabels, loadLearnerAvatar, canUseAvatarItem, initialAvatarSelection,
   saveLearnerAvatar, finishAvatarOnboarding, type AvatarCategory, type AvatarItem,
   type AvatarSelection } from "@/lib/avatar";
@@ -68,6 +69,7 @@ export default function AvatarCustomizer({ onboarding = false }: { onboarding?: 
       const supabase = createClient();
       const user = await saveLearnerAvatar(supabase, data.userId, selected);
       if (onboarding) {
+        await transferPreview(supabase, user);
         await finishAvatarOnboarding(supabase, user);
         router.replace("/dashboard");
       } else {

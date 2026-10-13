@@ -2,10 +2,12 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { enrollStartingCourse } from "@/lib/auth-onboarding";
 import { createClient } from "@/lib/supabase/client";
 
 type Course = {
   id: string;
+  language_id: string;
   title: string;
   description: string | null;
   level: string;
@@ -49,7 +51,7 @@ function CourseConfirmContent() {
       // Get course information
       const { data, error } = await supabase
         .from("courses")
-        .select("id, title, description, level")
+        .select("id, language_id, title, description, level")
         .eq("id", courseId)
         .eq("is_published", true)
         .single();
@@ -83,38 +85,16 @@ function CourseConfirmContent() {
       return;
     }
 
-    // Check if the learner is already enrolled
-    const { data: existingEnrollment, error: checkError } = await supabase
-      .from("user_courses")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("course_id", courseId)
-      .maybeSingle();
-
-    if (checkError) {
-      setMessage(checkError.message);
+    try {
+      if (!course) throw new Error("Choose an available course first.");
+      const language = await supabase.from("languages").select("code").eq("id", course.language_id).eq("is_active", true).single();
+      if (language.error) throw language.error;
+      const enrolledId = await enrollStartingCourse(supabase, user, { languageId: course.language_id, languageCode: language.data.code }, true, course.id);
+      router.push("/learn/" + encodeURIComponent(enrolledId));
+    } catch (cause) {
+      setMessage(cause instanceof Error ? cause.message : "We couldn't enroll in this course.");
       setStarting(false);
-      return;
     }
-
-    // Create enrollment if it doesn't exist
-    if (!existingEnrollment) {
-      const { error: enrollError } = await supabase
-        .from("user_courses")
-        .insert({
-          user_id: user.id,
-          course_id: courseId,
-          status: "active",
-        });
-
-      if (enrollError) {
-        setMessage(enrollError.message);
-        setStarting(false);
-        return;
-      }
-    }
-
-    router.push(`/learn?course=${courseId}`);
   };
 
   if (loading) {

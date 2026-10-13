@@ -84,7 +84,7 @@ function CourseContent({ requireAccount }: { requireAccount: boolean }) {
   const lessonHref = (id: string) => data?.signedIn
     ? `/learn/lesson?course=${data.course.id}&lesson=${id}`
     : `/onboarding/lesson?language=${data?.course.language_id}`;
-  const backHref = data?.signedIn ? "/languages" : "/onboarding/language";
+  const backHref = data?.signedIn ? "/world" : "/onboarding/language";
 
   return <main className="min-h-screen bg-[#F8FBFF] text-[#071A4A]">
     <header className="bg-white"><div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-5 sm:px-8">

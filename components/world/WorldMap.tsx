@@ -1,22 +1,95 @@
 "use client";
 
+import { useEffect, useId, useRef, useState, type PointerEvent } from "react";
+import { LocateFixed, RotateCcw } from "lucide-react";
+import { constrainMapViewport, focusMapPosition, initialMapViewport, zoomMapAt } from "@/lib/world/mapViewport";
 import { languageLocations, mapPosition } from "@/lib/world/languageLocations";
 import type { WorldLanguage } from "@/lib/world/data";
+import UserAvatar, { type AvatarLayer } from "@/components/avatar/UserAvatar";
 import styles from "./World.module.css";
 
-type Props = { languages: WorldLanguage[]; selectedId: string | null; onSelect: (language: WorldLanguage) => void };
+type Props = { languages: WorldLanguage[]; selectedId: string | null; onSelect: (language: WorldLanguage) => void; avatarLayers?: AvatarLayer[] };
 
 /** Original simplified equirectangular illustration; replace the SVG backdrop
  * with a 1000×500 asset using the same projection without changing markers. */
-export default function WorldMap({ languages, selectedId, onSelect }: Props) {
-  return <div className={styles.mapScroll} tabIndex={0} aria-label="World map. Scroll horizontally on smaller screens.">
-    <div className={styles.mapCanvas}>
-      <svg viewBox="0 0 1000 500" className={styles.mapArt} role="img" aria-label="Stylized world map with approximate continent outlines">
+export default function WorldMap({ languages, selectedId, onSelect, avatarLayers = [] }: Props) {
+  const [view, setView] = useState(initialMapViewport);
+  const [dragging, setDragging] = useState(false);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const pointers = useRef(new Map<number, { x: number; y: number }>());
+  const lastPoint = useRef<{ x: number; y: number } | null>(null);
+  const pinchDistance = useRef<number | null>(null);
+  const gridId = useId().replaceAll(":", "");
+  function zoomBy(amount: number) { setView(previous => constrainMapViewport({ ...previous, zoom: previous.zoom + amount })); }
+  function focusSelected() {
+    const selected = languages.find(language => language.id === selectedId);
+    const location = selected && languageLocations[selected.code];
+    if (location) { const p = mapPosition(location); setView(focusMapPosition(p.x + location.markerOffset[0] / 10, p.y + location.markerOffset[1] / 5)); }
+  }
+  useEffect(() => {
+    const element = viewportRef.current;
+    if (!element) return;
+    const wheel = (event: WheelEvent) => {
+      if (!event.deltaY) return;
+      event.preventDefault();
+      const rect = element.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const x = (event.clientX - rect.left) / rect.width * 100;
+      const y = (event.clientY - rect.top) / rect.height * 100;
+      const delta = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? rect.height : 1);
+      const factor = Math.exp(-Math.max(-100, Math.min(100, delta)) * .0025);
+      setView(previous => zoomMapAt(previous, previous.zoom * factor, x, y));
+    };
+    element.addEventListener("wheel", wheel, { passive: false });
+    return () => element.removeEventListener("wheel", wheel);
+  }, []);
+  function beginDrag(event: PointerEvent<HTMLDivElement>) {
+    if ((event.target as Element).closest("button") || (event.pointerType === "mouse" && event.button !== 0)) return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    lastPoint.current = { x: event.clientX, y: event.clientY }; setDragging(true);
+    if (pointers.current.size === 2) { const points = [...pointers.current.values()]; pinchDistance.current = Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y); }
+  }
+  function move(event: PointerEvent<HTMLDivElement>) {
+    if (!pointers.current.has(event.pointerId)) return;
+    pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    if (pointers.current.size === 2) {
+      const points = [...pointers.current.values()]; const distance = Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
+      const previousDistance = pinchDistance.current;
+      if (previousDistance && previousDistance > 0) setView(previous => constrainMapViewport({ ...previous, zoom: previous.zoom * distance / previousDistance }));
+      pinchDistance.current = distance; lastPoint.current = null; return;
+    }
+    const rect = event.currentTarget.getBoundingClientRect(); const last = lastPoint.current;
+    if (last && rect.width && rect.height) { const dx = (event.clientX - last.x) / rect.width * 100; const dy = (event.clientY - last.y) / rect.height * 100; setView(previous => constrainMapViewport({ ...previous, x: previous.x + dx, y: previous.y + dy })); }
+    lastPoint.current = { x: event.clientX, y: event.clientY };
+  }
+  function endDrag(event: PointerEvent<HTMLDivElement>) {
+    pointers.current.delete(event.pointerId); pinchDistance.current = null;
+    lastPoint.current = [...pointers.current.values()][0] ?? null;
+    if (!pointers.current.size) setDragging(false);
+  }
+  return <div>
+    <div className={styles.mapControls} role="group" aria-label="World map controls"><button type="button" aria-label="Reset world view" onClick={() => setView(initialMapViewport)}><RotateCcw size={17} /></button><button type="button" disabled={!selectedId} onClick={focusSelected}><LocateFixed size={17} /> Find destination</button></div>
+    <div ref={viewportRef} className={`${styles.mapViewport} ${dragging ? styles.mapDragging : ""}`} tabIndex={0} aria-label="Interactive world map. Scroll to zoom at the cursor, drag to move, or double-click to zoom in. Keyboard: plus or minus to zoom, arrow keys to pan, zero to reset." onDoubleClick={event => {
+      if ((event.target as Element).closest("button")) return;
+      const rect = event.currentTarget.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const x = (event.clientX - rect.left) / rect.width * 100;
+      const y = (event.clientY - rect.top) / rect.height * 100;
+      setView(previous => zoomMapAt(previous, previous.zoom * (event.shiftKey ? 1 / 1.5 : 1.5), x, y));
+    }} onPointerDown={beginDrag} onPointerMove={move} onPointerUp={endDrag} onPointerCancel={endDrag} onLostPointerCapture={endDrag} onKeyDown={event => {
+      if (event.target !== event.currentTarget) return;
+      const directions: Record<string, [number, number]> = { ArrowLeft: [8, 0], ArrowRight: [-8, 0], ArrowUp: [0, 8], ArrowDown: [0, -8] };
+      if (directions[event.key]) { event.preventDefault(); const [x, y] = directions[event.key]; setView(previous => constrainMapViewport({ ...previous, x: previous.x + x, y: previous.y + y })); }
+      else if (["+", "=", "-", "0"].includes(event.key)) { event.preventDefault(); if (event.key === "0") setView(initialMapViewport); else zoomBy(event.key === "-" ? -.4 : .4); }
+    }}>
+    <div className={styles.mapCanvas} style={{ transform: `translate(${view.x}%, ${view.y}%) scale(${view.zoom})` }}>
+      <svg viewBox="0 0 1000 500" preserveAspectRatio="none" className={styles.mapArt} role="img" aria-label="Stylized world map with approximate continent outlines">
         <defs>
-          <pattern id="world-grid" width="100" height="83.333" patternUnits="userSpaceOnUse"><path d="M100 0H0V83.333" fill="none" stroke="#fff" strokeOpacity=".3" /></pattern>
+          <pattern id={gridId} width="100" height="83.333" patternUnits="userSpaceOnUse"><path d="M100 0H0V83.333" fill="none" stroke="#fff" strokeOpacity=".3" /></pattern>
         </defs>
         <rect width="1000" height="500" rx="28" fill="#DDEFF8" />
-        <rect width="1000" height="500" fill="url(#world-grid)" />
+        <rect width="1000" height="500" fill={`url(#${gridId})`} />
         <g fill="#FAFCFF" stroke="#B3C8DB" strokeWidth="2" strokeLinejoin="round">
           <path d="M65 95L105 65 180 60 220 85 270 85 325 115 315 145 285 170 270 200 240 212 215 230 225 250 260 264 282 292 268 305 245 277 212 260 185 215 140 185 112 153 72 145Z" />
           <path d="M280 278L320 270 357 292 385 315 375 350 348 380 328 425 300 465 288 442 292 392 275 365 270 323Z" />
@@ -47,13 +120,15 @@ export default function WorldMap({ languages, selectedId, onSelect }: Props) {
         const p = mapPosition(location);
         return <button key={language.id} type="button" aria-label={`Explore ${location.country} — ${language.name}`} aria-pressed={selectedId === language.id}
           title={`${location.country} · ${language.name}`} onClick={() => onSelect(language)}
-          className={`${styles.marker} ${selectedId === language.id ? styles.selected : ""}`}
-          style={{ left: `${p.x + location.markerOffset[0] / 10}%`, top: `${p.y + location.markerOffset[1] / 5}%` }}>
-          <span aria-hidden="true">{language.flag_emoji || location.country.slice(0, 2).toUpperCase()}</span>
-          <span className={styles.markerLabel}>{language.name}</span>
+          className={`${styles.marker} ${selectedId === language.id ? `${styles.selected} ${styles.avatarMarker}` : ""}`}
+          style={{ left: `${p.x + location.markerOffset[0] / 10}%`, top: `${p.y + location.markerOffset[1] / 5}%`, transform: `translate(-50%, -50%) scale(${1 / Math.sqrt(view.zoom)})` }}>
+          {selectedId === language.id ? <span className={styles.avatarHead} aria-hidden="true"><UserAvatar layers={avatarLayers} /></span> : <span aria-hidden="true">{language.flag_emoji || location.country.slice(0, 2).toUpperCase()}</span>}
+          <span className={styles.markerLabel}>{selectedId === language.id ? location.country : language.name}</span>
         </button>;
       })}
       <span className={styles.mapCaption}>A world of words awaits</span>
     </div>
+    </div>
+    <p className={styles.mapHint}>Scroll to zoom at your cursor · Click and drag to explore · Double-click to zoom in · Click a flag to discover</p>
   </div>;
 }

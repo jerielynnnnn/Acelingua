@@ -8,9 +8,11 @@ import { ArrowLeft, ArrowRight, Compass, Globe2, Loader2 } from "lucide-react";
 import { useLearnerId } from "@/components/dashboard/LearnerShell";
 import UserAvatar from "@/components/avatar/UserAvatar";
 import { createClient } from "@/lib/supabase/client";
+import { enrollStartingCourse } from "@/lib/auth-onboarding";
 import { loadWorldData, type WorldCourse, type WorldLanguage } from "@/lib/world/data";
 import { languageLocations } from "@/lib/world/languageLocations";
 import WorldMap from "./WorldMap";
+import DestinationDiscovery from "./DestinationDiscovery";
 import styles from "./World.module.css";
 
 type WorldData = Awaited<ReturnType<typeof loadWorldData>>;
@@ -21,14 +23,25 @@ export default function WorldExperience({ languageCode }: { languageCode?: strin
   const [error, setError] = useState("");
   const [attempt, setAttempt] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [discoveredIds, setDiscoveredIds] = useState<Set<string>>(new Set());
   const [traveling, setTraveling] = useState(false);
+  const [starting, setStarting] = useState(false);
+  const [startError, setStartError] = useState("");
+  const startInFlight = useRef(false);
   const travelTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     let cancelled = false;
     async function load() {
       try {
         const result = await loadWorldData(createClient(), userId);
-        if (!cancelled) setData(result);
+        if (!cancelled) {
+          setData(result);
+          try {
+            const saved: unknown = JSON.parse(localStorage.getItem(`acelingua:world-discoveries:${userId}`) ?? "[]");
+            const validIds = new Set(result.languages.map(language => language.id));
+            setDiscoveredIds(new Set(Array.isArray(saved) ? saved.filter((id): id is string => typeof id === "string" && validIds.has(id)) : []));
+          } catch { setDiscoveredIds(new Set()); }
+        }
       } catch (cause) {
         if (!cancelled) setError(cause instanceof Error ? cause.message : "We couldn't load your destinations. Please retry.");
       }
@@ -39,11 +52,40 @@ export default function WorldExperience({ languageCode }: { languageCode?: strin
   useEffect(() => () => { if (travelTimer.current) clearTimeout(travelTimer.current); }, []);
 
   function retry() { setError(""); setData(null); setAttempt(n => n + 1); }
+  function discover(language: WorldLanguage) {
+    if (traveling) return;
+    setSelectedId(language.id);
+    setDiscoveredIds(previous => {
+      const next = new Set([...previous, language.id]);
+      try { localStorage.setItem(`acelingua:world-discoveries:${userId}`, JSON.stringify([...next])); } catch { /* In-session discovery remains available. */ }
+      return next;
+    });
+  }
   function visit(language: WorldLanguage) {
     if (traveling) return;
+    discover(language);
     setTraveling(true);
     travelTimer.current = setTimeout(() => router.push(`/world/${encodeURIComponent(language.code)}`),
       window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 450);
+  }
+  async function startLearning(language: WorldLanguage) {
+    if (startInFlight.current || !data) return;
+    startInFlight.current = true;
+    setStarting(true); setStartError("");
+    try {
+      const supabase = createClient();
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError) throw authError;
+      if (!user || user.id !== userId) throw new Error("Please sign in again to start learning.");
+      const enrolled = data.courses.filter(course => course.language_id === language.id);
+      const courseId = enrolled.length ? (enrolled.find(c => c.level?.trim().toLowerCase() === "beginner") ?? enrolled[0]).id
+        : await enrollStartingCourse(supabase, user, { languageId: language.id, languageCode: language.code }, true);
+      router.push(`/learn/${encodeURIComponent(courseId)}`);
+    } catch (cause) {
+      setStartError(cause instanceof Error ? cause.message : "We couldn't open this language's lessons. Please retry.");
+      setStarting(false);
+      startInFlight.current = false;
+    }
   }
   if (error) return <main className={styles.page}><section className={styles.state}><h1>Your journey is still here</h1><p role="alert" className={styles.subtitle}>{error}</p><button onClick={retry} className={styles.action}>Try again</button></section></main>;
   if (!data) return <main className={styles.page} aria-busy="true"><p role="status" className="mb-6 flex items-center gap-2"><Loader2 className="animate-spin" size={18} /> Loading your world...</p><div className={styles.skeleton} /></main>;
@@ -61,8 +103,10 @@ export default function WorldExperience({ languageCode }: { languageCode?: strin
           <h1>Welcome to {location?.country ?? `${language.name} World`}</h1>
           <p className={styles.subtitle}>Explore {location?.country ?? "new destinations"} while learning {language.name}. Your travel companion stays with you wherever you go.</p>
           <p className={styles.native}>{language.name} · {language.native_name}</p>
+          <DestinationDiscovery key={language.id} language={language} />
           <CourseCards courses={courses} />
-          {!courses.length && <div className={styles.course}><h2 className="font-bold">Start a new journey</h2><p>You aren&apos;t enrolled in an active published course for this language. Visiting here hasn&apos;t changed your courses.</p><Link href="/onboarding/languages" className={styles.secondary}>Choose a language <ArrowRight size={16} /></Link></div>}
+          {!courses.length && <div className={styles.course}><h2 className="font-bold">Start learning {language.name}</h2><p>Your destination is selected. Begin its course with Ace.</p><button type="button" disabled={starting} onClick={() => void startLearning(language)} className={styles.action}>{starting ? "Preparing lessons..." : `Start Learning ${language.name}`} <ArrowRight size={16} /></button></div>}
+          {startError && <p role="alert" className={styles.subtitle}>{startError}</p>}
         </div>
         <div><div className={styles.stage}>
           <div className={styles.guide}><p>Ace, your guide</p><Image src="/icon head.png" alt="Ace the ACELINGUA guide" width={100} height={100} /><p>Ready for a new adventure?</p></div>
@@ -79,23 +123,26 @@ export default function WorldExperience({ languageCode }: { languageCode?: strin
   const languagesLearning = new Set(data.courses.filter(course => data.languages.some(language => language.id === course.language_id)).map(course => course.language_id)).size;
   return <main className={styles.page}>
     <header className={styles.header}><div><p className={styles.eyebrow}>Your world passport</p><h1>Explore the World</h1><p className={styles.subtitle}>Learn languages and discover new destinations.</p></div>
-      <div className={styles.stats}><div><strong>{mapped.length}</strong><span>Destinations available</span></div><div><strong>{languagesLearning}</strong><span>Languages learning</span></div></div>
+      <div className={styles.stats}><div><strong>{mapped.length}</strong><span>Destinations available</span></div><div><strong>{discoveredIds.size}</strong><span>Discovered on this device</span></div><div><strong>{languagesLearning}</strong><span>Languages learning</span></div></div>
     </header>
     <div className={styles.grid}>
       <section className={styles.mapCard}><div className={styles.mapHeading}><h2 className="flex items-center gap-2"><Globe2 size={19} className="text-[#3558ae]" /> Pick your next destination</h2><span>One avatar. Endless discoveries.</span></div>
-        <WorldMap languages={mapped} selectedId={selected?.id ?? null} onSelect={language => { if (!traveling) setSelectedId(language.id); }} />
-        <p className={styles.mapFooter}>Select a flag to explore. Visiting a destination keeps your current courses and progress intact. Map positions are approximate.</p>
+        <WorldMap languages={mapped} selectedId={selected?.id ?? null} onSelect={discover} avatarLayers={data.avatar} />
+        <p className={styles.mapFooter}>Select a flag to see its destination details. Map positions are approximate.</p>
       </section>
       <aside className={styles.panel} aria-label="Selected destination" aria-live="polite">
         {selected && location ? <><div className={styles.flag}>{selected.flag_emoji || <Compass size={42} />}</div><p className={styles.eyebrow}>Your next stop</p><h2 className="mt-2">{location.country}</h2><p className={styles.native}>{selected.name} · {selected.native_name}</p><p className={styles.subtitle}>Explore {location.country} while learning {selected.name}.</p>
+          {discoveredIds.has(selected.id) && <span className={styles.discoveryBadge}>✓ Discovery stamp collected</span>}
+          <DestinationDiscovery key={selected.id} language={selected} />
           <CourseCards courses={courses} compact />
-          {!courses.length && <p className={styles.subtitle}>Visit and discover this destination. You can choose a course when you&apos;re ready.</p>}
-          <button type="button" disabled={traveling} onClick={() => visit(selected)} className={styles.action}>{traveling ? "Traveling..." : "Visit Country"}<ArrowRight size={16} /></button>
+          <div className={styles.destinationActions}>
+            <button type="button" disabled={starting || traveling} onClick={() => void startLearning(selected)} className={styles.action}>{starting ? "Preparing lessons..." : courses.length ? "Continue Learning" : `Start Learning ${selected.name}`}<ArrowRight size={16} /></button>
+            <button type="button" disabled={traveling || starting} onClick={() => visit(selected)} className={styles.visitAction}>{traveling ? "Traveling..." : "Visit Country"}<ArrowRight size={16} /></button>
+          </div>
+          {startError && <p role="alert" className={styles.subtitle}>{startError}</p>}
         </> : <><h2>More journeys ahead</h2><p className={styles.subtitle}>Active languages are available below. Their map locations are being prepared.</p></>}
-        <div className={styles.traveler}><strong>Your travel companion</strong><div className={`${styles.travelerAvatar} ${traveling ? styles.traveling : ""}`}><UserAvatar layers={data.avatar} /></div><Link href="/avatar" className={styles.secondary}>{data.hasAvatar ? "Customize avatar" : "Create avatar"}<ArrowRight size={14} /></Link></div>
       </aside>
     </div>
-    <div className={styles.destinationList} role="group" aria-label="Available destinations">{mapped.map(language => <button key={language.id} type="button" disabled={traveling} aria-pressed={selected?.id === language.id} onClick={() => setSelectedId(language.id)}>{language.flag_emoji} {languageLocations[language.code].country} · {language.name}</button>)}</div>
     {data.languages.some(language => !languageLocations[language.code]) && <p className={styles.subtitle}>Map locations pending for: {data.languages.filter(language => !languageLocations[language.code]).map(language => language.name).join(", ")}.</p>}
   </main>;
 }

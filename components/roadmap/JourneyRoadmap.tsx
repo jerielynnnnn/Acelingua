@@ -3,14 +3,15 @@ import { Check, Lock, Play, MapPin, Flag } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
 import type { LessonProgress, LessonState, RoadmapUnit } from "@/lib/roadmap";
 import styles from "./JourneyRoadmap.module.css";
+import CountryScenery from "@/components/world/CountryScenery";
 
-type Props = { units: RoadmapUnit[]; states: Map<string, LessonState>; progress: LessonProgress[]; courseId: string; currentMarker?: ReactNode };
+type Props = { units: RoadmapUnit[]; states: Map<string, LessonState>; progress: LessonProgress[]; courseId: string; currentMarker?: ReactNode; languageCode?: string };
 const positions = [50, 28, 50, 72];
 const mobilePositions = [50, 40, 50, 60];
 const rowHeight = 232;
 
 /** Destination data stays intact for a future illustrated map and cultural content. */
-export default function JourneyRoadmap({ units, states, progress, courseId, currentMarker }: Props) {
+export default function JourneyRoadmap({ units, states, progress, courseId, currentMarker, languageCode }: Props) {
   return <div className={styles.journey}>
     <div className={styles.introduction}><Flag size={18} aria-hidden="true" /><span>Your journey roadmap</span></div>
     {!units.length && <p className="py-12 text-center">Published destinations for this course are coming soon.</p>}
@@ -18,6 +19,7 @@ export default function JourneyRoadmap({ units, states, progress, courseId, curr
       const future = unit.lessons.length > 0 && unit.lessons.every((lesson) => states.get(lesson.id) === "locked");
       const complete = unit.lessons.length > 0 && unit.lessons.every((lesson) => states.get(lesson.id) === "completed");
       return <section key={unit.id} aria-labelledby={`destination-${unit.id}`} data-map-x={unit.map_x ?? undefined} data-map-y={unit.map_y ?? undefined} className={styles.destination}>
+        {languageCode && <div className={styles.countryBackdrop} aria-hidden="true"><CountryScenery languageCode={languageCode} className="h-full w-full" /></div>}
         {unitIndex > 0 && <div className={styles.transfer} aria-hidden="true" />}
         <header className={styles.destinationHeader}>
           <span className={`${styles.pin} ${future ? styles.futurePin : ""}`}>{complete ? <Check size={22} aria-hidden="true" /> : <MapPin size={22} aria-hidden="true" />}</span>
@@ -25,6 +27,7 @@ export default function JourneyRoadmap({ units, states, progress, courseId, curr
           <h2 id={`destination-${unit.id}`} className={styles.destinationName}>{unit.location_name || unit.title}</h2>
           {unit.location_name && <p className={styles.unitTitle}>{unit.title}</p>}
           {unit.description && <p className={styles.description}>{unit.description}</p>}
+          {unit.lessons.length > 0 && <p className="mt-3 text-xs font-semibold text-[#3558AE]">{unit.lessons.filter(lesson => states.get(lesson.id) === "completed").length} / {unit.lessons.length} published lessons completed</p>}
         </header>
         {!unit.lessons.length && <p className="pb-10 text-center text-sm text-[#071A4A]/60">Lessons for this destination are coming soon.</p>}
         <div className={styles.trail}>

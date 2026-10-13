@@ -1,6 +1,7 @@
 import type { SupabaseClient, User } from "@supabase/supabase-js";
+import { publishedCourseAvailability } from "@/lib/language-catalog";
 
-export type OnboardingSelection = { languageId: string; languageCode: string };
+export type OnboardingSelection = { languageId: string; languageCode: string; courseId?: string };
 export const POST_AUTH_ROUTE = "/onboarding/continue";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -17,7 +18,7 @@ export function readOnboardingSelection(userId?: string): OnboardingSelection | 
 
 export function registrationOnboardingMetadata() {
   const selection = readOnboardingSelection();
-  return selection ? { ...selection, introCompleted: true } : null;
+  return selection ? { ...selection, introCompleted: true, source: "guest_preview" } : { source: "direct_registration" };
 }
 
 function metadataSelection(user: User): OnboardingSelection | null {
@@ -27,7 +28,8 @@ function metadataSelection(user: User): OnboardingSelection | null {
     || typeof value.languageCode !== "string" || !value.languageCode) {
     throw new Error("Your saved onboarding selection is invalid. Please choose your language again.");
   }
-  return { languageId: value.languageId, languageCode: value.languageCode };
+  if (value.courseId !== undefined && (typeof value.courseId !== "string" || !UUID.test(value.courseId))) throw new Error("Your selected course is invalid. Please choose it again.");
+  return { languageId: value.languageId, languageCode: value.languageCode, ...(value.courseId ? { courseId: value.courseId } : {}) };
 }
 
 export function selectStartingCourse<T extends { level: string | null }>(courses: T[]): T {
@@ -62,11 +64,13 @@ export async function continueAuthenticatedOnboarding(supabase: SupabaseClient, 
 
   // A new Google account confirms its language after sign-in, even if this
   // browser contains an earlier guest preview selection.
-  if (!enrollmentResult.data && user.app_metadata?.provider === "google" && owner !== user.id) {
+  if (!enrollmentResult.data && !storedMetadata && user.app_metadata?.provider === "google" && owner !== user.id) {
     return "/onboarding/languages";
   }
 
   if (!selection) {
+    const onboarding = user.user_metadata.acelingua_onboarding;
+    if (onboarding?.source === "direct_registration" && onboarding.completed !== true) return "/onboarding/languages";
     if (!enrollmentResult.data) return "/onboarding/languages";
     return avatarResult.data ? "/dashboard" : "/avatar/setup";
   }
@@ -76,25 +80,35 @@ export async function continueAuthenticatedOnboarding(supabase: SupabaseClient, 
     return avatarResult.data ? "/dashboard" : "/avatar/setup";
   }
 
+  localStorage.setItem("acelingua_onboarding_user_id", user.id);
+  const courseId = await enrollStartingCourse(supabase, user, selection, false, selection.courseId);
+  localStorage.setItem("acelingua_onboarding_course_id", courseId);
+  return storedMetadata || !avatarResult.data ? "/avatar/setup" : "/dashboard";
+}
+
+// Shared by onboarding and an explicit Start Learning action in World.
+export async function enrollStartingCourse(supabase: SupabaseClient, user: User, selection: OnboardingSelection, reactivate = false, selectedCourseId?: string): Promise<string> {
   const languageResult = await supabase.from("languages").select("id, code")
     .eq("id", selection.languageId).eq("is_active", true).maybeSingle();
   if (languageResult.error) throw databaseError("Checking your language", languageResult.error);
   if (!languageResult.data || languageResult.data.code !== selection.languageCode) {
     throw new Error("Your selected language is no longer available. Please choose your language again.");
   }
-  const courseResult = await supabase.from("courses").select("id, title, level")
-    .eq("language_id", languageResult.data.id).eq("is_published", true).order("created_at").order("id");
+  let courseQuery = supabase.from("courses").select("id, title, level")
+    .eq("language_id", languageResult.data.id).eq("is_published", true);
+  if (selectedCourseId) courseQuery = courseQuery.eq("id", selectedCourseId);
+  const courseResult = await courseQuery.order("created_at").order("id");
   if (courseResult.error) throw databaseError("Loading your course", courseResult.error);
   const course = selectStartingCourse<{ id: string; title: string; level: string | null }>(courseResult.data ?? []);
+  const availability = await publishedCourseAvailability(supabase, course.id, true);
+  if (!availability.playable) throw new Error("Course in Preparation. This course does not have a usable published introductory lesson yet.");
   const lessonResult = await supabase.from("lessons")
     .select("id, units!inner(course_id, is_published)", { count: "exact", head: true })
     .eq("is_published", true).eq("units.course_id", course.id).eq("units.is_published", true);
   if (lessonResult.error) throw databaseError("Counting your lessons", lessonResult.error);
   if (lessonResult.count === null) throw new Error("We couldn't determine your course's lesson count. Please retry.");
 
-  // Bind retries to this account before writing; keep the original selection intact.
-  localStorage.setItem("acelingua_onboarding_user_id", user.id);
-  const existingEnrollment = await supabase.from("user_courses").select("id")
+  const existingEnrollment = await supabase.from("user_courses").select("id, status")
     .eq("user_id", user.id).eq("course_id", course.id).maybeSingle();
   if (existingEnrollment.error) throw databaseError("Checking course enrollment", existingEnrollment.error);
   if (!existingEnrollment.data) {
@@ -103,6 +117,10 @@ export async function continueAuthenticatedOnboarding(supabase: SupabaseClient, 
       { onConflict: "user_id,course_id", ignoreDuplicates: true },
     );
     if (result.error) throw databaseError("Enrolling in your course", result.error);
+  } else if (reactivate && existingEnrollment.data.status !== "active") {
+    const result = await supabase.from("user_courses").update({ status: "active" })
+      .eq("user_id", user.id).eq("course_id", course.id);
+    if (result.error) throw databaseError("Resuming your course", result.error);
   }
   const existingProgress = await supabase.from("course_progress").select("id")
     .eq("user_id", user.id).eq("course_id", course.id).maybeSingle();
@@ -114,6 +132,5 @@ export async function continueAuthenticatedOnboarding(supabase: SupabaseClient, 
     );
     if (result.error) throw databaseError("Preparing course progress", result.error);
   }
-  localStorage.setItem("acelingua_onboarding_course_id", course.id);
-  return avatarResult.data ? "/dashboard" : "/avatar/setup";
+  return course.id;
 }
