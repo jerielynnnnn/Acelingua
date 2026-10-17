@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
@@ -10,6 +11,16 @@ import LearnerShell from "@/components/dashboard/LearnerShell";
 import { createClient } from "@/lib/supabase/client";
 import { enrollStartingCourse, POST_AUTH_ROUTE } from "@/lib/auth-onboarding";
 import { loadLanguageCatalog, type CatalogCourse, type CatalogLanguage } from "@/lib/language-catalog";
+
+const languageFlags: Record<string, string> = {
+  ja: "/flags/japan.jpg",
+  ko: "/flags/korea.jpg",
+  zh: "/flags/china.jpg",
+  es: "/flags/spanish.jpg",
+  de: "/flags/german.jpg",
+  th: "/flags/thailand.jpg",
+  fr: "/flags/france.jpg",
+};
 
 export default function LanguageCatalog() {
   const router = useRouter();
@@ -84,8 +95,15 @@ export default function LanguageCatalog() {
       {!filtered.length && <p className="mt-10 rounded-2xl bg-white p-6">{data.languages.length ? "No languages match your search." : "No active languages are available yet."}</p>}
       <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{filtered.map(language => {
         const courses = data.courses.filter(course => course.language_id === language.id);
+        const flag = languageFlags[language.code.toLowerCase().split(/[-_]/)[0]];
         return <section key={language.id} className="rounded-3xl border border-[#071A4A]/5 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
-          <span role="img" aria-label={`${language.name} flag`} className="inline-flex h-16 w-20 items-center justify-center rounded-2xl bg-[#EAF5FF] text-4xl">{language.flag_emoji || "🌐"}</span><h2 className="mt-5 text-xl font-extrabold">{language.name}</h2><p className="mt-1 text-sm text-[#071A4A]/55">{language.native_name}</p>
+          {flag ? (
+            <div className="relative h-16 w-24 overflow-hidden rounded-xl border border-[#071A4A]/10 bg-[#EAF5FF] shadow-sm">
+              <Image src={flag} alt={`${language.name} flag`} fill sizes="96px" className="object-cover" />
+            </div>
+          ) : (
+            <span role="img" aria-label={`${language.name} flag`} className="inline-flex h-16 w-24 items-center justify-center rounded-xl bg-[#EAF5FF] text-4xl">{language.flag_emoji || "🌐"}</span>
+          )}<h2 className="mt-5 text-xl font-extrabold">{language.name}</h2><p className="mt-1 text-sm text-[#071A4A]/55">{language.native_name}</p>
           {!courses.length && <p className="mt-5 rounded-xl bg-[#C7A9D4]/20 p-3 text-sm font-semibold">Course in Preparation</p>}
           {courses.map(course => {
             const available = user ? course.playable : course.previewAvailable;

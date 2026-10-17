@@ -14,6 +14,7 @@ import {
   type ReactNode,
 } from "react";
 import PublicHeader from "@/components/PublicHeader";
+import AnimatedWorld from "@/components/AnimatedWorld";
 const languages = [
   {
     name: "Japanese",
@@ -117,7 +118,6 @@ export default function Home() {
   const carouselLanguages = [...languages, ...languages];
   return (
     <main className="acelingua-home min-h-svh overflow-x-hidden bg-[#EAF5FF] text-[#071A4A]">
-      {/* Original 3D orbit animation with a shared responsive center. */}
       <style jsx global>{`
         @media (min-width: 1600px) {
           html:has(.acelingua-home) {
@@ -125,131 +125,6 @@ export default function Home() {
           }
         }
 
-        /* The orbit and mascot share this exact center at every zoom. */
-        .acelingua-home .ace-orbit-stage {
-          position: absolute;
-          inset: 0;
-          width: 100%;
-          height: 100%;
-          transform: none;
-          perspective: 900px;
-          transform-style: preserve-3d;
-          pointer-events: none;
-        }
-
-        /* Match the original 285px rings within the original 310px stage.
-           CSS 'translate' centers them independently of the animated transform.
-           This is important: animate ROTATION only, never the center point. */
-        .acelingua-home .ace-orbit-stage .ace-orbit-ring {
-          position: absolute;
-          left: 50%;
-          top: 50%;
-          width: 91.93548%;
-          height: 91.93548%;
-          margin: 0;
-          translate: -50% -50%;
-          border-radius: 50%;
-          transform-style: preserve-3d;
-          box-shadow:
-            0 0 8px rgba(53, 88, 174, 0.05),
-            inset 0 0 8px rgba(53, 88, 174, 0.03);
-          will-change: transform;
-        }
-
-        /* Original ACELingua 3D orbit motions and original speeds. */
-        .acelingua-home .ace-orbit-stage .ace-orbit-ring-1 {
-          border: 2px solid rgba(53, 88, 174, 0.55);
-          animation: aceOrbitOne 8s linear infinite;
-        }
-        .acelingua-home .ace-orbit-stage .ace-orbit-ring-2 {
-          border: 2px solid rgba(199, 169, 212, 0.75);
-          animation: aceOrbitTwo 10s linear infinite;
-        }
-        .acelingua-home .ace-orbit-stage .ace-orbit-ring-3 {
-          border: 2px dashed rgba(182, 64, 116, 0.45);
-          animation: aceOrbitThree 13s linear infinite;
-        }
-        .acelingua-home .ace-orbit-stage .ace-orbit-ring-4 {
-          width: 88.70968%;
-          height: 88.70968%;
-          border: 1.5px solid rgba(53, 88, 174, 0.32);
-          animation: aceOrbitFour 11s linear infinite;
-        }
-
-        @keyframes aceOrbitOne {
-          from { transform: rotateX(68deg) rotateZ(0deg); }
-          to   { transform: rotateX(68deg) rotateZ(360deg); }
-        }
-        @keyframes aceOrbitTwo {
-          from { transform: rotateY(68deg) rotateZ(0deg); }
-          to   { transform: rotateY(68deg) rotateZ(-360deg); }
-        }
-        @keyframes aceOrbitThree {
-          from { transform: rotateX(58deg) rotateY(38deg) rotateZ(0deg); }
-          to   { transform: rotateX(58deg) rotateY(38deg) rotateZ(360deg); }
-        }
-        @keyframes aceOrbitFour {
-          from { transform: rotateX(72deg) rotateY(-48deg) rotateZ(0deg); }
-          to   { transform: rotateX(72deg) rotateY(-48deg) rotateZ(-360deg); }
-        }
-
-        /* Original moving dots positioned on the original ring paths. */
-        .acelingua-home .ace-orbit-stage .ace-orbit-dot {
-          position: absolute;
-          left: 50%;
-          top: -6px;
-          display: block;
-          width: 11px;
-          height: 11px;
-          transform: translateX(-50%);
-          border-radius: 9999px;
-          box-shadow:
-            0 0 0 4px rgba(255, 255, 255, 0.6),
-            0 4px 12px rgba(7, 26, 74, 0.18);
-        }
-        .acelingua-home .ace-orbit-stage .ace-orbit-dot-1 {
-          background: #3558ae;
-        }
-        .acelingua-home .ace-orbit-stage .ace-orbit-dot-2 {
-          width: 9px;
-          height: 9px;
-          background: #f9c3d7;
-        }
-        .acelingua-home .ace-orbit-stage .ace-orbit-dot-3 {
-          width: 8px;
-          height: 8px;
-          background: #c7a9d4;
-        }
-        .acelingua-home .ace-orbit-stage .ace-orbit-dot-4 {
-          width: 7px;
-          height: 7px;
-          background: #3558ae;
-          opacity: 0.7;
-        }
-
-        /* ACE floats in place without changing the orbit's center. */
-        .acelingua-home .ace-orbit-mascot {
-          position: absolute;
-          left: 50%;
-          top: 50%;
-          transform: translate(-50%, -50%);
-          animation: aceOriginalFloatCentered 3.5s ease-in-out infinite;
-          will-change: transform;
-        }
-        @keyframes aceOriginalFloatCentered {
-          0%, 100% { transform: translate(-50%, -50%) translateY(0); }
-          50% { transform: translate(-50%, -50%) translateY(-10px); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .acelingua-home .ace-orbit-mascot,
-          .acelingua-home .ace-orbit-stage .ace-orbit-ring {
-            animation: none;
-          }
-          .acelingua-home .ace-orbit-stage .ace-orbit-ring-1 { transform: rotateX(68deg); }
-          .acelingua-home .ace-orbit-stage .ace-orbit-ring-2 { transform: rotateY(68deg); }
-          .acelingua-home .ace-orbit-stage .ace-orbit-ring-3 { transform: rotateX(58deg) rotateY(38deg); }
-          .acelingua-home .ace-orbit-stage .ace-orbit-ring-4 { transform: rotateX(72deg) rotateY(-48deg); }
-        }
       `}</style>
       <SocialSidebar />
       <FloatingChatbot />
@@ -259,37 +134,7 @@ export default function Home() {
       <section className="flex min-h-[35.625rem] items-center justify-center px-6 pb-10 pt-4">
         <div className="w-full text-center">
           <div className="relative mx-auto h-[20.625rem] w-[40.625rem] max-w-full">
-            {/* Original 3D orbital lines + ACE, sharing ONE responsive center. */}
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-              <div className="relative h-[18rem] w-[18rem] sm:h-[19.375rem] sm:w-[19.375rem]">
-                <div className="absolute inset-0 rounded-full bg-white/40 blur-3xl" />
-                <div className="ace-orbit ace-orbit-stage z-10" aria-hidden="true">
-                  <div className="ace-orbit-ring ace-orbit-ring-1">
-                    <span className="ace-orbit-dot ace-orbit-dot-1" />
-                  </div>
-                  <div className="ace-orbit-ring ace-orbit-ring-2">
-                    <span className="ace-orbit-dot ace-orbit-dot-2" />
-                  </div>
-                  <div className="ace-orbit-ring ace-orbit-ring-3">
-                    <span className="ace-orbit-dot ace-orbit-dot-3" />
-                  </div>
-                  <div className="ace-orbit-ring ace-orbit-ring-4">
-                    <span className="ace-orbit-dot ace-orbit-dot-4" />
-                  </div>
-                </div>
-                <div className="ace-orbit-mascot z-20">
-                  <Image
-                    src="/icon head.png"
-                    alt="Ace ACELingua mascot"
-                    width={220}
-                    height={220}
-                    priority
-                    quality={100}
-                    className="block h-[10.625rem] w-[10.625rem] object-contain drop-shadow-[0_18px_16px_rgba(7,26,74,0.18)]"
-                  />
-                </div>
-              </div>
-            </div>
+            <AnimatedWorld />
             <div className="absolute left-[1.25rem] top-[2.8125rem] z-30 sm:left-[2.8125rem]">
               <div className="relative rounded-2xl border border-[#3558AE]/15 bg-white px-4 py-2.5 shadow-[0_5px_18px_rgba(7,26,74,0.08)]">
                 <p className="text-xs font-semibold text-[#071A4A]">
