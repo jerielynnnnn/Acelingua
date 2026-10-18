@@ -118,19 +118,11 @@ export default function Home() {
   const carouselLanguages = [...languages, ...languages];
   return (
     <main className="acelingua-home min-h-svh overflow-x-hidden bg-[#EAF5FF] text-[#071A4A]">
-      <style jsx global>{`
-        @media (min-width: 1600px) {
-          html:has(.acelingua-home) {
-            font-size: clamp(16px, 1vw, 64px);
-          }
-        }
-
-      `}</style>
       <SocialSidebar />
       <FloatingChatbot />
       <VideoModal isOpen={isVideoOpen} onClose={() => setIsVideoOpen(false)} />
       <PublicHeader />
-      <div className="mx-auto flex min-h-[calc(100svh-6rem)] w-full max-w-[100rem] flex-col justify-center pb-8">
+      <div className="mx-auto flex min-h-[calc(100svh-6rem)] w-full max-w-[var(--page-max-width)] flex-col justify-center pb-8">
       <section className="flex min-h-[35.625rem] items-center justify-center px-6 pb-10 pt-4">
         <div className="w-full text-center">
           <div className="relative mx-auto h-[20.625rem] w-[40.625rem] max-w-full">

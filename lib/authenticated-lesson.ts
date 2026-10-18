@@ -1,10 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { loadRoadmap } from "@/lib/roadmap";
+import { ArrivalRequired } from "@/lib/travel/access";
 
 export type LessonWord = { id: string; word: string; translation: string; pronunciation?: string | null; example_sentence?: string | null; example_translation?: string | null };
 export type LessonActivity = { id: string; title: string; instructions: string | null; activity_type: string; activity_order: number };
 export type LessonQuestion = { id: string; activity_id: string; question_text: string; question_type: string; correct_answer: string; options: unknown; explanation: string | null; question_order: number };
-export type CompletionResult = { replay: boolean; xp_awarded: number; coins_awarded: number; completed_lessons: number; total_lessons: number; correct_answers?: number; total_questions?: number };
+export type CompletionResult = { replay: boolean; xp_awarded: number; coins_awarded: number; completed_lessons: number; total_lessons: number; correct_answers?: number; total_questions?: number; new_stamps?: number; stamp_sync_pending?: boolean };
 
 export async function loadAuthenticatedLesson(supabase: SupabaseClient, userId: string, lessonId: string, requestedCourse: string | null) {
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(lessonId)) throw new Error("Choose a lesson from your journey roadmap.");
@@ -16,6 +17,7 @@ export async function loadAuthenticatedLesson(supabase: SupabaseClient, userId: 
   const courseId: string = parent.data.course_id;
   if (requestedCourse && requestedCourse !== courseId) throw new Error("This lesson does not belong to the requested course.");
   const roadmap = await loadRoadmap(supabase, userId, courseId);
+  if (!roadmap.travelAccess.arrived) throw new ArrivalRequired(roadmap.travelAccess.href);
   const state = roadmap.states.get(lessonId);
   if (!state || state === "locked") throw new Error("This lesson is still locked. Complete the earlier lessons first.");
   const unit = { ...roadmap.units.find((item) => item.id === parent.data.id)!, ...parent.data };
@@ -50,11 +52,21 @@ export async function startAuthenticatedLesson(supabase: SupabaseClient, userId:
 
 export async function completeAuthenticatedLesson(supabase: SupabaseClient, userId: string, lessonId: string, assessment?: { answers: { question_id: string; answer: string }[]; acknowledged: string[] }): Promise<CompletionResult> {
   await verifyUser(supabase, userId);
+  const stampCount = await supabase.from("user_passport_stamps").select("id", { head: true, count: "exact" }).eq("user_id", userId);
   const result = assessment
     ? await supabase.rpc("acelingua_complete_assessed_lesson", { p_lesson_id: lessonId, p_answers: assessment.answers, p_acknowledged: assessment.acknowledged })
     : await supabase.rpc("acelingua_complete_lesson", { p_lesson_id: lessonId });
   if (result.error) throw new Error(`lesson completion/reward RPC: ${result.error.message}`);
   const value = result.data as CompletionResult | null;
   if (!value || typeof value.replay !== "boolean" || !Number.isFinite(value.xp_awarded) || !Number.isFinite(value.coins_awarded)) throw new Error("The completion response was unavailable. Return to your roadmap to check saved progress.");
-  return value;
+  // Completion is already committed. Stamp synchronization must never turn a
+  // successful reward transaction into an apparent failure or repeat XP.
+  try {
+    const course = await supabase.from("lessons").select("units!inner(course_id)").eq("id", lessonId).single();
+    const relation = course.data?.units;
+    const parent = Array.isArray(relation) ? relation[0] : relation;
+    const refreshed = parent ? await supabase.rpc("acelingua_refresh_country_stamps", { p_course_id: parent.course_id }) : { error: true };
+    const after = await supabase.from("user_passport_stamps").select("id", { head: true, count: "exact" }).eq("user_id", userId);
+    return { ...value, new_stamps: stampCount.count !== null && after.count !== null ? Math.max(0, after.count - stampCount.count) : 0, stamp_sync_pending: Boolean(refreshed.error || stampCount.error || after.error) };
+  } catch { return { ...value, new_stamps: 0, stamp_sync_pending: true }; }
 }

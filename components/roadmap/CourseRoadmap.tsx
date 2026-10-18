@@ -12,6 +12,7 @@ import LearnerShell from "@/components/dashboard/LearnerShell";
 import LearningLibrary from "@/components/learning/LearningLibrary";
 import CountryScenery from "@/components/world/CountryScenery";
 import { languageLocations } from "@/lib/world/languageLocations";
+import { describeCourseLevel } from "@/lib/curriculum/levels";
 
 type Snapshot = Awaited<ReturnType<typeof loadRoadmap>>;
 export default function CourseRoadmap() {
@@ -60,8 +61,8 @@ function RoadmapContent({ requested }: { requested: string | null }) {
   }, [requested, router, attempt]);
 
   return <main className="min-h-screen bg-[#EAF5FF] px-5 py-8 text-[#071A4A]">
-    <div className="mx-auto max-w-6xl">
-      <Link href="/learn" className="text-sm font-bold text-[#3558AE]">← My library</Link>
+    <div className="mx-auto max-w-[var(--page-max-width)]">
+      <Link href="/learn" className="text-sm font-bold text-[#3558AE]">My Library</Link>
       {error ? <section role="alert" className="mt-8 rounded-3xl bg-white p-7"><h1 className="text-xl font-bold">Roadmap unavailable</h1><p className="mt-3">{error}</p><button onClick={() => { setError(""); setData(null); setAttempt(attempt + 1); }} className="mt-5 rounded-full bg-[#071A4A] px-6 py-3 text-white">Retry</button><Link href="/learn" className="ml-4 text-[#3558AE]">Choose course</Link></section>
         : choices.length ? <section className="mt-8 rounded-3xl bg-white p-7"><h1 className="text-2xl font-bold">Choose your course</h1><p className="mt-3">You have more than one active course.</p><div className="mt-5 space-y-3">{choices.map((course) => <Link key={course.id} href={`/learn?course=${encodeURIComponent(course.id)}`} className="block rounded-xl bg-[#EAF5FF] p-4 font-bold">{course.title}</Link>)}</div></section>
         : !data ? <div role="status" className="py-20 text-center"><Loader2 className="mx-auto animate-spin" /><p className="mt-4">Loading your roadmap...</p></div>
@@ -77,7 +78,8 @@ function RoadmapContent({ requested }: { requested: string | null }) {
               <div className="rounded-2xl bg-[#EAF5FF] p-6"><p className="text-xs font-bold uppercase tracking-widest text-[#3558AE]">Journey progress</p><p className="mt-3 text-3xl font-extrabold">{data.percentage}<span className="text-lg">%</span></p><p className="mt-1 text-xs text-[#071A4A]/60">{data.completed} / {data.total} lessons completed</p><progress aria-label="Course progress" value={data.completed} max={data.total || 1} className="mt-4 h-2 w-full accent-[#3558AE]" /></div>
             </div>
           </header>
-          <JourneyRoadmap units={data.units} states={data.states} progress={data.progress} courseId={data.course.id} languageCode={data.language.code} />
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#102452]/10 bg-[#FFFCF7] p-5"><div><p className="text-sm font-bold text-[#102452]">{describeCourseLevel(data.course.level, data.language.code)}</p><p className="mt-1 text-xs text-[#53627F]">A learning progression, not a proficiency certification. Further levels appear when their lessons are ready.</p></div><Link href="/passport" className="inline-flex min-h-11 items-center rounded-xl border border-[#102452]/15 px-4 py-3 text-sm font-bold">Open Passport</Link></div>
+          <JourneyRoadmap travelAccess={data.travelAccess} units={data.units} states={data.states} progress={data.progress} courseId={data.course.id} languageCode={data.language.code} />
         </>}
     </div>
   </main>;

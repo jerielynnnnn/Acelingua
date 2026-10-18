@@ -1,4 +1,4 @@
-.page { max-width: 1500px; margin: auto; padding: 32px 24px 60px; }
+.page { max-width: var(--page-max-width); margin: auto; padding: 32px 24px 60px; }
 .page :is(button,a):focus-visible { outline: 3px solid #3558AE; outline-offset: 5px; }
 .eyebrow { color: #3558AE; font-size: 11px; letter-spacing: .22em; font-weight: 800; text-transform: uppercase; }
 .header { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: flex-end; gap: 24px; margin: 0 0 28px; }
@@ -50,3 +50,52 @@
 @media(max-width:1100px) { .grid { grid-template-columns: 1fr; }.panel { display: block; }.travelerAvatar { margin-left: 0; } }
 @media(max-width:640px) { .page { padding: 24px 16px 40px; }.stats { width: 100%; justify-content: space-around; }.hero { grid-template-columns: 1fr; padding: 24px; gap: 20px; }.panel { padding: 24px; }.mapHeading { padding: 18px; }.mapHeading span { display: none; }.heroAvatar { width: 200px; } }
 @media(prefers-reduced-motion:reduce) { .traveling,.skeleton { animation: none; }.marker,.action { transition: none; } }
+.destinationRail { display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 16px; margin-bottom: 10px; scrollbar-width: thin; }
+.destinationRail button { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 3px 9px; min-width: 145px; flex-shrink: 0; text-align: left; border: 1px solid #c7a9d450; border-radius: 16px; padding: 11px 14px; background: #ffffffc0; }
+.destinationRail button[aria-pressed="true"] { background: #eaf5ff; border-color: #3558ae; box-shadow: 0 0 0 2px #3558ae10; }
+.destinationRail button > span { grid-row: 1 / span 2; font-size: 24px; }.destinationRail strong { font-size: 12px; }.destinationRail small { font-size: 9px; color: #62759c; }
+.gameIsland { display: flex; align-items: center; gap: 22px; padding: 18px 24px; margin: 0 18px 18px; background: linear-gradient(110deg, #eaf5ff, #f5eaf8); border: 1px solid #c7a9d470; border-radius: 24px; color: #071a4a; }
+.islandArt { position: relative; display: block; width: 112px; height: 108px; flex-shrink: 0; animation: playIslandFloat 5s ease-in-out infinite; }
+.islandTop { position: absolute; top: 22px; left: 0; width: 112px; height: 48px; background: #b9d4cb; border: 3px solid #719d9b; border-radius: 50%; z-index: 2; }.islandTop img { position: absolute; bottom: 9px; left: 21px; object-fit: contain; filter: drop-shadow(0 4px 2px #071a4a20); }
+.islandRock { position: absolute; top: 44px; left: 7px; width: 98px; height: 52px; clip-path: polygon(0 0,100% 0,76% 68%,48% 100%,15% 57%); background: linear-gradient(110deg,#a6a4be,#6d7799); }
+.islandCloud { position: absolute; bottom: 2px; right: -7px; width: 65px; height: 15px; border-radius: 50%; background: #fff; box-shadow: -50px -9px 0 -3px #fff9; }
+.islandLabel { display: flex; flex-direction: column; gap: 6px; }.islandLabel > strong { font-size: 21px; font-weight: 800; }.islandLabel > span { font-size: 11px; color: #62759c; }.islandRewards { display: flex; align-items: center; gap: 6px; font-weight: 700; }.islandRewards > span { margin-left: auto; font-size: 20px; }
+.gameIsland:hover { border-color: #3558ae; }.gameIsland:focus-visible { outline: 3px solid #3558ae; outline-offset: 3px; }
+@keyframes playIslandFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+@media (prefers-reduced-motion: reduce) { .islandArt { animation: none; } }
+@media (max-width: 600px) { .gameIsland { padding: 16px; gap: 12px; margin: 0 12px 12px; }.islandArt { width: 100px; }.islandLabel > strong { font-size: 18px; }.islandRewards { flex-wrap: wrap; } }
+.header { padding: 26px 28px; border-radius: 28px; background: linear-gradient(115deg, #071a4a, #3558ae); color: white; }
+.header .eyebrow { color: #c7a9d4; }.header .subtitle { color: #ffffffb8; }.header .stats { background: #ffffff12; border-color: #ffffff15; }.header .stats span { color: #ffffffb8; }.header .stats strong { color: white; }
+@media (max-width: 640px) { .header { padding: 22px 18px; }.header .stats { padding: 14px 8px; gap: 12px; }.header .stats span { font-size: 9px; } }
+/* Play Island belongs to the map canvas, so it travels with map pan and zoom. */
+.islandPosition { position: absolute; left: 13%; top: 58%; width: 145px; z-index: 6; }
+.islandPosition .gameIsland { flex-direction: column; gap: 0; padding: 0; margin: 0; background: transparent; border: 0; text-align: center; border-radius: 20px; }
+.islandPosition .islandArt { width: 112px; height: 96px; }
+.islandPosition .islandLabel { gap: 0; border: 1px solid #c7a9d4; background: #fffffff0; border-radius: 12px; padding: 5px 12px; box-shadow: 0 4px 12px #071a4a15; }
+.islandPosition .islandLabel > strong { font-size: 13px; }
+.islandPosition .islandLabel > span { display: none; }
+.mapFrame { min-height: 0; }
+@media (min-width: 768px) {
+  .worldPage { flex: 1; width: 100%; min-height: 0; overflow: hidden; display: flex; flex-direction: column; padding: 16px 24px; }
+  .worldPage .header { flex-shrink: 0; padding: 16px 22px; margin-bottom: 12px; gap: 16px; }
+  .worldPage .header h1 { font-size: 30px; margin-top: 4px; }
+  .worldPage .header .subtitle { margin-top: 4px; font-size: 12px; }
+  .worldPage .stats { padding: 10px 16px; gap: 18px; }.worldPage .stats strong { font-size: 21px; }
+  .worldPage .destinationRail { flex-shrink: 0; margin-bottom: 4px; padding-bottom: 12px; }
+  .worldPage .grid { flex: 1; min-height: 0; grid-template-columns: minmax(0, 1fr) 300px; align-items: stretch; gap: 18px; }
+  .worldPage .mapCard { display: flex; flex-direction: column; min-height: 0; }
+  .worldPage .mapHeading { padding: 14px 18px; flex-shrink: 0; }.worldPage .mapHeading h2 { font-size: 14px; }.worldPage .mapHeading > span { display: none; }
+  .worldPage .mapFrame { flex: 1; display: flex; flex-direction: column; }
+  .worldPage .mapViewport { flex: 1; min-height: 0; height: auto; }
+  .worldPage .mapControls, .worldPage .mapHint, .worldPage .mapFooter { flex-shrink: 0; }
+  .worldPage .mapHint { font-size: 9px; padding: 7px 14px; }.worldPage .mapFooter { display: none; }
+  .worldPage .panel { min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding: 20px; }
+}
+@media (min-width: 768px) and (max-width: 1000px) { .worldPage .grid { grid-template-columns: minmax(0, 1fr) 245px; }.worldPage .header { padding: 14px; }.worldPage .stats { gap: 12px; padding: 8px 12px; }.worldPage .stats span { font-size: 9px; }.worldPage .header h1 { font-size: 25px; }.islandPosition { left: 8%; top: 55%; } }
+@media (max-width: 767px) { .islandPosition { left: 5%; top: 52%; transform: scale(.8); transform-origin: top left; } }
+.countryPhoto { position: relative; height: 155px; }
+.countryPhoto > span { position: absolute; bottom: 10px; left: 12px; padding: 5px 10px; border-radius: 20px; background: #fffffff0; color: #3558ae; font-size: 11px; font-weight: 800; }
+.countryNotes { display: grid; gap: 12px; margin: 0 0 20px; }
+.countryNotes h3 { font-size: 12px; font-weight: 800; color: #3558ae; margin-bottom: 6px; }
+.countryNotes p { font-size: 11px; line-height: 1.8; color: #62759c; }
+.triviaNote { border: 1px solid #c7a9d450; border-radius: 15px; padding: 13px; background: linear-gradient(120deg, #eaf5ff, #f5eaf8); }

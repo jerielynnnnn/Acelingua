@@ -11,3 +11,11 @@ There is no verified purchase value for the existing currency transaction enums,
 Before the function is installed, catalog browsing still works; confirming a claim or purchase reports that purchases are unavailable. An empty database catalog shows an empty-collection state. Missing local images show a fallback.
 
 Live checks after reviewed installation: purchase a free and paid item; confirm balance deductions; repeat the same purchase; issue concurrent different-item purchases with insufficient combined funds; confirm other learners cannot purchase on your behalf; change an item's price after opening confirmation; equip the owned item; log out/in and verify persistence. Automated client tests do not prove SQL concurrency or live RLS behavior.
+
+## Supplies and wallpapers
+
+The store now has Avatar, Hearts, Gems, and Wallpapers sections, with the learner's equipped avatar room beside the collection. Wallpapers reuse the free Home choices and browser-local preference; they are not paid inventory or synced across devices.
+
+Review and manually apply `migrations/202610180003_store_supplies.sql` to enable supplies. No SQL has been executed. Proposed configurable offers are 1 heart for 50 coins, 3 hearts for 135 coins, 10 gems for 250 coins, and 25 gems for 600 coins. These are earned-coin exchanges, without real-money payments. Review rates, live heart limits, profile triggers, and currency bookkeeping before installation. The UI loads offers and prices from the database; it never falls back to invented active offers.
+
+The supply RPC locks the learner profile, checks the active offer and displayed price, and records a receipt in the same transaction as the debit and credit. A request UUID deduplicates retries. Clients have read-only access to active offers and their own receipts. Confirm live concurrency, stale-price rejection, insufficient funds, rollback, receipt ownership, and repeated-request behavior after installation. Static client checks do not validate live database behavior.

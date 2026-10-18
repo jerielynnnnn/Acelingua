@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getPublishedCourse } from "@/lib/learning";
+import { loadCourseTravelAccess } from "@/lib/travel/access";
 
 export type RoadmapLesson = { id: string; unit_id: string; title: string; description: string | null; lesson_order: number; xp_reward: number; coin_reward: number };
 export type RoadmapUnit = { id: string; course_id: string; title: string; description: string | null; unit_order: number; location_name: string | null; map_x: number | null; map_y: number | null; lessons: RoadmapLesson[] };
@@ -49,7 +50,8 @@ export async function loadRoadmap(supabase: SupabaseClient, userId: string, cour
     progress.push(...(result.data ?? []));
   }
   const states = roadmapStates(units, progress);
+  const travelAccess = await loadCourseTravelAccess(supabase, userId, course.language_id, language.data.code, units.map(unit => unit.id));
   const completed = lessons.filter((lesson) => states.get(lesson.id) === "completed").length;
-  return { course, language: language.data, units, progress, states, aggregate: aggregate.data,
+  return { course, language: language.data, units, progress, states, travelAccess, aggregate: aggregate.data,
     completed, total: lessons.length, percentage: lessons.length ? Math.round(completed / lessons.length * 100) : 0 };
 }

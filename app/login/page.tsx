@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import AuthFrame from "@/components/AuthFrame";
 import Link from "next/link";
 import { FormEvent, Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -78,66 +78,8 @@ function LoginForm() {
     }
   }
 
-  return (
-    <main className="relative min-h-screen overflow-hidden bg-[#F4F9FD] text-[#071A4A]">
-      {/* ===================================================
-          PAGE BACKGROUND
-      =================================================== */}
-
-      <div className="pointer-events-none absolute -right-[380px] -top-[520px] h-[1100px] w-[850px] rounded-full bg-[#2A255C]" />
-
-      <div className="pointer-events-none absolute -bottom-[500px] -left-[350px] h-[850px] w-[850px] rounded-full bg-[#E7F3FC]" />
-
-      {/* ===================================================
-          HEADER
-      =================================================== */}
-
-      <header className="relative z-30 mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-6 md:px-10 lg:px-14">
-        {/* Logo */}
-
-        <Link href="/" className="flex items-center">
-          <Image
-            src="/logo.png"
-            alt="ACELINGUA"
-            width={400}
-            height={400}
-            priority
-            className="h-10 w-auto object-contain"
-          />
-        </Link>
-
-        {/* Register */}
-
-        <div className="flex items-center gap-4">
-          <span className="hidden text-sm text-[#071A4A]/45 sm:inline">
-            New to ACELINGUA?
-          </span>
-
-          <Link
-            href="/register"
-            className="inline-flex items-center gap-2 rounded-full border border-[#071A4A]/10 bg-white px-5 py-2.5 text-xs font-bold text-[#071A4A] shadow-sm transition hover:border-[#3558AE]/30 hover:text-[#3558AE]"
-          >
-            Sign up
-            <ArrowRight size={13} />
-          </Link>
-        </div>
-      </header>
-
-      {/* ===================================================
-          LOGIN CONTAINER
-      =================================================== */}
-
-      <section className="relative z-20 flex min-h-[calc(100vh-80px)] items-center justify-center px-5 pb-12 pt-4">
-        <div className="grid w-full max-w-[1040px] overflow-hidden rounded-[28px] border border-[#071A4A]/5 bg-white shadow-[0_24px_70px_rgba(7,26,74,0.10)] lg:grid-cols-[1.08fr_0.92fr]">
-          {/* =================================================
-              LEFT SIDE — LOGIN FORM
-          ================================================= */}
-
-          <div className="flex items-center justify-center px-7 py-10 sm:px-12 lg:px-16 lg:py-12">
-            <div className="w-full max-w-[390px]">
-              {/* =================================================
-                  HEADING
-              ================================================= */}
+  return <AuthFrame>
+<div className="w-full max-w-[390px]">
 
               <div className="mb-7">
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#3558AE]">
@@ -148,10 +90,6 @@ function LoginForm() {
                   Sign in to ACELINGUA
                 </h1>
               </div>
-
-              {/* =================================================
-                  GOOGLE LOGIN
-              ================================================= */}
 
               <button
                 type="button"
@@ -173,10 +111,6 @@ function LoginForm() {
                   : "Continue with Google"}
               </button>
 
-              {/* =================================================
-                  DIVIDER
-              ================================================= */}
-
               <div className="my-6 flex items-center gap-4">
                 <div className="h-px flex-1 bg-[#071A4A]/10" />
 
@@ -187,22 +121,13 @@ function LoginForm() {
                 <div className="h-px flex-1 bg-[#071A4A]/10" />
               </div>
 
-              {/* =================================================
-                  ERROR MESSAGE
-              ================================================= */}
-
               {visibleError && (
                 <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs leading-5 text-red-600">
                   {visibleError}
                 </div>
               )}
 
-              {/* =================================================
-                  LOGIN FORM
-              ================================================= */}
-
               <form onSubmit={handleLogin}>
-                {/* Email */}
 
                 <div>
                   <label
@@ -225,10 +150,6 @@ function LoginForm() {
                     className="h-12 w-full rounded-xl border border-[#071A4A]/10 bg-[#FAFCFE] px-4 text-sm text-[#071A4A] outline-none transition placeholder:text-[#071A4A]/25 hover:border-[#071A4A]/20 focus:border-[#3558AE]/60 focus:bg-white focus:ring-4 focus:ring-[#3558AE]/5"
                   />
                 </div>
-
-                {/* =================================================
-                    PASSWORD
-                ================================================= */}
 
                 <div className="mt-4">
                   <div className="mb-2 flex items-center justify-between">
@@ -282,10 +203,6 @@ function LoginForm() {
                   </div>
                 </div>
 
-                {/* =================================================
-                    LOGIN BUTTON
-                ================================================= */}
-
                 <button
                   type="submit"
                   disabled={loading || googleLoading}
@@ -304,10 +221,6 @@ function LoginForm() {
                 </button>
               </form>
 
-              {/* =================================================
-                  REGISTER
-              ================================================= */}
-
               <p className="mt-6 text-center text-xs text-[#071A4A]/40">
                 New to ACELINGUA?{" "}
                 <Link
@@ -318,10 +231,6 @@ function LoginForm() {
                 </Link>
               </p>
 
-              {/* =================================================
-                  BACK HOME
-              ================================================= */}
-
               <div className="mt-5 text-center">
                 <Link
                   href="/"
@@ -331,83 +240,8 @@ function LoginForm() {
                 </Link>
               </div>
             </div>
-          </div>
 
-          {/* =================================================
-              RIGHT SIDE — ACELINGUA BRAND PANEL
-          ================================================= */}
-
-          <div className="relative hidden min-h-[620px] overflow-hidden bg-[#2A255C] lg:block">
-            {/* =================================================
-                CURVED WHITE EDGE
-            ================================================= */}
-
-            <div className="absolute -left-[210px] -top-[70px] h-[760px] w-[290px] rounded-[50%] bg-white" />
-
-            {/* =================================================
-                BACKGROUND GLOWS
-            ================================================= */}
-
-            <div className="absolute -right-32 -top-32 h-[420px] w-[420px] rounded-full bg-[#3558AE]/50 blur-3xl" />
-
-            <div className="absolute -bottom-32 right-10 h-[350px] w-[350px] rounded-full bg-[#B64074]/15 blur-3xl" />
-
-            {/* =================================================
-                MINIMAL DECORATIONS
-            ================================================= */}
-
-            <div className="absolute right-16 top-16 h-16 w-16 rounded-full border border-white/10" />
-
-            <div className="absolute right-24 top-36 h-2 w-2 rounded-full bg-[#F9C3D7]/60" />
-
-            <div className="absolute bottom-24 right-14 h-24 w-24 rounded-full border border-[#C7A9D4]/15" />
-
-            <div className="absolute bottom-20 left-32 text-4xl font-light text-white/10">
-              +
-            </div>
-
-            {/* =================================================
-                PANEL CONTENT
-            ================================================= */}
-
-            <div className="relative z-10 flex min-h-[620px] flex-col justify-center pl-[125px] pr-12">
-              {/* ACE */}
-
-              <div className="relative mb-7 w-fit">
-                <div className="absolute inset-4 rounded-full bg-[#3558AE]/40 blur-3xl" />
-
-                <Image
-                  src="/icon head.png"
-                  alt="Ace"
-                  width={160}
-                  height={160}
-                  className="relative h-[250px] w-[250px] object-contain drop-shadow-[0_18px_25px_rgba(0,0,0,0.18)]"
-                />5
-              </div>
-
-              {/* Text */}
-
-              <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#F9C3D7]">
-                Welcome back
-              </p>
-
-              <h2 className="mt-3 max-w-[290px] text-[28px] font-extrabold leading-[1.2] tracking-tight text-white">
-                Keep building your language skills.
-              </h2>
-
-              <p className="mt-4 max-w-[290px] text-sm leading-6 text-white/55">
-                Pick up where you left off and continue making progress
-                with Ace.
-              </p>
-
-              
-                
-              </div>
-            </div>
-          </div>
-      </section>
-    </main>
-  );
+  </AuthFrame>;
 }
 
 /* =========================================================

@@ -5,8 +5,21 @@
 .card { background: white; border: 1px solid #071a4a09; border-radius: 24px; padding: 22px; box-shadow: 0 8px 28px #071a4a03; min-width: 0; }
 .card h2 { font-size: 15px; font-weight: 850; }
 .card p { line-height: 1.7; }
+.roadmap { overscroll-behavior-y: contain; scrollbar-gutter: stable; }
+.roadmap:focus-visible { outline: 2px solid #3558ae; outline-offset: 3px; }
+@media (min-width: 768px) {
+  .viewport { height: 100dvh; min-height: 0; overflow: hidden; }
+  .shell { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+  .shell > header { flex-shrink: 0; }
+  .main { display: flex; flex-direction: column; flex: 1; width: 100%; min-height: 0; overflow: hidden; }
+  .main > :not(.layout) { flex-shrink: 0; }
+  .layout { flex: 1; min-height: 0; align-items: stretch; overflow: hidden; }
+  .roadmap { height: 100%; min-height: 0; overflow-y: auto; overflow-x: hidden; }
+  .leftColumn, .rightColumn { min-height: 0; overflow-y: auto; overscroll-behavior-y: contain; scrollbar-width: thin; }
+  .leftColumn > *, .rightColumn > * { flex-shrink: 0; }
+}
 @media (max-width: 1199px) and (min-width: 768px) {
-  .layout { grid-template-columns: minmax(0, 1fr) minmax(240px, .48fr); }
+  .layout { grid-template-columns: minmax(0, 1fr) minmax(240px, .48fr); grid-template-rows: repeat(2, minmax(0, 1fr)); }
   .roadmap { grid-column: 1; grid-row: 1 / span 2; }
   .leftColumn { grid-column: 2; grid-row: 1; }
   .rightColumn { grid-column: 2; grid-row: 2; }
@@ -17,4 +30,16 @@
   .layout > *, .card { width: 100%; }
   .stats { order: 0; }.selector { order: 1; }.roadmap { order: 2; }.avatar { order: 3; }.goal { order: 4; }.shop { order: 5; }.achievements { order: 6; }
   .card { padding: 18px; }
+  .roadmap { max-height: 75svh; overflow-y: auto; }
 }
+.worldHeading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.worldHeading a { font-size: 10px; color: #3558ae; border: 1px solid #c7a9d450; padding: 5px 8px; border-radius: 9px; white-space: nowrap; }
+.worldHint { color: #62759c; font-size: 10px; margin: 6px 0 14px; }
+.worldList { display: flex; flex-direction: column; gap: 9px; padding: 0; margin: 0; list-style: none; }
+.worldShortcut { width: 100%; position: relative; isolation: isolate; display: flex; align-items: center; gap: 9px; min-height: 85px; padding: 12px 10px; overflow: hidden; border: 1px solid #c7a9d430; border-radius: 18px; text-align: left; background: #eaf5ff; }
+.worldArtwork { z-index: -2; object-fit: cover; object-position: right center; }
+.worldShortcut::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, #f8fbffff 15%, #f8fbffeb 45%, #f8fbff20); }
+.worldShortcut:hover { border-color: #3558ae; }.worldSelected { border-color: #3558ae; box-shadow: 0 0 0 2px #3558ae12; }
+.worldMarker { flex-shrink: 0; display: grid; place-items: center; height: 25px; width: 25px; border-radius: 50%; background: white; color: #62759c; border: 1px solid #c7a9d460; }.worldSelected .worldMarker { background: #3558ae; color: white; }
+.worldCopy { min-width: 0; display: flex; flex-direction: column; gap: 3px; }.worldCopy strong { font-size: 13px; }.worldCopy > span { font-size: 10px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #62759c; }.worldCopy small { font-size: 9px; color: #3558ae; }
+.worldMapButton { display: block; margin-top: 16px; text-align: center; border-radius: 12px; background: #3558ae; color: white; font-size: 12px; font-weight: 800; padding: 11px; }

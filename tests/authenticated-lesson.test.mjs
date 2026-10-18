@@ -3,20 +3,23 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import ts from "typescript";
 
+const accessJs = ts.transpileModule(fs.readFileSync(new URL("../lib/travel/access.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.ESNext } }).outputText;
+const accessUrl = `data:text/javascript;base64,${Buffer.from(accessJs).toString("base64")}`;
 const js = ts.transpileModule(fs.readFileSync(new URL("../lib/authenticated-lesson.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.ESNext } }).outputText
-  .replace('import { loadRoadmap } from "@/lib/roadmap";', 'const loadRoadmap = (...args) => globalThis.lessonTestRoadmap(...args);');
+  .replace('import { loadRoadmap } from "@/lib/roadmap";', 'const loadRoadmap = async (...args) => ({ travelAccess: { arrived: true, href: "/world/ja" }, ...await globalThis.lessonTestRoadmap(...args) });')
+  .replace('"@/lib/travel/access"', JSON.stringify(accessUrl));
 const { loadAuthenticatedLesson, startAuthenticatedLesson, completeAuthenticatedLesson } = await import(`data:text/javascript;base64,${Buffer.from(js).toString("base64")}`);
 const id = "d89e8b91-8bf0-1092-fe5b-3179a295f7a1";
-function database(responses = [], user = { id: "learner" }, reward = null) {
+function database(responses = [], user = { id: "learner" }, reward = null, refreshError = null) {
   const calls = [];
   return { calls, auth: { getUser: async () => ({ data: { user }, error: null }) },
-    rpc: async (name, params) => { calls.push({ name, params }); return reward ?? { data: null, error: null }; },
+    rpc: async (name, params) => { calls.push({ name, params }); return name === "acelingua_refresh_country_stamps" ? { data: 0, error: refreshError } : reward ?? { data: null, error: null }; },
     from(table) {
-      const expected = responses.shift();
+      const expected = table === "user_passport_stamps" ? { table, data: null, count: 0 } : table === "lessons" && !responses.length && reward ? { table, data: { units: { course_id: "course" } } } : responses.shift();
       assert.ok(expected, `Unexpected ${table} query`);
       assert.equal(expected.table, table);
       const call = { table }; calls.push(call);
-      const query = { select(fields) { call.fields = fields; return query; }, eq() { return query; }, order() { return query; }, in() { return query; }, maybeSingle() { return query; }, single() { return query; }, then(resolve, reject) { return Promise.resolve({ data: expected.data, error: expected.error ?? null }).then(resolve, reject); } };
+      const query = { select(fields) { call.fields = fields; return query; }, eq() { return query; }, order() { return query; }, in() { return query; }, maybeSingle() { return query; }, single() { return query; }, then(resolve, reject) { return Promise.resolve({ data: expected.data, count: expected.count ?? null, error: expected.error ?? null }).then(resolve, reject); } };
       return query;
     },
   };
@@ -51,8 +54,8 @@ test("changed authentication prevents start and completion calls", async () => {
 test("completion delegates atomic rewards to the RPC and accepts zero reward replay", async () => {
   const result = { replay: true, xp_awarded: 0, coins_awarded: 0, completed_lessons: 1, total_lessons: 12 };
   const db = database([], { id: "learner" }, { data: result, error: null });
-  assert.deepEqual(await completeAuthenticatedLesson(db, "learner", id), result);
-  assert.deepEqual(db.calls, [{ name: "acelingua_complete_lesson", params: { p_lesson_id: id } }]);
+  assert.deepEqual(await completeAuthenticatedLesson(db, "learner", id), { ...result, new_stamps: 0, stamp_sync_pending: false });
+  assert.deepEqual(db.calls.filter(call => call.name), [{ name: "acelingua_complete_lesson", params: { p_lesson_id: id } }, { name: "acelingua_refresh_country_stamps", params: { p_course_id: "course" } }]);
 });
 test("completion error is surfaced and no result is fabricated", async () => {
   const db = database([], { id: "learner" }, { data: null, error: { message: "coin_transactions insert failed" } });
@@ -63,6 +66,22 @@ test("assessed completion sends answers/acknowledgments to server grading, never
   const assessment = { answers: [{ question_id: "question", answer: "Wrong answer" }], acknowledged: ["speaking"] };
   const result = { replay: false, xp_awarded: 10, coins_awarded: 5, correct_answers: 0, total_questions: 1 };
   const db = database([], { id: "learner" }, { data: result, error: null });
-  assert.deepEqual(await completeAuthenticatedLesson(db, "learner", id, assessment), result);
-  assert.deepEqual(db.calls, [{ name: "acelingua_complete_assessed_lesson", params: { p_lesson_id: id, p_answers: assessment.answers, p_acknowledged: assessment.acknowledged } }]);
+  assert.deepEqual(await completeAuthenticatedLesson(db, "learner", id, assessment), { ...result, new_stamps: 0, stamp_sync_pending: false });
+  assert.deepEqual(db.calls.filter(call => call.name), [{ name: "acelingua_complete_assessed_lesson", params: { p_lesson_id: id, p_answers: assessment.answers, p_acknowledged: assessment.acknowledged } }, { name: "acelingua_refresh_country_stamps", params: { p_course_id: "course" } }]);
+});
+
+test("a direct lesson cannot load learning content before arrival", async () => {
+  globalThis.lessonTestRoadmap = async () => ({ travelAccess: { arrived: false, href: "/world/ja" }, states: new Map([[id, "current"]]) });
+  const db = database(base());
+  await assert.rejects(loadAuthenticatedLesson(db, "learner", id, "course"), error => error.href === "/world/ja");
+  assert.deepEqual(db.calls.map(call => call.table), ["lessons", "units"]);
+});
+
+test("a stamp refresh failure preserves the committed lesson reward result", async () => {
+  const result = { replay: false, xp_awarded: 10, coins_awarded: 5 };
+  const db = database([], { id: "learner" }, { data: result, error: null }, { message: "offline" });
+  const saved = await completeAuthenticatedLesson(db, "learner", id);
+  assert.equal(saved.xp_awarded, 10);
+  assert.equal(saved.stamp_sync_pending, true);
+  assert.equal(db.calls.filter(call => call.name === "acelingua_complete_lesson").length, 1);
 });

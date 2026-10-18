@@ -6,6 +6,7 @@ import { constrainMapViewport, focusMapPosition, initialMapViewport, zoomMapAt }
 import { languageLocations, mapPosition } from "@/lib/world/languageLocations";
 import type { WorldLanguage } from "@/lib/world/data";
 import UserAvatar, { type AvatarLayer } from "@/components/avatar/UserAvatar";
+import MinigameIsland from "./MinigameIsland";
 import styles from "./World.module.css";
 
 type Props = { languages: WorldLanguage[]; selectedId: string | null; onSelect: (language: WorldLanguage) => void; avatarLayers?: AvatarLayer[] };
@@ -44,7 +45,7 @@ export default function WorldMap({ languages, selectedId, onSelect, avatarLayers
     return () => element.removeEventListener("wheel", wheel);
   }, []);
   function beginDrag(event: PointerEvent<HTMLDivElement>) {
-    if ((event.target as Element).closest("button") || (event.pointerType === "mouse" && event.button !== 0)) return;
+    if ((event.target as Element).closest("button, a") || (event.pointerType === "mouse" && event.button !== 0)) return;
     event.currentTarget.setPointerCapture(event.pointerId);
     pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
     lastPoint.current = { x: event.clientX, y: event.clientY }; setDragging(true);
@@ -68,10 +69,10 @@ export default function WorldMap({ languages, selectedId, onSelect, avatarLayers
     lastPoint.current = [...pointers.current.values()][0] ?? null;
     if (!pointers.current.size) setDragging(false);
   }
-  return <div>
+  return <div className={styles.mapFrame}>
     <div className={styles.mapControls} role="group" aria-label="World map controls"><button type="button" aria-label="Reset world view" onClick={() => setView(initialMapViewport)}><RotateCcw size={17} /></button><button type="button" disabled={!selectedId} onClick={focusSelected}><LocateFixed size={17} /> Find destination</button></div>
     <div ref={viewportRef} className={`${styles.mapViewport} ${dragging ? styles.mapDragging : ""}`} tabIndex={0} aria-label="Interactive world map. Scroll to zoom at the cursor, drag to move, or double-click to zoom in. Keyboard: plus or minus to zoom, arrow keys to pan, zero to reset." onDoubleClick={event => {
-      if ((event.target as Element).closest("button")) return;
+      if ((event.target as Element).closest("button, a")) return;
       const rect = event.currentTarget.getBoundingClientRect();
       if (!rect.width || !rect.height) return;
       const x = (event.clientX - rect.left) / rect.width * 100;
@@ -126,6 +127,7 @@ export default function WorldMap({ languages, selectedId, onSelect, avatarLayers
           <span className={styles.markerLabel}>{selectedId === language.id ? location.country : language.name}</span>
         </button>;
       })}
+      <div className={styles.islandPosition}><MinigameIsland /></div>
       <span className={styles.mapCaption}>A world of words awaits</span>
     </div>
     </div>

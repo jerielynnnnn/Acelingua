@@ -1,13 +1,14 @@
 "use client";
 
 import Image from "next/image";
+import Logo from "@/components/Logo";
 import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { readPreview } from "@/lib/guest-preview";
-import VocabularyCard from "@/components/learning/VocabularyCard";
+import PreviewWordCard from "@/components/learning/PreviewWordCard";
 import GuestPreviewActivities from "@/components/learning/GuestPreviewActivities";
 
 type Language = { id: string; code: string; name: string; native_name: string | null; flag_emoji: string | null };
@@ -28,7 +29,7 @@ export default function IntroPage() {
   return <main className="min-h-screen bg-[#EAF5FF] px-5 py-6 text-[#071A4A]">
     <header className="mx-auto flex max-w-2xl items-center justify-between">
       <Link href="/onboarding/languages" aria-label="Back to languages" className="rounded-full p-3 transition hover:bg-white"><ArrowLeft size={22} /></Link>
-      <Link href="/" aria-label="ACELINGUA home" className="flex shrink-0 items-center justify-center"><Image src="/logo.png" alt="ACELINGUA Logo" width={160} height={160} priority unoptimized className="h-11 w-auto shrink-0 object-contain" /></Link>
+      <Link href="/" aria-label="ACELINGUA home" className="flex shrink-0 items-center justify-center"><Logo alt="ACELINGUA Logo" priority className="h-11 w-auto shrink-0 object-contain" /></Link>
     </header>
     <Suspense fallback={<Loading />}><IntroSelection /></Suspense>
   </main>;
@@ -56,6 +57,7 @@ function IntroExperience({ code }: { code: string }) {
   const [error, setError] = useState("");
   const [stage, setStage] = useState<Stage>("welcome");
   const [wordIndex, setWordIndex] = useState(0);
+  const [wordChecked, setWordChecked] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -123,9 +125,9 @@ function IntroExperience({ code }: { code: string }) {
         <h1 className="mt-3 text-2xl font-extrabold">{word ? "Learn this phrase" : data.lesson.title}</h1>
         {word ? <div className="mt-6 text-center">
           <p className="text-xs text-[#071A4A]/55">Phrase {wordIndex + 1} of {data.words.length}</p>
-          <VocabularyCard key={word.id} word={word} languageCode={data.language.code} />
+          <PreviewWordCard key={word.id} word={word} words={data.words} languageCode={data.language.code} onChecked={() => setWordChecked(true)} />
         </div> : null}
-        <button type="button" className={`${buttonStyle} mt-7`} onClick={() => word && wordIndex < data.words.length - 1 ? setWordIndex(wordIndex + 1) : afterLearning()}>{word && wordIndex < data.words.length - 1 ? "Next phrase" : "Continue to practice"}<ArrowRight size={17} /></button>
+        <button type="button" disabled={Boolean(word) && !wordChecked} className={`${buttonStyle} mt-7`} onClick={() => { setWordChecked(false); if (word && wordIndex < data.words.length - 1) setWordIndex(wordIndex + 1); else afterLearning(); }}>{word && wordIndex < data.words.length - 1 ? "Next phrase" : "Continue to practice"}<ArrowRight size={17} /></button>
       </>}
       {(stage === "practice" || stage === "complete") && <GuestPreviewActivities languageId={data.language.id} languageCode={data.language.code} courseId={data.course.id} lessonId={data.lesson.id} words={data.words} onComplete={() => setStage("complete")} />}
     </div>

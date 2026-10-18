@@ -1,24 +1,34 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 import { Check, Lock, Play, MapPin, Flag } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
 import type { LessonProgress, LessonState, RoadmapUnit } from "@/lib/roadmap";
 import styles from "./JourneyRoadmap.module.css";
 import CountryScenery from "@/components/world/CountryScenery";
+import WritingStudioButton from "@/components/writing/WritingStudioButton";
+import UnitOverview from "./UnitOverview";
+import ArrivalRequiredNotice from "@/components/travel/ArrivalRequired";
+import type { CourseTravelAccess } from "@/lib/travel/access";
 
-type Props = { units: RoadmapUnit[]; states: Map<string, LessonState>; progress: LessonProgress[]; courseId: string; currentMarker?: ReactNode; languageCode?: string };
+type Props = { units: RoadmapUnit[]; states: Map<string, LessonState>; progress: LessonProgress[]; courseId: string; currentMarker?: ReactNode; languageCode?: string; travelAccess: CourseTravelAccess };
 const positions = [50, 28, 50, 72];
 const mobilePositions = [50, 40, 50, 60];
 const rowHeight = 232;
 
 /** Destination data stays intact for a future illustrated map and cultural content. */
-export default function JourneyRoadmap({ units, states, progress, courseId, currentMarker, languageCode }: Props) {
+export default function JourneyRoadmap({ units, states, progress, courseId, currentMarker, languageCode, travelAccess }: Props) {
+  const [selected, setSelected] = useState<string | null>(null);
+  if (!travelAccess.arrived) return <>{languageCode && <WritingStudioButton languageCode={languageCode} courseId={courseId} />}<ArrivalRequiredNotice access={travelAccess} /></>;
   return <div className={styles.journey}>
+    {languageCode && <WritingStudioButton languageCode={languageCode} courseId={courseId} />}
     <div className={styles.introduction}><Flag size={18} aria-hidden="true" /><span>Your journey roadmap</span></div>
     {!units.length && <p className="py-12 text-center">Published destinations for this course are coming soon.</p>}
     {units.map((unit, unitIndex) => {
       const future = unit.lessons.length > 0 && unit.lessons.every((lesson) => states.get(lesson.id) === "locked");
       const complete = unit.lessons.length > 0 && unit.lessons.every((lesson) => states.get(lesson.id) === "completed");
-      return <section key={unit.id} aria-labelledby={`destination-${unit.id}`} data-map-x={unit.map_x ?? undefined} data-map-y={unit.map_y ?? undefined} className={styles.destination}>
+      return <section key={unit.id} aria-labelledby={`destination-${unit.id}`} data-map-x={unit.map_x ?? undefined} data-map-y={unit.map_y ?? undefined} className={`${styles.destination} ${complete ? styles.completeDestination : future ? styles.lockedDestination : styles.availableDestination}`}>
         {languageCode && <div className={styles.countryBackdrop} aria-hidden="true"><CountryScenery languageCode={languageCode} className="h-full w-full" /></div>}
         {unitIndex > 0 && <div className={styles.transfer} aria-hidden="true" />}
         <header className={styles.destinationHeader}>
@@ -28,7 +38,9 @@ export default function JourneyRoadmap({ units, states, progress, courseId, curr
           {unit.location_name && <p className={styles.unitTitle}>{unit.title}</p>}
           {unit.description && <p className={styles.description}>{unit.description}</p>}
           {unit.lessons.length > 0 && <p className="mt-3 text-xs font-semibold text-[#3558AE]">{unit.lessons.filter(lesson => states.get(lesson.id) === "completed").length} / {unit.lessons.length} published lessons completed</p>}
+          <button type="button" aria-expanded={selected === unit.id} aria-controls={`overview-${unit.id}`} onClick={() => setSelected(selected === unit.id ? null : unit.id)} className="mt-4 min-h-11 rounded-xl border border-[#102452]/15 bg-white px-5 py-3 text-xs font-bold text-[#102452] hover:bg-[#EDE7FA] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#3558AE]">{selected === unit.id ? "Close Overview" : future ? "Preview Destination" : "View Lessons"}</button>
         </header>
+        {selected === unit.id && <div id={`overview-${unit.id}`}><UnitOverview unit={unit} states={states} courseId={courseId} languageCode={languageCode} /></div>}
         {!unit.lessons.length && <p className="pb-10 text-center text-sm text-[#071A4A]/60">Lessons for this destination are coming soon.</p>}
         <div className={styles.trail}>
           {[false, true].map((mobile) => <svg key={String(mobile)} aria-hidden="true" className={`${styles.path} ${mobile ? styles.mobilePath : styles.desktopPath}`} viewBox={`0 0 100 ${Math.max(1, unit.lessons.length * rowHeight)}`} preserveAspectRatio="none">

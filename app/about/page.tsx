@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Logo from "@/components/Logo";
 import Link from "next/link";
 import {
   useEffect,
@@ -152,16 +153,13 @@ export default function AboutPage() {
       ====================================================== */}
 
       <section className="min-h-screen">
-        <div className="mx-auto w-full max-w-[1280px] px-6 pb-20 pt-8 md:px-10 lg:px-12">
+        <div className="mx-auto w-full max-w-[var(--page-max-width)] px-6 pb-20 pt-8 md:px-10 lg:px-12">
           {/* HEADER */}
 
           <header className="flex items-center justify-between">
             <Link href="/" className="inline-flex items-center">
-              <Image
-                src="/logo.png"
+              <Logo
                 alt="ACELingua"
-                width={400}
-                height={120}
                 priority
                 className="h-auto w-[210px] object-contain sm:w-[240px] lg:w-[250px]"
               />
@@ -422,7 +420,7 @@ export default function AboutPage() {
       ====================================================== */}
 
       <section className="border-t border-[#f0f1f4] bg-white px-6 py-28 md:px-10 lg:px-16">
-        <div className="mx-auto max-w-[1250px]">
+        <div className="mx-auto max-w-[var(--page-max-width)]">
           <div className="text-center">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#a0a4ae]">
               Planning
@@ -524,7 +522,7 @@ export default function AboutPage() {
       ====================================================== */}
 
       <section className="bg-[#f8faff] px-6 py-28 md:px-10 lg:px-16">
-        <div className="mx-auto max-w-[1150px]">
+        <div className="mx-auto max-w-[var(--page-max-width)]">
           <div className="grid items-center gap-16 lg:grid-cols-[0.9fr_1.1fr]">
             {/* LEFT */}
 
@@ -589,12 +587,9 @@ export default function AboutPage() {
       ====================================================== */}
 
       <footer className="border-t border-[#eef0f4] bg-white px-6 py-8 md:px-10 lg:px-16">
-        <div className="mx-auto flex max-w-[1250px] flex-col items-center justify-between gap-5 text-center sm:flex-row sm:text-left">
-          <Image
-            src="/logo.png"
+        <div className="mx-auto flex max-w-[var(--page-max-width)] flex-col items-center justify-between gap-5 text-center sm:flex-row sm:text-left">
+          <Logo
             alt="ACELingua"
-            width={160}
-            height={55}
             className="h-auto w-[145px] object-contain"
           />
 

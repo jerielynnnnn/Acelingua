@@ -27,9 +27,12 @@ implements initial setup only. No live policy changes were applied by the agent.
 
 Populate the existing `avatar_items` catalog with real, ready-to-use images after
 review. Use the actual public paths and database category `clothes` for files
-under `public/avatar/outfit`. No catalog seed was prepared: the current eight
-1024x1024 PNG files have no alpha channel and would obscure underlying layers.
-All layers need a common canvas, aligned artwork, and actual transparency.
+under `public/avatar/outfit`. The updated `avatar-catalog-plan.sql` registers all
+14 current PNGs: two bases, two faces, six hairstyles, and four outfits.
+All are 432x432 with alpha channels. The script preserves existing catalog prices
+and ownership, updates legacy face paths, and deactivates the two removed hair
+assets. Review and run this script in Supabase SQL Editor to expose new choices;
+it has not been applied to the live database. Check alignment in the avatar preview.
 
 ## Validation
 

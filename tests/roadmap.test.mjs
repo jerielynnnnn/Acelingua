@@ -5,7 +5,8 @@ import ts from "typescript";
 
 const source = fs.readFileSync(new URL("../lib/roadmap.ts", import.meta.url), "utf8");
 const js = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext } }).outputText
-  .replace('import { getPublishedCourse } from "@/lib/learning";', 'const getPublishedCourse = async () => { throw new Error("Unexpected curriculum request"); };');
+  .replace('import { getPublishedCourse } from "@/lib/learning";', 'const getPublishedCourse = async () => { throw new Error("Unexpected curriculum request"); };')
+  .replace('import { loadCourseTravelAccess } from "@/lib/travel/access";', 'const loadCourseTravelAccess = async () => { throw new Error("Unexpected travel request"); };');
 const { roadmapStates } = await import(`data:text/javascript;base64,${Buffer.from(js).toString("base64")}`);
 const units = [
   { id: "later", unit_order: 2, lessons: [{ id: "c", lesson_order: 1 }] },

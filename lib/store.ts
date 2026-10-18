@@ -8,12 +8,12 @@ export async function loadStore(supabase: SupabaseClient, userId: string) {
   const [catalog, ownership, profile] = await Promise.all([
     supabase.from("avatar_items").select(avatarItemFields).eq("is_active", true).order("name").order("id"),
     supabase.from("user_avatar_items").select("avatar_item_id").eq("user_id", userId),
-    supabase.from("profiles").select("coins, gems").eq("id", userId).maybeSingle(),
+    supabase.from("profiles").select("coins, gems, hearts").eq("id", userId).maybeSingle(),
   ]);
   for (const result of [catalog, ownership, profile]) if (result.error) throw new Error(`We couldn't load your store: ${result.error.message}`);
   if (!profile.data) throw new Error("Your learner profile is unavailable. Please sign in again.");
   return { items: (catalog.data ?? []) as AvatarItem[], ownedIds: new Set<string>((ownership.data ?? []).map(row => row.avatar_item_id)),
-    coins: Number(profile.data.coins), gems: Number(profile.data.gems) };
+    coins: Number(profile.data.coins), gems: Number(profile.data.gems), hearts: Number(profile.data.hearts) };
 }
 export async function purchaseAvatarItem(supabase: SupabaseClient, expectedUserId: string, item: AvatarItem) {
   const { data: { user }, error: authError } = await supabase.auth.getUser();

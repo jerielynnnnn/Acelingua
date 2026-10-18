@@ -50,7 +50,7 @@ button.card { cursor: pointer; }
 .srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .landscape { margin: 0; border: 0; border-radius: 0; background: #d5e6e9; }
 .landscape .heading, .landscape .legend { display: none; }
-.landscape .map { margin: 0; background: linear-gradient(#d7e8ed20, #d7e8ed35), url('/dashboard/japan-adventure.jpg') center top / 100% auto repeat-y; }
+.landscape .map { margin: 0; background: linear-gradient(#d7e8ed20, #d7e8ed35), url('/dashboard/japan.jpg') center top / 100% auto repeat-y; }
 .landscape .start { color: #fff; text-shadow: 0 1px 4px #173747; padding-top: 20px; }
 .landscape .pathBase { stroke: #fff4ce; stroke-width: 10px; filter: drop-shadow(0 2px 2px #193f5a55); }
 .landscape .pathDashes { stroke: #b7ae7f; stroke-width: 2px; }

@@ -3,6 +3,7 @@
 
 
 import Image from "next/image";
+import Logo from "@/components/Logo";
 
 import Link from "next/link";
 
@@ -429,18 +430,15 @@ export default function ChooseLanguagePage() {
 
 
 
-      <header className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 md:px-10 lg:px-14">
+      <header className="mx-auto flex h-20 max-w-[var(--page-max-width)] items-center justify-between px-6 md:px-10 lg:px-14">
 
         <Link
         href="/"
         aria-label="ACELingua home"
         className="inline-flex shrink-0 items-center"
         > 
-      <Image
-        src="/logo.png"
+      <Logo
         alt="ACELingua"
-        width={600}
-        height={180}
         priority
         quality={100}
         className="h-auto w-[160px] object-contain sm:w-[210px]"
@@ -461,7 +459,7 @@ export default function ChooseLanguagePage() {
 
 
 
-      <section className="mx-auto flex max-w-6xl flex-col items-center px-5 pb-16 pt-5 md:pt-10">
+      <section className="mx-auto flex max-w-[var(--page-max-width)] flex-col items-center px-5 pb-16 pt-5 md:pt-10">
 
         {/* HEADING */}
 

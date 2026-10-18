@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Logo from "@/components/Logo";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -87,12 +88,12 @@ function CourseContent({ requireAccount }: { requireAccount: boolean }) {
   const backHref = data?.signedIn ? "/world" : "/onboarding/language";
 
   return <main className="min-h-screen bg-[#F8FBFF] text-[#071A4A]">
-    <header className="bg-white"><div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-5 sm:px-8">
+    <header className="bg-white"><div className="mx-auto flex h-20 max-w-[var(--page-max-width)] items-center justify-between px-5 sm:px-8">
       <Link href={backHref} aria-label="Back to languages" className="flex h-10 w-10 items-center justify-center rounded-full text-[#071A4A]/60 hover:bg-[#EAF5FF]"><ArrowLeft size={20} /></Link>
-      <Image src="/logo.png" alt="ACELingua" width={180} height={48} priority className="h-10 w-auto object-contain" />
+      <Logo alt="ACELingua" priority className="h-10 w-auto object-contain" />
       <div className="w-10" />
     </div></header>
-    <div className="mx-auto max-w-6xl px-5 py-10 sm:px-8">
+    <div className="mx-auto max-w-[var(--page-max-width)] px-5 py-10 sm:px-8">
       {error ? <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-6"><h1 className="text-xl font-bold">Course unavailable</h1><p className="mt-2 text-sm">{error}</p><Link href="/onboarding/language" className="mt-4 inline-block font-bold text-[#3558AE]">Choose another language</Link></div>
         : !data ? <div role="status" className="flex min-h-80 flex-col items-center justify-center gap-3"><Loader2 className="animate-spin text-[#3558AE]" /><p className="text-sm text-[#071A4A]/50">Loading your course...</p></div>
         : <>

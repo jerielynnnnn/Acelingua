@@ -38,3 +38,7 @@ a.node:hover { transform: translateY(-3px); }
   .destinationHeader { padding: 0 12px; }
 }
 @media (prefers-reduced-motion: reduce) { .node { transition: none; } a.node:hover { transform: none; } }
+
+.completeDestination .destinationHeader{background:linear-gradient(135deg,#e5f8e9,#fffcf7);border:1px solid #68d97870;border-radius:24px;padding:24px;margin:0 auto 24px;max-width:820px}
+.availableDestination .destinationHeader{background:linear-gradient(135deg,#e6f7ff,#ede7fa70);border:1px solid #85d8fa80;border-radius:24px;padding:24px;margin:0 auto 24px;max-width:820px}
+.lockedDestination .destinationHeader{background:#f0f1f6;border:1px solid #10245215;border-radius:24px;padding:24px;margin:0 auto 24px;max-width:820px}

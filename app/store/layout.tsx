@@ -2,5 +2,5 @@ import type { ReactNode } from "react";
 import LearnerShell from "@/components/dashboard/LearnerShell";
 
 export default function StoreLayout({ children }: { children: ReactNode }) {
-  return <LearnerShell>{children}</LearnerShell>;
+  return <LearnerShell fitScreen>{children}</LearnerShell>;
 }

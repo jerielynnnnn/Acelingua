@@ -4,14 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  BookOpen,
   ChevronRight,
   CircleUserRound,
-  Globe2,
   House,
-  LogOut,
-  Settings,
-  ShoppingBag,
+  BookOpen,
+  type LucideIcon,
 } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/client";
@@ -20,7 +17,7 @@ import { createClient } from "@/lib/supabase/client";
    SIDEBAR NAVIGATION
 ========================================================= */
 
-const navigation = [
+const navigation: { name: string; href: string; icon?: LucideIcon; image?: string }[] = [
   {
     name: "Dashboard",
     href: "/dashboard",
@@ -29,12 +26,12 @@ const navigation = [
   {
     name: "Learn",
     href: "/learn",
-    icon: BookOpen,
+    image: "/icons/learnicon.png",
   },
   {
     name: "World",
     href: "/world",
-    icon: Globe2,
+    image: "/icons/world.png",
   },
   {
     name: "Avatar",
@@ -42,9 +39,14 @@ const navigation = [
     icon: CircleUserRound,
   },
   {
+    name: "Passport",
+    href: "/passport",
+    icon: BookOpen,
+  },
+  {
     name: "Store",
     href: "/store",
-    icon: ShoppingBag,
+    image: "/icons/shop.png",
   },
 ];
 
@@ -105,25 +107,6 @@ export default function DashboardSidebar() {
             />
           </div>
 
-          {/* ACELINGUA name */}
-
-          <div className="flex min-w-0 items-center">
-            <Image
-              src="/logo.png"
-              alt="ACELINGUA"
-              width={150}
-              height={40}
-              className="
-                h-8 w-auto
-                translate-x-2
-                object-contain
-                opacity-0
-                transition-all duration-200
-                group-hover:translate-x-0
-                group-hover:opacity-100
-              "
-            />
-          </div>
         </Link>
       </div>
 
@@ -145,6 +128,7 @@ export default function DashboardSidebar() {
               key={item.name}
               href={item.href}
               title={item.name}
+              aria-current={active ? "page" : undefined}
               className={`
                 relative flex h-12 shrink-0 items-center
                 overflow-hidden rounded-xl
@@ -165,10 +149,11 @@ export default function DashboardSidebar() {
               {/* Icon */}
 
               <span className="flex w-[52px] shrink-0 items-center justify-center">
-                <Icon
+                {item.image ? <Image src={item.image} alt="" width={32} height={32} className="h-8 w-8 object-contain" /> : Icon ? <Icon
                   size={20}
                   strokeWidth={active ? 2.3 : 1.8}
-                />
+                  aria-hidden="true"
+                /> : null}
               </span>
 
               {/* Name */}
@@ -225,7 +210,7 @@ export default function DashboardSidebar() {
           `}
         >
           <span className="flex w-[52px] shrink-0 items-center justify-center">
-            <Settings size={20} strokeWidth={1.8} />
+            <Image src="/icons/setting.png" alt="" width={32} height={32} className="h-8 w-8 object-contain" />
           </span>
 
           <span
@@ -257,7 +242,7 @@ export default function DashboardSidebar() {
           "
         >
           <span className="flex w-[52px] shrink-0 items-center justify-center">
-            <LogOut size={20} strokeWidth={1.8} />
+            <Image src="/icons/logout.png" alt="" width={32} height={32} className="h-8 w-8 object-contain" />
           </span>
 
           <span

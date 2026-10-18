@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import Logo from "@/components/Logo";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
@@ -87,8 +88,13 @@ export default function LanguageCatalog() {
   const query = search.trim().toLocaleLowerCase();
   const filtered = data.languages.filter(language => [language.name, language.native_name ?? "", language.code].some(value => value.toLocaleLowerCase().includes(query)));
   const content = <main className="min-h-screen bg-[#F8FBFF] px-5 py-10 text-[#071A4A] sm:px-8">
-    <div className="mx-auto max-w-6xl">
-      {!user && <nav className="mb-8 flex justify-between"><Link href="/" className="font-bold text-[#3558AE]">ACELINGUA</Link><Link href="/login" className="font-bold">Log in</Link></nav>}
+    <div className="mx-auto max-w-[var(--page-max-width)]">
+      <nav aria-label="Languages page" className="mb-8 flex items-center justify-between gap-4">
+        <Link href={user ? "/dashboard" : "/"} aria-label="ACELingua home">
+          <Logo alt="ACELingua" sizes="(max-width: 640px) 176px, 208px" priority className="h-auto w-44 object-contain sm:w-52" />
+        </Link>
+        {!user && <Link href="/login" className="font-bold">Log in</Link>}
+      </nav>
       <h1 className="text-3xl font-extrabold sm:text-4xl">Languages</h1><p className="mt-3 text-sm leading-6 text-[#071A4A]/65">{user ? "Continue your journey or add another language. Your other courses stay saved." : "Choose a language and try a real preview before creating an account."}</p>
       <label htmlFor="language-search" className="mt-7 block text-sm font-bold">Search languages</label><div className="relative mt-2 max-w-xl"><Search size={19} aria-hidden="true" className="absolute left-4 top-4 text-[#3558AE]" /><input id="language-search" type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Language or native name" className="h-12 w-full rounded-xl border border-[#071A4A]/15 bg-white pl-12 pr-4 outline-none focus:ring-2 focus:ring-[#3558AE]" /></div>
       {actionError && <p role="alert" className="mt-6 rounded-xl bg-[#F9C3D7]/30 p-4 text-[#B64074]">{actionError}</p>}

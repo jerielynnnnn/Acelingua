@@ -98,6 +98,7 @@
 }
 
 :root {
+  --page-max-width: 100rem;
   --background: #ffffff;
   --foreground: #2a255c;
 }

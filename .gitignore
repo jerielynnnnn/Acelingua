@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+/.tmp-country-sql/
 
 # next.js
 /.next/
