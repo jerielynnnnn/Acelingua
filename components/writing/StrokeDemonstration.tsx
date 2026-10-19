@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { WritingCharacter } from "@/lib/writing/types";
 import styles from "./WritingStudio.module.css";
 
-export default function StrokeDemonstration({ character }: { character: WritingCharacter }) {
+export default function StrokeDemonstration({ character, compact = false }: { character: WritingCharacter; compact?: boolean }) {
   const [run, setRun] = useState(0);
   const [step, setStep] = useState<number | null>(null);
   const data = character.stroke_data;
@@ -19,8 +19,8 @@ export default function StrokeDemonstration({ character }: { character: WritingC
       </svg>
       <div className={styles.actions}>
         <button type="button" onClick={() => { setStep(null); setRun(run + 1); }}>Replay stroke order</button>
-        <button type="button" disabled={step === 0} onClick={() => setStep(Math.max(0, (step ?? 1) - 1))}>Previous stroke</button>
-        <button type="button" disabled={step === data.paths.length - 1} onClick={() => setStep(Math.min(data.paths.length - 1, (step ?? -1) + 1))}>Next stroke</button>
+        {!compact && <button type="button" disabled={step === 0} onClick={() => setStep(Math.max(0, (step ?? 1) - 1))}>Previous stroke</button>}
+        {!compact && <button type="button" disabled={step === data.paths.length - 1} onClick={() => setStep(Math.min(data.paths.length - 1, (step ?? -1) + 1))}>Next stroke</button>}
       </div>
       {step !== null && <p role="status">Stroke {step + 1} of {data.paths.length} is highlighted in coral.</p>}
       <p>{character.stroke_count} strokes{character.character.length > 1 ? " across the pattern, from left to right" : ""}.</p>
