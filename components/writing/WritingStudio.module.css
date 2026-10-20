@@ -102,3 +102,74 @@
   .launchButton { animation: none; }
   .page button { transition: none; }
 }
+.steps { display: flex; gap: 12px; list-style: none; padding: 0; margin: 16px 0 24px; }
+.steps li { display: flex; align-items: center; gap: 8px; flex: 1; padding: 12px; border-radius: 14px; background: #10245208; font-size: 13px; color: #4b5c7b; }
+.steps li[aria-current=step] { background: #85d8fa45; color: var(--ink); font-weight: 750; }
+.steps li > span { display: grid; place-items: center; width: 24px; height: 24px; flex-shrink: 0; border-radius: 50%; background: white; }
+.systems { margin-top: 20px; }
+.optionalWorkbook { margin-top: 24px; }
+.optionalWorkbook > summary { cursor: pointer; font-size: 14px; font-weight: 700; padding: 14px 0; }
+.practiceSteps { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.page .practiceSteps button[aria-current=step] { background: var(--ink); color: white; }
+.stageActions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 20px 0; }
+.stageActions > span { font-size: 12px; color: #4b5c7b; }
+.page [hidden] { display: none; }
+.page .canvas { max-width: 320px; }
+.header { margin-bottom: 12px; }
+.hero { padding-top: 8px; }
+@media (max-width: 640px) { .steps { gap: 6px; } .steps li { padding: 8px; font-size: 11px; flex-direction: column; text-align: center; } .practiceSteps button { flex: 1 1 40%; } }
+.letterLibrary { max-height: 52svh; overflow-y: auto; padding: 0 6px 12px; margin-top: 12px; overscroll-behavior-y: contain; }
+.studioViewport { height: 100svh; min-height: 0; overflow: hidden; display: flex; flex-direction: column; padding: 18px max(20px, calc((100vw - 1200px) / 2)); }
+.studioViewport .header { flex-shrink: 0; margin-bottom: 18px; }
+.studioTitle { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 18px; flex-shrink: 0; }
+.studioTitle h1 { font-size: clamp(22px, 3vw, 30px); }
+.studioTitle p { margin-top: 3px; }
+.alphabetDesk { flex: 1; min-height: 0; overflow: auto; padding: 12px 2px; }
+.studioViewport .storageNote { margin-top: 8px; font-size: 11px; flex-shrink: 0; }
+.letterDialog { position: fixed; inset: 0; margin: auto; width: min(900px, calc(100vw - 32px)); height: min(720px, calc(100svh - 48px)); max-height: calc(100svh - 32px); border: 1px solid #10245220; border-radius: 26px; background: #fffcf7; color: #102452; padding: 24px; box-shadow: 0 24px 90px #10245240; overflow: hidden; }
+.letterDialog[open] { display: flex; flex-direction: column; }
+.letterDialog::backdrop { background: #10245255; backdrop-filter: blur(9px); }
+.dialogHeading { display: flex; gap: 18px; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.dialogHeading p { margin-top: 6px; }
+.dialogLetters { overflow-y: auto; min-height: 0; margin-top: 12px; padding: 0 6px 16px; overscroll-behavior: contain; }
+.letterTiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; margin-top: 10px; }
+.letterTile { display: flex; flex-direction: column; align-items: center; border: 1px solid #10245218; border-radius: 16px; background: white; padding-bottom: 8px; }
+.letterTile > a { display: flex; flex-direction: column; align-items: center; padding: 12px 6px 8px; width: 100%; border-radius: 16px; }
+.letterTile > a:hover { background: #85d8fa30; }
+.letterTile > a span { font-size: 30px; }
+.letterTile small { font-size: 12px; }
+.letterTile button { padding: 7px 12px; }
+.practiceShell { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.practiceBody { flex: 1; min-height: 0; overflow-y: auto; padding: 0 4px; }
+.practiceBody .card { margin: 0 0 12px; padding: 18px; }
+.practiceBody .characterHero { padding: 20px; }
+.practiceBody .canvas { max-width: min(280px, 32svh); margin: 12px auto; }
+.practiceBody .demonstration { height: 26svh; max-height: 260px; margin: 10px auto; }
+.practiceBody .actions { margin: 8px 0; }
+.practiceBody p { margin-top: 8px; font-size: 13px; line-height: 1.6; }
+.practiceShell .stageActions { flex-shrink: 0; margin: 10px 0 0; justify-content: flex-end; }
+.saveStatus { padding: 12px; font-size: 13px; color: #3558ae; }
+@media (max-width: 640px) { .studioViewport { padding: 12px; } .studioViewport .header { flex-wrap: nowrap; gap: 8px; } .studioViewport .header img { width: 100px; } .studioViewport .back { font-size: 11px; } .letterDialog { padding: 18px; } .practiceBody .practiceGrid { grid-template-columns: 1fr 1fr; gap: 10px; } .practiceBody .card { padding: 12px; } .practiceBody .practiceGrid h2 { font-size: 15px; } .practiceBody .practiceGrid .actions { flex-wrap: wrap; } .practiceBody .characterHero { grid-template-columns: 90px 1fr; gap: 12px; } .practiceBody .largeCharacter { font-size: 60px; } }
+.contextGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+.purposeCard, .sentenceCard { border: 1px solid #10245212; border-radius: 22px; padding: 20px; background: #eef8fc; }
+.sentenceCard { background: #f2edfb; }
+.contextLabel { display: block; font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #3558ae; margin-bottom: 8px; }
+.contextGrid h2 { font-size: 17px; }
+.contextGrid small { display: block; font-size: 11px; line-height: 1.5; color: #4b5c7b; margin-top: 10px; }
+.characterHighlight { color: #102452; background: #ffd46e90; padding: 0 3px; border-radius: 5px; }
+.wordBreakdown { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; border-top: 1px solid #10245212; padding-top: 12px; margin-top: 12px; }
+.wordBreakdown > span { font-size: 26px; }
+.wordBreakdown small { flex-basis: 100%; margin-top: 0; }
+.practiceBody .contextJapanese { font-size: 24px; color: #102452; line-height: 1.8; }
+.usageTip { padding: 10px 12px; background: #ffffffaa; border-radius: 12px; margin-top: 12px; font-size: 12px; }
+.practiceBody .characterHero { grid-template-columns: 140px 1fr; gap: 22px; }
+.practiceBody .largeCharacter { font-size: 84px; padding: 12px 8px; }
+@media (max-width: 640px) { .contextGrid { grid-template-columns: 1fr; gap: 12px; } .purposeCard, .sentenceCard { padding: 16px; } .practiceBody .characterHero { grid-template-columns: 90px 1fr; gap: 12px; } }
+.learnedCollection { margin-top: 20px; border: 1px solid #10245212; background: white; border-radius: 22px; padding: 20px; }
+.learnedScroll { max-height: 240px; overflow-y: auto; margin-top: 12px; padding: 0 6px 4px 0; }
+.learnedScroll > section + section { margin-top: 16px; }
+.learnedTiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; margin-top: 10px; }
+.learnedTiles a { display: flex; flex-direction: column; align-items: center; padding: 10px; border-radius: 14px; border: 1px solid #68d97855; background: #68d97812; }
+.learnedTiles a:hover { background: #85d8fa30; }
+.learnedTiles a > span { font-size: 27px; }
+.learnedTiles small { font-size: 10px; color: #4b5c7b; }

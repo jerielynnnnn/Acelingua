@@ -8,13 +8,9 @@ import styles from "./WritingStudio.module.css";
 type Mode = "reading" | "recognition" | "listening";
 type Props = { character: WritingCharacter; characters: WritingCharacter[]; languageCode: string; onResult: (correct: boolean) => void };
 export default function CharacterQuiz(props: Props) {
-  const [mode, setMode] = useState<Mode>("reading");
+  const mode: Mode = "reading";
   return <section className={styles.card}>
     <h2>Quick review</h2>
-    <div className={styles.actions} role="group" aria-label="Review activity">
-      {([['reading', 'Match the reading'], ['recognition', 'Choose the character'], ['listening', 'Listen and select']] as const).map(([value, label]) =>
-        <button type="button" key={value} aria-pressed={mode === value} onClick={() => { setMode(value); props.onResult(false); }}>{label}</button>)}
-    </div>
     <Question key={mode} {...props} mode={mode} />
   </section>;
 }
@@ -44,6 +40,6 @@ function Question({ character, characters, languageCode, onResult, mode }: Props
       </label>)}
     </fieldset>
     <button type="submit" disabled={!answer || checked}>Check answer</button>
-    {checked && <div role="status"><p>{answer === correct ? "Correct! Nice work." : `Good try. The answer is ${correct}.`}</p><button type="button" onClick={() => { setAnswer(""); setChecked(false); onResult(false); }}>Try again</button></div>}
+    {checked && <div role="status"><p>{answer === correct ? "Correct! Nice work." : `Good try. The answer is ${correct}.`}</p>{answer !== correct && <button type="button" onClick={() => { setAnswer(""); setChecked(false); onResult(false); }}>Try again</button>}</div>}
   </form>;
 }

@@ -36,7 +36,7 @@
       "scenario": {"prompt":"You meet your guide at nine in the morning. Which polite greeting fits?","answer":"おはようございます","choices":["おはようございます","こんばんは","またね"],"explanation":"おはようございます is a polite morning greeting. こんばんは is used in the evening; またね is a casual farewell."}
     },
     {
-      "slug":"tokyo-numbers", "location":"Tokyo Convenience Store", "aliases":["Numbers & Time"],
+      "slug":"tokyo-numbers", "location":"Osaka Convenience Store", "aliases":["Numbers & Time"],
       "culture":"A convenience store gives you a reason to recognize small quantities and prices. Prices in this adventure are fictional practice examples, not current shop prices.",
       "objectives":["Recognize one, two and three", "Ask a price", "Read a simple time expression"],
       "grammar":"いくらですか asks how much something costs. 円 is the currency counter; pronounce 百円 as hyaku-en. Time uses 時: 三時です means it is three o'clock. Counters change how numbers are used, so learn the whole expression.",

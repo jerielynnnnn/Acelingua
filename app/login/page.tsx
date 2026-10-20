@@ -313,7 +313,7 @@ function LoginForm() {
 
                     <Link
                       href="/forgot-password"
-                      className="text-xs font-semibold text-[#3558AE] transition hover:text-[#071A4A]"
+                      className="inline-flex min-h-9 items-center justify-center rounded-lg border border-[#3558AE]/20 bg-[#EAF5FF] px-3 py-2 text-xs font-bold text-[#3558AE] transition hover:border-[#3558AE]/40 hover:bg-[#DCEEFF] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3558AE]"
                     >
                       Forgot password?
                     </Link>

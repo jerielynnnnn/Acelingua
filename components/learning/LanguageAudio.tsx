@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { Play, RotateCcw, Square, Volume2 } from "lucide-react";
 import { languageLocales, matchingVoice, recordingFor } from "@/lib/voice-learning";
 
-type Props = { languageCode: string; text: string; hideText?: boolean };
-export default function LanguageAudio({ languageCode, text, hideText = false }: Props) {
+type Props = { languageCode: string; text: string; hideText?: boolean; compact?: boolean };
+export default function LanguageAudio({ languageCode, text, hideText = false, compact = false }: Props) {
   const locale = languageLocales[languageCode.toLowerCase()];
   const recording = recordingFor(languageCode, text);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -67,6 +67,12 @@ export default function LanguageAudio({ languageCode, text, hideText = false }: 
     }
   }
   const control = "inline-flex items-center gap-2 rounded-full border border-[#3558AE]/20 bg-white px-4 py-2 text-sm font-bold text-[#3558AE] disabled:opacity-40";
+  if (compact) return <div className="inline-flex flex-col items-start gap-1">
+    {useRecording && <audio ref={audioRef} src={recording!} preload="none" onEnded={() => setPlaying(false)} onError={() => { setRecordingFailed(true); setPlaying(false); }} />}
+    <button type="button" aria-label={"Listen to " + text} disabled={!available} onClick={() => void play()}><Volume2 size={16} /><span className="sr-only">Listen</span></button>
+    {message && <span role="status" className="text-xs">{message}</span>}
+    {!available && <span className="text-[10px]">Audio unavailable</span>}
+  </div>;
   return <div className="mt-5 rounded-2xl bg-[#EAF5FF] p-4 text-left">
     <p className="flex items-center gap-2 text-sm font-bold"><Volume2 size={18} /> Listen{!hideText && <span lang={locale}>{text}</span>}</p>
     {useRecording && <audio ref={audioRef} src={recording!} preload="none" onEnded={() => setPlaying(false)} onError={() => { setRecordingFailed(true); setPlaying(false); }} />}
