@@ -1,11 +1,18 @@
 "use client";
-import { useState } from "react";
 import type { LessonWord } from "@/lib/authenticated-lesson";
 import LanguageAudio from "./LanguageAudio";
-import LessonCaptions from "./LessonCaptions";
 import SpeakingPractice from "./SpeakingPractice";
+import { phraseMatches } from "@/lib/voice-learning";
+import styles from "./LessonExperience.module.css";
 
-export default function VocabularyCard({ word, languageCode }: { word: LessonWord; languageCode: string }) {
-  const [guide, setGuide] = useState(true);
-  return <div className="mt-6 text-center"><h2 lang={languageCode} className="break-words text-4xl font-extrabold sm:text-5xl">{word.word}</h2>{word.pronunciation && <><label className="mt-4 inline-flex items-center gap-2 text-xs font-semibold"><input type="checkbox" checked={guide} onChange={event => setGuide(event.target.checked)} /> Show pronunciation guide</label>{guide && <p className="mt-3 text-lg text-[#3558AE]">{word.pronunciation}</p>}</>}<p className="mt-5 text-2xl">{word.translation}</p><LanguageAudio languageCode={languageCode} text={word.word} /><SpeakingPractice languageCode={languageCode} text={word.word} />{word.example_sentence && <><LanguageAudio languageCode={languageCode} text={word.example_sentence} /><LessonCaptions text={word.example_sentence} translation={word.example_translation} languageCode={languageCode} initiallyVisible /></>}</div>;
+export default function VocabularyCard({ word, languageCode, onSpeakingVerified }: { word: LessonWord; languageCode: string; onSpeakingVerified?: (verified: boolean) => void }) {
+  const distinctExample = word.example_sentence && !phraseMatches(word.word, word.example_sentence);
+  return <div className={styles.vocabulary}>
+    <div className={styles.expression}><h2 lang={languageCode} className="break-words text-4xl font-extrabold sm:text-5xl">{word.word}</h2>
+      {word.pronunciation && <p className={styles.pronunciation}>{word.pronunciation}</p>}
+      <p className={styles.translation}>{word.translation}</p><LanguageAudio languageCode={languageCode} text={word.word} />
+    </div>
+    {distinctExample && word.example_sentence && <div className={styles.example}><h3>Use it in a sentence</h3><div className="mt-3 flex items-center justify-between gap-3"><p lang={languageCode} className="text-lg font-bold">{word.example_sentence}</p><LanguageAudio languageCode={languageCode} text={word.example_sentence} compact /></div>{word.example_translation && <p className="mt-2 text-sm text-[#62759C]">{word.example_translation}</p>}</div>}
+    <div className={styles.speaking}><SpeakingPractice languageCode={languageCode} text={word.word} pronunciation={word.pronunciation} onVerified={onSpeakingVerified} /></div>
+  </div>;
 }

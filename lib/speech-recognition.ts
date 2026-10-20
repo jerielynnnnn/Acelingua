@@ -4,7 +4,7 @@ export type SpeechRecognitionEngine = {
   onresult: ((event: { resultIndex?: number; results: { length?: number; [index: number]: { isFinal?: boolean; [index: number]: { transcript: string } } } }) => void) | null;
   onerror: ((event: { error: string }) => void) | null;
   onend: (() => void) | null;
-  start: () => void; abort: () => void;
+  start: () => void; abort: () => void; stop?: () => void;
 };
 export type RecognitionConstructor = new () => SpeechRecognitionEngine;
 export function speechErrorMessage(code: string) {
@@ -24,9 +24,11 @@ export function speechErrorMessage(code: string) {
 export function startSpeechSession(Constructor: RecognitionConstructor, locale: string, callbacks: {
   onState: (state: "starting" | "listening" | "idle") => void;
   onResult: (text: string) => void; onError: (message: string) => void;
+  onInterim?: (text: string) => void;
 }, timeoutMs = 20000) {
   const recognition = new Constructor();
   let stopped = false;
+  let draft = "";
   const timer = setTimeout(() => fail("Speech recognition timed out. Check microphone permission and your connection, then retry."), timeoutMs);
   function cleanup() {
     if (stopped) return;
@@ -36,21 +38,29 @@ export function startSpeechSession(Constructor: RecognitionConstructor, locale: 
     callbacks.onState("idle");
   }
   function fail(message: string) { if (!stopped) { cleanup(); callbacks.onError(message); } }
-  recognition.lang = locale; recognition.continuous = false; recognition.interimResults = false;
+  recognition.lang = locale; recognition.continuous = false; recognition.interimResults = true;
   recognition.onstart = () => { if (!stopped) callbacks.onState("listening"); };
   recognition.onresult = event => {
     if (stopped) return;
     const index = event.resultIndex ?? 0;
     const result = event.results[index];
-    if (result?.isFinal === false) return;
     const text = result?.[0]?.transcript?.trim() ?? "";
+    if (result?.isFinal === false) { draft = text; callbacks.onInterim?.(text); return; }
     if (!text) { fail("No words were recognized. Try again or use text practice."); return; }
     cleanup(); callbacks.onResult(text);
   };
   recognition.onerror = event => fail(speechErrorMessage(event.error));
-  recognition.onend = () => fail("The microphone stopped without recognizing words. Try again or use text practice.");
+  recognition.onend = () => {
+    if (!stopped && draft) { cleanup(); callbacks.onResult(draft); }
+    else fail("The microphone stopped without recognizing words. Try again or use text practice.");
+  };
   callbacks.onState("starting");
   try { recognition.start(); }
   catch (cause) { fail(cause instanceof Error && cause.name === "NotAllowedError" ? speechErrorMessage("not-allowed") : "Microphone practice could not start. Retry or use text practice."); }
-  return { stop: cleanup };
+  return { stop: cleanup, finish: () => {
+    if (stopped) return;
+    // stop() returns captured words; abort() discards them and is reserved for cancellation.
+    try { if (recognition.stop) recognition.stop(); else fail("This browser could not finish recording. Please try again."); }
+    catch { fail("Speech recognition could not finish. Please try again."); }
+  } };
 }

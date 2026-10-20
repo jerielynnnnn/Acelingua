@@ -1,0 +1,56 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {PGlite} from '../.tmp-country-sql/node_modules/@electric-sql/pglite/dist/index.js';
+const db = new PGlite();
+const audit = JSON.parse(fs.readFileSync(new URL('../supabase/daily-learning-audit.json', import.meta.url), 'utf8'));
+const learner = '00000000-0000-4000-8000-000000000001';
+const first = 'ace00001-0000-4000-8000-000000000001';
+const xpAward = 'ace00001-0000-4000-8000-000000000005';
+const streakAward = 'ace00001-0000-4000-8000-000000000007';
+const query = async (sql, args = []) => (await db.query(sql, args)).rows;
+try {
+  await db.exec(`create role anon;create role authenticated;create schema auth;
+    create table auth.users(id uuid primary key);
+    create function auth.uid() returns uuid language sql as $$select nullif(current_setting('test.uid',true),'')::uuid$$;
+    grant usage on schema auth to authenticated,anon; grant execute on function auth.uid() to authenticated,anon;
+    create table activities(id uuid primary key,activity_type text);
+    create table learner_streak_state(user_id uuid,current_streak integer,last_counted_date date,legacy_unanchored boolean);
+    create table user_daily_goal_preferences(user_id uuid,timezone text);`);
+  const tables = ['profiles','achievements','user_achievements','lesson_progress','activity_progress','xp_transactions','coin_transactions'];
+  for (const name of tables) {
+    const cols = audit.columns.filter(c => c.table_name === name).map(c => '"' + c.column_name + '" ' + c.udt_name + (c.column_default ? ' default ' + c.column_default : '') + (c.is_nullable === 'NO' ? ' not null' : ''));
+    await db.exec('create table public.' + name + '(' + cols.join(',') + ')');
+  }
+  await db.exec(`alter table achievements add primary key(id);
+    alter table user_achievements add unique(user_id,achievement_id);
+    alter table xp_transactions add check(amount>0);
+    alter table coin_transactions add check(amount<>0);
+    insert into profiles(id) values('${learner}');`);
+  await db.exec(fs.readFileSync(new URL('../supabase/proposals/202610200003_achievements.sql',import.meta.url),'utf8'));
+  assert.equal((await query('select count(*)::int n from achievements'))[0].n,9);
+  await assert.rejects(query('select acelingua_claim_achievement($1)',[first]), /Sign in/);
+  await db.exec(`select set_config('test.uid','${learner}',false);set role authenticated;`);
+  await assert.rejects(query('select acelingua_claim_achievement($1)',[first]), /requirement/);
+  await db.exec(`reset role;insert into lesson_progress(user_id,lesson_id,status) values('${learner}',gen_random_uuid(),'completed');set role authenticated;`);
+  const reward = (await query('select acelingua_claim_achievement($1) reward',[first]))[0].reward;
+  assert.equal(reward.xp,10);assert.equal(reward.coins,10);
+  const duplicate = (await query('select acelingua_claim_achievement($1) reward',[first]))[0].reward;
+  assert.equal(duplicate.already_claimed,true);assert.equal(duplicate.coins,0);
+  await assert.rejects(db.exec(`insert into user_achievements(user_id,achievement_id) values('${learner}','${xpAward}')`),/permission/);
+  await db.exec(`reset role;update profiles set xp=100 where id='${learner}';
+    create function reject_award_ledger() returns trigger language plpgsql as $$begin raise exception 'ledger failure';end;$$;
+    create trigger test_rollback before insert on coin_transactions for each row execute function reject_award_ledger();set role authenticated;`);
+  await assert.rejects(query('select acelingua_claim_achievement($1)',[xpAward]), /ledger failure/);
+  await db.exec('reset role');
+  assert.equal((await query('select count(*)::int n from user_achievements where achievement_id=$1',[xpAward]))[0].n,0);
+  assert.equal((await query('select coins from profiles'))[0].coins,10);
+  await db.exec(`drop trigger test_rollback on coin_transactions;
+    insert into learner_streak_state values('${learner}',7,current_date-10,false);set role authenticated;`);
+  await assert.rejects(query('select acelingua_claim_achievement($1)',[streakAward]), /requirement/);
+  await db.exec(`reset role;update learner_streak_state set last_counted_date=current_date;set role authenticated;`);
+  const streak = (await query('select acelingua_claim_achievement($1) reward',[streakAward]))[0].reward;
+  assert.equal(streak.xp,0);assert.equal(streak.coins,0);
+  await db.exec('reset role;set role anon');
+  await assert.rejects(query('select acelingua_claim_achievement($1)',[first]), /permission/);
+  console.log('Achievement integration passed: eligibility, duplicate claims, private writes, rollback, stale streaks, badge-only milestones, and anonymous access.');
+} catch (error) { console.error(error.message); process.exitCode=1; } finally { await db.close(); }

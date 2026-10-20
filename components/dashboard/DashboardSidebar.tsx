@@ -5,6 +5,9 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   ChevronRight,
+  Flame,
+  Target,
+  Trophy,
   CircleUserRound,
   House,
   BookOpen,
@@ -23,6 +26,9 @@ const navigation: { name: string; href: string; icon?: LucideIcon; image?: strin
     href: "/dashboard",
     icon: House,
   },
+  { name: "Daily Quests", href: "/missions", icon: Target },
+  { name: "Streak Society", href: "/streak", icon: Flame },
+  { name: "Achievements", href: "/achievements", icon: Trophy },
   {
     name: "Learn",
     href: "/learn",
@@ -114,7 +120,7 @@ export default function DashboardSidebar() {
           MAIN NAVIGATION
       =================================================== */}
 
-      <nav className="flex flex-1 flex-col gap-1.5 overflow-hidden px-3 py-6">
+      <nav className="flex flex-1 flex-col gap-1.5 overflow-y-auto px-3 py-6">
         {navigation.map((item) => {
           const Icon = item.icon;
 
