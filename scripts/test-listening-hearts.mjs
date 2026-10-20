@@ -1,0 +1,36 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {PGlite} from '../.tmp-country-sql/node_modules/@electric-sql/pglite/dist/index.js';
+const db=new PGlite();const id=n=>'00000000-0000-4000-8000-'+String(n).padStart(12,'0');
+const user=id(1),lesson=id(2),target=id(3),wrong=id(4);
+const query=async(sql,args=[])=>(await db.query(sql,args)).rows;
+try {
+ await db.exec(`create role anon;create role authenticated;create role service_role;create schema auth;create table auth.users(id uuid primary key);
+ create function auth.uid() returns uuid language sql as $$select nullif(current_setting('test.uid',true),'')::uuid$$;
+ grant usage on schema auth to authenticated;grant execute on function auth.uid() to authenticated;
+ create table profiles(id uuid primary key,hearts integer check(hearts between 0 and 5),updated_at timestamptz);
+ create table lessons(id uuid primary key);create table vocabulary(id uuid primary key,lesson_id uuid references lessons);
+ create table lesson_progress(user_id uuid,lesson_id uuid,status text);
+ create function acelingua_lesson_course(uuid) returns uuid language sql as $$select $1$$;
+ insert into auth.users values('${user}');insert into profiles values('${user}',5,now());insert into lessons values('${lesson}');
+ insert into vocabulary values('${target}','${lesson}'),('${wrong}','${lesson}');insert into lesson_progress values('${user}','${lesson}','in_progress');`);
+ await db.exec(fs.readFileSync(new URL('../supabase/proposals/202610200005_listening_hearts.sql',import.meta.url),'utf8'));
+ await assert.rejects(query('select acelingua_hearts_snapshot()'),/Sign in/);
+ await db.exec(`select set_config('test.uid','${user}',false);set role authenticated;`);
+ const submit=async(choice,req)=>(await query('select acelingua_submit_vocabulary_listening($1,$2,$3,$4) result',[lesson,target,choice,req]))[0].result;
+ const snapshot=async()=>(await query('select acelingua_hearts_snapshot() result'))[0].result;
+ const incorrect=await submit(wrong,id(10));assert.equal(incorrect.hearts,4);assert.equal(incorrect.correct,false);assert.ok(incorrect.next_heart_at);
+ const duplicate=await submit(wrong,id(10));assert.equal(duplicate.hearts,4);assert.equal(duplicate.duplicate,true);
+ await assert.rejects(submit(target,id(10)),/already used/);
+ const correct=await submit(target,id(11));assert.equal(correct.hearts,4);assert.equal(correct.correct,true);
+ for(let n=12;n<16;n++)await submit(wrong,id(n));
+ assert.equal((await snapshot()).hearts,0);assert.equal((await submit(target,id(16))).blocked,true);
+ await db.exec(`reset role;update learner_heart_recovery set next_heart_at=clock_timestamp()-interval '1 second';set role authenticated;`);
+ assert.equal((await snapshot()).hearts,1);
+ await db.exec(`reset role;update learner_heart_recovery set next_heart_at=clock_timestamp()-interval '40 minutes';set role authenticated;`);
+ const full=await snapshot();assert.equal(full.hearts,5);assert.equal(full.next_heart_at,null);
+ await assert.rejects(db.exec('update profiles set hearts=5'),/permission/);
+ await db.exec('reset role;set role anon');
+ await assert.rejects(snapshot(),/permission/);
+ console.log('Listening/hearts integration passed: server grading, duplicate protection, zero-heart blocking, ten-minute recovery, offline catch-up, cap and permissions.');
+}catch(error){console.error(error.message);process.exitCode=1;}finally{await db.close();}

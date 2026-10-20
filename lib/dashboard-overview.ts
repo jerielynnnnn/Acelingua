@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { loadLearnerAvatar } from "@/lib/avatar";
+import { levelProgress } from "@/lib/level-progress";
 
 export type LearnerProfile = { username: string | null; display_name: string | null; level: number; xp: number;
   coins: number; gems: number; hearts: number; streak: number };
@@ -45,7 +46,7 @@ export async function loadDashboardOverview(supabase: SupabaseClient, userId: st
   if (languageResult.error) throw new Error(languageResult.error.message);
   const languages: DashboardLanguage[] = languageResult.data ?? [];
   const activeCourses = courses.filter(course => languages.some(language => language.id === course.language_id));
-  return { profile: profile.data as LearnerProfile, courses: activeCourses, languages, avatar,
+  return { profile: { ...profile.data, level: levelProgress(profile.data.xp, profile.data.level).level } as LearnerProfile, courses: activeCourses, languages, avatar,
     goal: goals.error ? null : goals.data as LearnerGoal | null,
     goalUnavailable: Boolean(goals.error),
     achievements: catalog.error || unlocked.error ? null : achievementPreviews(catalog.data ?? [], unlocked.data ?? []),

@@ -8,6 +8,7 @@ function harness({ throwStart = false, timeout = 1000 } = {}) {
     constructor() { created.push(this); this.aborted = false; }
     start() { if (throwStart) { const error = new Error("permission"); error.name = "NotAllowedError"; throw error; } }
     abort() { this.aborted = true; this.onend?.(); }
+    stop() { this.finished = true; }
   }
   const session = startSpeechSession(FakeRecognition, "ja-JP", { onState: state => states.push(state), onError: value => errors.push(value), onResult: value => results.push(value) }, timeout);
   return { engine: created[0], session, states, errors, results };
@@ -40,5 +41,26 @@ test("stalled startup cannot leave an indefinite listening indicator", async () 
 test("manual stop silences callbacks and cannot generate a recognition result", () => {
   const h = harness(); const result = h.engine.onresult; h.session.stop();
   result({ results: { 0: { 0: { transcript: "こんにちは" } } } });
+  assert.deepEqual(h.results, []); assert.deepEqual(h.errors, []);
+});
+
+test("done speaking requests a result without aborting captured speech", () => {
+  const h = harness(); h.engine.onstart(); h.session.finish();
+  assert.equal(h.engine.finished, true); assert.equal(h.engine.aborted, false);
+  h.engine.onresult({ results: { 0: { isFinal: true, 0: { transcript: "こんにちは" } } } });
+  assert.deepEqual(h.results, ["こんにちは"]); assert.deepEqual(h.errors, []);
+});
+
+test("interim words survive normal recognition end and can be checked", () => {
+  const h = harness();
+  h.engine.onresult({ results: { 0: { isFinal: false, 0: { transcript: "ありがとう" } } } });
+  assert.deepEqual(h.results, []); h.session.finish(); h.engine.onend();
+  assert.deepEqual(h.results, ["ありがとう"]); assert.deepEqual(h.errors, []);
+});
+
+test("cancel discards interim words and late callbacks stay silent", () => {
+  const h = harness();
+  h.engine.onresult({ results: { 0: { isFinal: false, 0: { transcript: "ありがとう" } } } });
+  const ended = h.engine.onend; h.session.stop(); ended();
   assert.deepEqual(h.results, []); assert.deepEqual(h.errors, []);
 });

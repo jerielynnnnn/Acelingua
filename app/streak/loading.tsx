@@ -1,0 +1,3 @@
+﻿import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
+import styles from "@/components/streak/StreakSociety.module.css";
+export default function Loading(){return <div className={styles.shell}><DashboardSidebar/><main className={`${styles.content} ${styles.page}`} role="status" aria-label="Loading your streak"><span className="sr-only">Loading your streak history…</span><div className={styles.skeleton} style={{height:330,marginTop:30}}/><div className={styles.stats}>{[1,2,3,4].map(n=><div key={n} className={styles.skeleton} style={{height:95}}/>)}</div><div className={styles.skeleton} style={{height:450}}/></main></div>;}

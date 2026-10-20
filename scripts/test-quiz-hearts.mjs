@@ -1,0 +1,35 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {PGlite} from '../.tmp-country-sql/node_modules/@electric-sql/pglite/dist/index.js';
+const db=new PGlite();const id=n=>'00000000-0000-4000-8000-'+String(n).padStart(12,'0');
+const user=id(1),lesson=id(2),question=id(3),activity=id(4);
+const query=async(sql,args=[])=>(await db.query(sql,args)).rows;
+try {
+ await db.exec(`create role anon;create role authenticated;create role service_role;create schema auth;create table auth.users(id uuid primary key);
+ create function auth.uid() returns uuid language sql as $$select nullif(current_setting('test.uid',true),'')::uuid$$;
+ grant usage on schema auth to authenticated;grant execute on function auth.uid() to authenticated;
+ create table profiles(id uuid primary key,hearts integer check(hearts between 0 and 5),updated_at timestamptz);
+ create table lessons(id uuid primary key);create table vocabulary(id uuid primary key,lesson_id uuid references lessons);
+ create table activities(id uuid primary key,lesson_id uuid,activity_type text);
+ create table questions(id uuid primary key,activity_id uuid,question_type text,correct_answer text,options jsonb);
+ create table lesson_progress(user_id uuid,lesson_id uuid,status text,attempts integer);
+ create function acelingua_lesson_course(uuid) returns uuid language sql as $$select $1$$;
+ create function acelingua_normalize_answer(text) returns text language sql as $$select lower(btrim(regexp_replace($1,'[[:space:]]+',' ','g')))$$;
+ insert into auth.users values('${user}');insert into profiles values('${user}',5,now());insert into lessons values('${lesson}');
+ insert into activities values('${activity}','${lesson}','quiz');
+ insert into questions values('${question}','${activity}','multiple_choice','hello','["hello","bye"]');
+ insert into lesson_progress values('${user}','${lesson}','in_progress',1);`);
+ for(const name of ['202610200005_listening_hearts.sql','202610200006_quiz_only_hearts.sql'])await db.exec(fs.readFileSync(new URL('../supabase/proposals/'+name,import.meta.url),'utf8'));
+ await db.exec(`select set_config('test.uid','${user}',false);set role authenticated;`);
+ await assert.rejects(query('select acelingua_submit_vocabulary_listening($1,$2,$3,$4)',[lesson,id(10),id(11),id(12)]),/permission/);
+ const submit=async answer=>(await query('select acelingua_submit_quiz_answer($1,$2,$3) result',[lesson,question,answer]))[0].result;
+ const wrong=await submit('bye');assert.equal(wrong.hearts,4);assert.equal(wrong.correct,false);
+ const retry=await submit('hello');assert.equal(retry.hearts,4);assert.equal(retry.duplicate,true);assert.equal(retry.answer,'bye');
+ await db.exec(`reset role;update lesson_progress set attempts=2;set role authenticated;`);
+ const right=await submit('hello');assert.equal(right.hearts,4);assert.equal(right.correct,true);
+ await db.exec(`reset role;update lesson_progress set attempts=3;update profiles set hearts=0;set role authenticated;`);
+ assert.equal((await submit('hello')).blocked,true);
+ await db.exec(`reset role;update learner_heart_recovery set next_heart_at=clock_timestamp()-interval '1 second';set role authenticated;`);
+ const recovered=await submit('hello');assert.equal(recovered.correct,true);assert.equal(recovered.hearts,1);
+ console.log('Quiz-only hearts passed: vocabulary deduction disabled, graded quiz deductions, one charge per question/attempt, recorded-answer retries, correct answers free, zero blocking and recovery.');
+}catch(error){console.error(error.message);process.exitCode=1;}finally{await db.close();}

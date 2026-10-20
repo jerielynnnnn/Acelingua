@@ -73,3 +73,33 @@
 .expanded .avatarStage { inset: 45px 16px 52px; }
 .expanded .avatarPortrait { width: min(85cqw, 100cqh, 340px); }
 .avatarName strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+
+/* Compact overview with translucent ACELingua wordmark colors. */
+.compactRow { gap: 16px; margin-bottom: 16px; }
+.compactBanner { display: grid; grid-template-columns: minmax(90px, .65fr) minmax(110px, .85fr) minmax(0, 2fr); align-items: center; gap: 24px; min-width: 0; min-height: 150px; padding: 22px 28px; border: 1px solid #10245212; border-radius: 22px; color: #102452; background: linear-gradient(110deg, #ff929725, #ffd46e25 40%, #85d8fa35 78%, #1024520d); }
+.compactStat { min-width: 0; }
+.compactStat > span, .compactWorld > span { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #425678; }
+.compactStat > strong { display: block; margin-top: 6px; font-size: clamp(24px, 2vw, 32px); line-height: 1.2; font-weight: 800; overflow-wrap: anywhere; }
+.compactWorld { min-width: 0; padding: 8px 0 8px 24px; border-left: 1px solid #10245218; border-radius: 2px; }
+.compactWorld strong { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 15px; line-height: 1.4; }
+.compactWorld strong span { overflow-wrap: anywhere; }
+.compactWorld svg { flex-shrink: 0; }
+.compactWorld:hover strong { color: #3558ae; }
+.compactWorld:focus-visible { outline: 2px solid #3558ae; outline-offset: 6px; }
+.compactRow .avatarCard { height: 150px; min-height: 150px; }
+.compactRow .avatarStage { inset: 34px 12px 32px; }
+.compactRow .avatarFooter { padding: 7px 12px; }
+@media (max-width: 1050px) {
+  .compactBanner { gap: 16px; padding: 18px; grid-template-columns: minmax(65px, .65fr) minmax(80px, .85fr) minmax(0, 1.5fr); }
+  .compactWorld { padding-left: 16px; }
+}
+@media (max-width: 767px) {
+  .compactBanner { grid-template-columns: 1fr 1fr; gap: 16px; min-height: 0; }
+  .compactWorld { grid-column: 1 / -1; padding: 14px 0 0; border-left: 0; border-top: 1px solid #10245218; }
+}
+.levelBar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px 24px; padding:12px 4px; margin-bottom:14px; border-bottom:1px solid #10245214; color:#102452; }
+.levelSummary { display:flex; align-items:center; gap:10px; font-size:14px; }
+.levelSummary > span { padding:5px 12px; border-radius:20px; background:#85d8fa25; font-size:12px; font-weight:700; }
+.levelBar > a { display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; }
+.levelBar small { margin-right:8px; font-size:11px; font-weight:500; color:#62759c; }
+.levelBar > a:focus-visible { outline:2px solid #3558ae; outline-offset:4px; }

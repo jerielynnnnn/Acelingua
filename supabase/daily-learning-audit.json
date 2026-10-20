@@ -1,0 +1,2410 @@
+{
+  "tables": [
+    {
+      "exists": true,
+      "table_name": "profiles"
+    },
+    {
+      "exists": true,
+      "table_name": "daily_goals"
+    },
+    {
+      "exists": true,
+      "table_name": "streak_history"
+    },
+    {
+      "exists": true,
+      "table_name": "lesson_progress"
+    },
+    {
+      "exists": true,
+      "table_name": "activity_progress"
+    },
+    {
+      "exists": true,
+      "table_name": "question_answers"
+    },
+    {
+      "exists": true,
+      "table_name": "achievements"
+    },
+    {
+      "exists": true,
+      "table_name": "user_achievements"
+    },
+    {
+      "exists": true,
+      "table_name": "xp_transactions"
+    },
+    {
+      "exists": true,
+      "table_name": "coin_transactions"
+    },
+    {
+      "exists": true,
+      "table_name": "minigame_sessions"
+    },
+    {
+      "exists": true,
+      "table_name": "minigame_daily_rewards"
+    },
+    {
+      "exists": true,
+      "table_name": "store_supply_offers"
+    },
+    {
+      "exists": true,
+      "table_name": "store_supply_receipts"
+    }
+  ],
+  "columns": [
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "achievements",
+      "column_name": "id",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "achievements",
+      "column_name": "name",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "achievements",
+      "column_name": "description",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "achievements",
+      "column_name": "icon",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "achievements",
+      "column_name": "requirement_type",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "int4",
+      "data_type": "integer",
+      "table_name": "achievements",
+      "column_name": "requirement_value",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "int4",
+      "data_type": "integer",
+      "table_name": "achievements",
+      "column_name": "xp_reward",
+      "is_nullable": "NO",
+      "column_default": "0"
+    },
+    {
+      "udt_name": "int4",
+      "data_type": "integer",
+      "table_name": "achievements",
+      "column_name": "coin_reward",
+      "is_nullable": "NO",
+      "column_default": "0"
+    },
+    {
+      "udt_name": "bool",
+      "data_type": "boolean",
+      "table_name": "achievements",
+      "column_name": "is_active",
+      "is_nullable": "NO",
+      "column_default": "true"
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "achievements",
+      "column_name": "created_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "activity_progress",
+      "column_name": "id",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "activity_progress",
+      "column_name": "user_id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "activity_progress",
+      "column_name": "activity_id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "activity_progress",
+      "column_name": "status",
+      "is_nullable": "NO",
+      "column_default": "'not_started'::text"
+    },
+    {
+      "udt_name": "numeric",
+      "data_type": "numeric",
+      "table_name": "activity_progress",
+      "column_name": "score",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "int4",
+      "data_type": "integer",
+      "table_name": "activity_progress",
+      "column_name": "attempts",
+      "is_nullable": "NO",
+      "column_default": "0"
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "activity_progress",
+      "column_name": "completed_at",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "activity_progress",
+      "column_name": "last_accessed_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "activity_progress",
+      "column_name": "created_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "activity_progress",
+      "column_name": "updated_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "coin_transactions",
+      "column_name": "id",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "coin_transactions",
+      "column_name": "user_id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "int4",
+      "data_type": "integer",
+      "table_name": "coin_transactions",
+      "column_name": "amount",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "coin_transactions",
+      "column_name": "transaction_type",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "coin_transactions",
+      "column_name": "source_id",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "coin_transactions",
+      "column_name": "description",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "coin_transactions",
+      "column_name": "created_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "daily_goals",
+      "column_name": "id",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "daily_goals",
+      "column_name": "user_id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "date",
+      "data_type": "date",
+      "table_name": "daily_goals",
+      "column_name": "goal_date",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_DATE"
+    },
+    {
+      "udt_name": "int4",
+      "data_type": "integer",
+      "table_name": "daily_goals",
+      "column_name": "target_activities",
+      "is_nullable": "NO",
+      "column_default": "3"
+    },
+    {
+      "udt_name": "int4",
+      "data_type": "integer",
+      "table_name": "daily_goals",
+      "column_name": "completed_activities",
+      "is_nullable": "NO",
+      "column_default": "0"
+    },
+    {
+      "udt_name": "bool",
+      "data_type": "boolean",
+      "table_name": "daily_goals",
+      "column_name": "is_completed",
+      "is_nullable": "NO",
+      "column_default": "false"
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "daily_goals",
+      "column_name": "completed_at",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "daily_goals",
+      "column_name": "created_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "daily_goals",
+      "column_name": "updated_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "lesson_progress",
+      "column_name": "id",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "lesson_progress",
+      "column_name": "user_id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "lesson_progress",
+      "column_name": "lesson_id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "lesson_progress",
+      "column_name": "status",
+      "is_nullable": "NO",
+      "column_default": "'not_started'::text"
+    },
+    {
+      "udt_name": "int4",
+      "data_type": "integer",
+      "table_name": "lesson_progress",
+      "column_name": "attempts",
+      "is_nullable": "NO",
+      "column_default": "0"
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "lesson_progress",
+      "column_name": "completed_at",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "lesson_progress",
+      "column_name": "last_accessed_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "lesson_progress",
+      "column_name": "created_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "lesson_progress",
+      "column_name": "updated_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "minigame_daily_rewards",
+      "column_name": "user_id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "date",
+      "data_type": "date",
+      "table_name": "minigame_daily_rewards",
+      "column_name": "reward_date",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "minigame_daily_rewards",
+      "column_name": "session_id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "minigame_sessions",
+      "column_name": "id",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "minigame_sessions",
+      "column_name": "user_id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "_text",
+      "data_type": "ARRAY",
+      "table_name": "minigame_sessions",
+      "column_name": "tiles",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "_int4",
+      "data_type": "ARRAY",
+      "table_name": "minigame_sessions",
+      "column_name": "answer_keys",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "minigame_sessions",
+      "column_name": "started_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "minigame_sessions",
+      "column_name": "completed_at",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "profiles",
+      "column_name": "id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "profiles",
+      "column_name": "username",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "profiles",
+      "column_name": "display_name",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "profiles",
+      "column_name": "role",
+      "is_nullable": "NO",
+      "column_default": "'learner'::text"
+    },
+    {
+      "udt_name": "int4",
+      "data_type": "integer",
+      "table_name": "profiles",
+      "column_name": "level",
+      "is_nullable": "NO",
+      "column_default": "1"
+    },
+    {
+      "udt_name": "int4",
+      "data_type": "integer",
+      "table_name": "profiles",
+      "column_name": "xp",
+      "is_nullable": "NO",
+      "column_default": "0"
+    },
+    {
+      "udt_name": "int4",
+      "data_type": "integer",
+      "table_name": "profiles",
+      "column_name": "coins",
+      "is_nullable": "NO",
+      "column_default": "0"
+    },
+    {
+      "udt_name": "int4",
+      "data_type": "integer",
+      "table_name": "profiles",
+      "column_name": "streak",
+      "is_nullable": "NO",
+      "column_default": "0"
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "profiles",
+      "column_name": "created_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "profiles",
+      "column_name": "updated_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "udt_name": "int4",
+      "data_type": "integer",
+      "table_name": "profiles",
+      "column_name": "hearts",
+      "is_nullable": "NO",
+      "column_default": "5"
+    },
+    {
+      "udt_name": "int4",
+      "data_type": "integer",
+      "table_name": "profiles",
+      "column_name": "gems",
+      "is_nullable": "NO",
+      "column_default": "0"
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "question_answers",
+      "column_name": "id",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "question_answers",
+      "column_name": "user_id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "question_answers",
+      "column_name": "question_id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "question_answers",
+      "column_name": "answer",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "bool",
+      "data_type": "boolean",
+      "table_name": "question_answers",
+      "column_name": "is_correct",
+      "is_nullable": "NO",
+      "column_default": "false"
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "question_answers",
+      "column_name": "answered_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "store_supply_offers",
+      "column_name": "id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "store_supply_offers",
+      "column_name": "name",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "store_supply_offers",
+      "column_name": "kind",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "int4",
+      "data_type": "integer",
+      "table_name": "store_supply_offers",
+      "column_name": "amount",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "int4",
+      "data_type": "integer",
+      "table_name": "store_supply_offers",
+      "column_name": "price_coins",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "bool",
+      "data_type": "boolean",
+      "table_name": "store_supply_offers",
+      "column_name": "is_active",
+      "is_nullable": "NO",
+      "column_default": "false"
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "store_supply_receipts",
+      "column_name": "user_id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "store_supply_receipts",
+      "column_name": "request_id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "store_supply_receipts",
+      "column_name": "offer_id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "jsonb",
+      "data_type": "jsonb",
+      "table_name": "store_supply_receipts",
+      "column_name": "receipt",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "store_supply_receipts",
+      "column_name": "created_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "streak_history",
+      "column_name": "id",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "streak_history",
+      "column_name": "user_id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "date",
+      "data_type": "date",
+      "table_name": "streak_history",
+      "column_name": "activity_date",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_DATE"
+    },
+    {
+      "udt_name": "int4",
+      "data_type": "integer",
+      "table_name": "streak_history",
+      "column_name": "activities_completed",
+      "is_nullable": "NO",
+      "column_default": "0"
+    },
+    {
+      "udt_name": "bool",
+      "data_type": "boolean",
+      "table_name": "streak_history",
+      "column_name": "is_active",
+      "is_nullable": "NO",
+      "column_default": "false"
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "streak_history",
+      "column_name": "created_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "streak_history",
+      "column_name": "updated_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "user_achievements",
+      "column_name": "id",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "user_achievements",
+      "column_name": "user_id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "user_achievements",
+      "column_name": "achievement_id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "user_achievements",
+      "column_name": "unlocked_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "xp_transactions",
+      "column_name": "id",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "xp_transactions",
+      "column_name": "user_id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "int4",
+      "data_type": "integer",
+      "table_name": "xp_transactions",
+      "column_name": "amount",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "xp_transactions",
+      "column_name": "source_type",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "xp_transactions",
+      "column_name": "source_id",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "xp_transactions",
+      "column_name": "description",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "xp_transactions",
+      "column_name": "created_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    }
+  ],
+  "indexes": [
+    {
+      "indexdef": "CREATE UNIQUE INDEX activity_progress_pkey ON public.activity_progress USING btree (id)",
+      "indexname": "activity_progress_pkey",
+      "tablename": "activity_progress"
+    },
+    {
+      "indexdef": "CREATE UNIQUE INDEX activity_progress_user_id_activity_id_key ON public.activity_progress USING btree (user_id, activity_id)",
+      "indexname": "activity_progress_user_id_activity_id_key",
+      "tablename": "activity_progress"
+    },
+    {
+      "indexdef": "CREATE UNIQUE INDEX coin_transactions_pkey ON public.coin_transactions USING btree (id)",
+      "indexname": "coin_transactions_pkey",
+      "tablename": "coin_transactions"
+    },
+    {
+      "indexdef": "CREATE UNIQUE INDEX daily_goals_pkey ON public.daily_goals USING btree (id)",
+      "indexname": "daily_goals_pkey",
+      "tablename": "daily_goals"
+    },
+    {
+      "indexdef": "CREATE UNIQUE INDEX daily_goals_user_id_goal_date_key ON public.daily_goals USING btree (user_id, goal_date)",
+      "indexname": "daily_goals_user_id_goal_date_key",
+      "tablename": "daily_goals"
+    },
+    {
+      "indexdef": "CREATE UNIQUE INDEX lesson_progress_pkey ON public.lesson_progress USING btree (id)",
+      "indexname": "lesson_progress_pkey",
+      "tablename": "lesson_progress"
+    },
+    {
+      "indexdef": "CREATE UNIQUE INDEX lesson_progress_user_id_lesson_id_key ON public.lesson_progress USING btree (user_id, lesson_id)",
+      "indexname": "lesson_progress_user_id_lesson_id_key",
+      "tablename": "lesson_progress"
+    },
+    {
+      "indexdef": "CREATE UNIQUE INDEX question_answers_pkey ON public.question_answers USING btree (id)",
+      "indexname": "question_answers_pkey",
+      "tablename": "question_answers"
+    },
+    {
+      "indexdef": "CREATE UNIQUE INDEX streak_history_pkey ON public.streak_history USING btree (id)",
+      "indexname": "streak_history_pkey",
+      "tablename": "streak_history"
+    },
+    {
+      "indexdef": "CREATE UNIQUE INDEX streak_history_user_id_activity_date_key ON public.streak_history USING btree (user_id, activity_date)",
+      "indexname": "streak_history_user_id_activity_date_key",
+      "tablename": "streak_history"
+    },
+    {
+      "indexdef": "CREATE UNIQUE INDEX user_achievements_pkey ON public.user_achievements USING btree (id)",
+      "indexname": "user_achievements_pkey",
+      "tablename": "user_achievements"
+    },
+    {
+      "indexdef": "CREATE UNIQUE INDEX user_achievements_user_id_achievement_id_key ON public.user_achievements USING btree (user_id, achievement_id)",
+      "indexname": "user_achievements_user_id_achievement_id_key",
+      "tablename": "user_achievements"
+    },
+    {
+      "indexdef": "CREATE UNIQUE INDEX xp_transactions_pkey ON public.xp_transactions USING btree (id)",
+      "indexname": "xp_transactions_pkey",
+      "tablename": "xp_transactions"
+    }
+  ],
+  "policies": [
+    {
+      "cmd": "SELECT",
+      "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "activity_progress",
+      "policyname": "authenticated_lesson_read_own",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "coin_transactions",
+      "policyname": "authenticated_lesson_read_own",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "lesson_progress",
+      "policyname": "authenticated_lesson_read_own",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "profiles",
+      "policyname": "Users can insert own profile",
+      "schemaname": "public",
+      "with_check": "(auth.uid() = id)"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(auth.uid() = id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "profiles",
+      "policyname": "Users can update own profile",
+      "schemaname": "public",
+      "with_check": "(auth.uid() = id)"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(auth.uid() = id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "profiles",
+      "policyname": "Users can view own profile",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "question_answers",
+      "policyname": "authenticated_lesson_read_own",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "xp_transactions",
+      "policyname": "authenticated_lesson_read_own",
+      "schemaname": "public",
+      "with_check": null
+    }
+  ],
+  "triggers": [
+    {
+      "tgname": "travel_challenge_guard",
+      "definition": "CREATE TRIGGER travel_challenge_guard BEFORE INSERT OR UPDATE OF status ON public.lesson_progress FOR EACH ROW EXECUTE FUNCTION acelingua_guard_destination_challenge()",
+      "table_name": "lesson_progress",
+      "trigger_function": "CREATE OR REPLACE FUNCTION public.acelingua_guard_destination_challenge()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\r\ndeclare total integer; correct integer;\r\nbegin\r\n if new.status<>'completed' or (tg_op='UPDATE' and old.status='completed') then return new; end if;\r\n if auth.uid() is null then return new; end if;\r\n if new.user_id<>auth.uid() then raise exception 'Invalid lesson owner'; end if;\r\n perform public.acelingua_lesson_course(new.lesson_id);\r\n if exists(select 1 from public.travel_unit_curriculum where challenge_lesson_id=new.lesson_id) then\r\n  select count(*),count(*) filter(where a.is_correct) into total,correct\r\n  from public.questions q join public.activities activity on activity.id=q.activity_id\r\n  left join public.question_answers a on a.id=md5(new.user_id::text||':'||new.lesson_id::text||':'||new.attempts::text||':'||q.id::text)::uuid\r\n   and a.user_id=new.user_id and a.question_id=q.id\r\n  where activity.lesson_id=new.lesson_id;\r\n  if total=0 or correct*100<total*80 then raise exception 'Destination challenge needs 80 percent correct. Review the phrases and retry the lesson.'; end if;\r\n end if;\r\n return new;\r\nend;\r\n$function$\n"
+    },
+    {
+      "tgname": "travel_destination_reward",
+      "definition": "CREATE TRIGGER travel_destination_reward AFTER INSERT OR UPDATE OF status ON public.lesson_progress FOR EACH ROW EXECUTE FUNCTION acelingua_award_destination_after_lesson()",
+      "table_name": "lesson_progress",
+      "trigger_function": "CREATE OR REPLACE FUNCTION public.acelingua_award_destination_after_lesson()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\r\ndeclare course uuid;\r\nbegin\r\n if new.status='completed' and auth.uid()=new.user_id and (tg_op='INSERT' or old.status is distinct from 'completed') then\r\n  select u.course_id into course from public.lessons l join public.units u on u.id=l.unit_id where l.id=new.lesson_id;\r\n  perform public.acelingua_refresh_country_stamps(course);\r\n end if;\r\n return new;\r\nend;\r\n$function$\n"
+    }
+  ],
+  "functions": [
+    {
+      "proname": "acelingua_complete_assessed_lesson",
+      "arguments": "p_lesson_id uuid, p_answers jsonb, p_acknowledged uuid[]",
+      "definition": "CREATE OR REPLACE FUNCTION public.acelingua_complete_assessed_lesson(p_lesson_id uuid, p_answers jsonb, p_acknowledged uuid[])\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\r\ndeclare\r\n  learner uuid := auth.uid(); course uuid; previous_status text;\r\n  question_count integer; correct_count integer := 0; attempt_number integer;\r\n  question_row record; activity_row record; response text; matched boolean;\r\n  reward_xp integer; reward_coins integer; lesson_title text; total integer; completed integer;\r\nbegin\r\n  course := public.acelingua_lesson_course(p_lesson_id);\r\n  perform pg_advisory_xact_lock(hashtextextended(learner::text || ':' || course::text, 0));\r\n  perform public.acelingua_lesson_course(p_lesson_id);\r\n  select status into previous_status from public.lesson_progress\r\n    where user_id = learner and lesson_id = p_lesson_id for update;\r\n  if previous_status is null or previous_status not in ('in_progress', 'completed') then\r\n    raise exception 'Start the lesson before completing it';\r\n  end if;\r\n  select count(*) into question_count from public.questions q\r\n    join public.activities a on a.id=q.activity_id where a.lesson_id=p_lesson_id;\r\n  if question_count=0 and exists(select 1 from public.activities where lesson_id=p_lesson_id) then raise exception 'This assessed lesson has no questions yet'; end if;\r\n  if question_count=0 and not exists(select 1 from public.vocabulary where lesson_id=p_lesson_id) then raise exception 'This lesson has no learning content yet'; end if;\r\n  if jsonb_typeof(p_answers) is distinct from 'array' then raise exception 'Answers must be an array'; end if;\r\n  if jsonb_array_length(p_answers)<>question_count\r\n    or (select count(distinct entry->>'question_id') from jsonb_array_elements(p_answers) entry)<>question_count\r\n    or exists (select 1 from jsonb_array_elements(p_answers) entry where\r\n      jsonb_typeof(entry->'answer') is distinct from 'string'\r\n      or coalesce(btrim(entry->>'answer'),'')=''\r\n      or not exists (select 1 from public.questions q join public.activities a on a.id=q.activity_id\r\n        where a.lesson_id=p_lesson_id and q.id::text=entry->>'question_id')) then\r\n    raise exception 'Answer every lesson question exactly once before completing';\r\n  end if;\r\n  if exists (select 1 from public.questions q join public.activities a on a.id=q.activity_id\r\n    where a.lesson_id=p_lesson_id and q.question_type not in ('multiple_choice','true_false','translation')) then\r\n    raise exception 'This lesson contains an unsupported assessment type';\r\n  end if;\r\n  if exists (select 1 from public.activities a where a.lesson_id=p_lesson_id\r\n    and not exists (select 1 from public.questions q where q.activity_id=a.id)\r\n    and a.activity_type<>'listening' and not (a.id=any(coalesce(p_acknowledged,array[]::uuid[])))) then\r\n    raise exception 'Complete all instructional steps before finishing';\r\n  end if;\r\n  select attempts into attempt_number from public.lesson_progress\r\n    where user_id=learner and lesson_id=p_lesson_id;\r\n  for question_row in select q.* from public.questions q join public.activities a on a.id=q.activity_id\r\n    where a.lesson_id=p_lesson_id order by a.activity_order,q.question_order,q.id loop\r\n    select entry->>'answer' into response from jsonb_array_elements(p_answers) entry where entry->>'question_id'=question_row.id::text;\r\n    if question_row.question_type in ('multiple_choice','true_false') and not exists\r\n      (select 1 from jsonb_array_elements_text(question_row.options) option_value where option_value=response) then\r\n      raise exception 'Selected answer is not one of the stored options';\r\n    end if;\r\n    matched := public.acelingua_normalize_answer(response)=public.acelingua_normalize_answer(question_row.correct_answer);\r\n    if matched then correct_count:=correct_count+1; end if;\r\n    -- Stable per-attempt identifiers deduplicate network retries without a new\r\n    -- answer-history schema. Replays started again have a new attempt number.\r\n    insert into public.question_answers(id,user_id,question_id,answer,is_correct,answered_at)\r\n      values (md5(learner::text||':'||p_lesson_id::text||':'||attempt_number::text||':'||question_row.id::text)::uuid,\r\n        learner,question_row.id,response,matched,now()) on conflict(id) do nothing;\r\n  end loop;\r\n  for activity_row in select a.* from public.activities a where a.lesson_id=p_lesson_id loop\r\n    -- No audio is available: do not pretend a listening assessment happened.\r\n    if activity_row.activity_type='listening' and not exists(select 1 from public.questions q where q.activity_id=activity_row.id) then continue; end if;\r\n    insert into public.activity_progress as existing(user_id,activity_id,status,score,attempts,completed_at,last_accessed_at)\r\n      select learner,activity_row.id,'completed',\r\n        case when count(q.id)=0 then null else 100.0 * count(q.id) filter (where\r\n          public.acelingua_normalize_answer(q.correct_answer)=public.acelingua_normalize_answer(entry->>'answer')) / count(q.id) end,\r\n        attempt_number,now(),now()\r\n      from public.questions q left join jsonb_array_elements(p_answers) entry on entry->>'question_id'=q.id::text\r\n      where q.activity_id=activity_row.id\r\n    on conflict(user_id,activity_id) do update set status='completed',score=excluded.score,\r\n      attempts=greatest(existing.attempts,attempt_number),completed_at=coalesce(existing.completed_at,now()),last_accessed_at=now(),updated_at=now();\r\n  end loop;\r\n  select xp_reward, coin_reward, title into reward_xp, reward_coins, lesson_title\r\n    from public.lessons where id = p_lesson_id;\r\n  if reward_xp < 0 or reward_coins < 0 then raise exception 'Lesson rewards must not be negative'; end if;\r\n  if previous_status <> 'completed' then\r\n    -- Atomic increments also serialize completions from different courses.\r\n    update public.profiles set xp = public.profiles.xp + reward_xp,\r\n      coins = public.profiles.coins + reward_coins, updated_at = now() where id = learner;\r\n    if not found then raise exception 'Learner profile is missing'; end if;\r\n    if reward_xp > 0 then\r\n      insert into public.xp_transactions(id, user_id, amount, source_type, source_id, description, created_at)\r\n        values (gen_random_uuid(), learner, reward_xp, 'lesson', p_lesson_id, 'Completed: ' || lesson_title, now());\r\n    end if;\r\n    if reward_coins > 0 then\r\n      insert into public.coin_transactions(id, user_id, amount, transaction_type, source_id, description, created_at)\r\n        values (gen_random_uuid(), learner, reward_coins, 'lesson', p_lesson_id, 'Completed: ' || lesson_title, now());\r\n    end if;\r\n    update public.lesson_progress set status = 'completed', completed_at = now(),\r\n      last_accessed_at = now(), updated_at = now()\r\n      where user_id = learner and lesson_id = p_lesson_id;\r\n  end if;\r\n  select count(*), count(*) filter (where p.status = 'completed') into total, completed\r\n  from public.lessons l join public.units u on u.id = l.unit_id\r\n  left join public.lesson_progress p on p.lesson_id = l.id and p.user_id = learner\r\n  where u.course_id = course and u.is_published and l.is_published;\r\n  insert into public.course_progress(user_id, course_id, completed_lessons, total_lessons, progress_percentage, last_accessed_at)\r\n    values (learner, course, completed, total, case when total = 0 then 0 else completed::numeric / total * 100 end, now())\r\n  on conflict (user_id, course_id) do update set completed_lessons = excluded.completed_lessons,\r\n    total_lessons = excluded.total_lessons, progress_percentage = excluded.progress_percentage,\r\n    last_accessed_at = now(), updated_at = now();\r\n  return jsonb_build_object('replay', previous_status = 'completed',\r\n    'xp_awarded', case when previous_status = 'completed' then 0 else reward_xp end,\r\n    'coins_awarded', case when previous_status = 'completed' then 0 else reward_coins end,\r\n    'completed_lessons', completed, 'total_lessons', total, 'correct_answers', correct_count, 'total_questions', question_count);\r\nend;\r\n$function$\n",
+      "permissions": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "security_definer": true
+    },
+    {
+      "proname": "acelingua_complete_lesson",
+      "arguments": "p_lesson_id uuid",
+      "definition": "CREATE OR REPLACE FUNCTION public.acelingua_complete_lesson(p_lesson_id uuid)\n RETURNS jsonb\n LANGUAGE sql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\r\n  select public.acelingua_complete_assessed_lesson(p_lesson_id,'[]'::jsonb,array[]::uuid[]);\r\n$function$\n",
+      "permissions": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "security_definer": true
+    },
+    {
+      "proname": "acelingua_purchase_supply",
+      "arguments": "p_offer_id text, p_expected_price integer, p_request_id uuid",
+      "definition": "CREATE OR REPLACE FUNCTION public.acelingua_purchase_supply(p_offer_id text, p_expected_price integer, p_request_id uuid)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\r\ndeclare learner uuid:=auth.uid(); offer public.store_supply_offers%rowtype;\r\n  balance_coins integer; balance_gems integer; balance_hearts integer; result jsonb;\r\nbegin\r\n  if learner is null or p_request_id is null then raise exception 'Sign in to purchase supplies'; end if;\r\n  select coins,gems,hearts into balance_coins,balance_gems,balance_hearts\r\n    from public.profiles where id=learner for update;\r\n  if not found or balance_coins is null or balance_gems is null or balance_hearts is null then\r\n    raise exception 'Your learner balance is unavailable'; end if;\r\n  select receipt into result from public.store_supply_receipts where user_id=learner and request_id=p_request_id;\r\n  if found then\r\n    if not exists(select 1 from public.store_supply_receipts where user_id=learner and request_id=p_request_id and offer_id=p_offer_id) then\r\n      raise exception 'This request belongs to a different purchase'; end if;\r\n    return jsonb_build_object('coins',balance_coins,'gems',balance_gems,'hearts',balance_hearts);\r\n  end if;\r\n  select * into offer from public.store_supply_offers where id=p_offer_id and is_active for share;\r\n  if not found then raise exception 'This offer is unavailable'; end if;\r\n  if offer.price_coins is distinct from p_expected_price then raise exception 'The price changed. Refresh the store'; end if;\r\n  if balance_coins<offer.price_coins then raise exception 'You need more coins for this offer'; end if;\r\n  update public.profiles set coins=balance_coins-offer.price_coins,\r\n    gems=balance_gems+case when offer.kind='gems' then offer.amount else 0 end,\r\n    hearts=balance_hearts+case when offer.kind='hearts' then offer.amount else 0 end,\r\n    updated_at=now() where id=learner;\r\n  select jsonb_build_object('coins',coins,'gems',gems,'hearts',hearts) into result from public.profiles where id=learner;\r\n  insert into public.store_supply_receipts(user_id,request_id,offer_id,receipt) values(learner,p_request_id,offer.id,result);\r\n  return result;\r\nend;\r\n$function$\n",
+      "permissions": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "security_definer": true
+    },
+    {
+      "proname": "finish_travel_match",
+      "arguments": "p_session_id uuid, p_pairs jsonb",
+      "definition": "CREATE OR REPLACE FUNCTION public.finish_travel_match(p_session_id uuid, p_pairs jsonb)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\r\ndeclare learner uuid:=auth.uid(); session public.minigame_sessions%rowtype; pair jsonb;\r\n used integer[]:='{}'; a integer; b integer; rewarded boolean:=false; reward_day date:=(now() at time zone 'UTC')::date;\r\nbegin\r\n if learner is null then raise exception 'Sign in to save your game'; end if;\r\n perform 1 from public.profiles where id=learner for update;\r\n if not found then raise exception 'Profile unavailable'; end if;\r\n select * into session from public.minigame_sessions where id=p_session_id and user_id=learner for update;\r\n if not found then raise exception 'Game unavailable'; end if;\r\n if session.completed_at is not null then return jsonb_build_object('coins',0,'gems',0,'already_completed',true); end if;\r\n if session.started_at<now()-interval '20 minutes' then raise exception 'This game expired. Start a new round'; end if;\r\n if session.started_at>now()-interval '10 seconds' then raise exception 'Take a moment to finish the challenge, then retry'; end if;\r\n if p_pairs is null or jsonb_typeof(p_pairs)<>'array' or jsonb_array_length(p_pairs)<>6 then raise exception 'Match all six pairs first'; end if;\r\n for pair in select value from jsonb_array_elements(p_pairs) loop\r\n  if jsonb_typeof(pair)<>'array' or jsonb_array_length(pair)<>2 then raise exception 'Invalid pair'; end if;\r\n  a:=(pair->>0)::integer; b:=(pair->>1)::integer;\r\n  if a is null or b is null or a<0 or a>11 or b<0 or b>11 or a=b or a=any(used) or b=any(used) then raise exception 'Invalid card selection'; end if;\r\n  if session.answer_keys[a+1]<>session.answer_keys[b+1] then raise exception 'Some pairs do not match'; end if;\r\n  used:=used||array[a,b];\r\n end loop;\r\n insert into public.minigame_daily_rewards(user_id,reward_date,session_id) values(learner,reward_day,session.id) on conflict(user_id,reward_date) do nothing;\r\n rewarded:=found;\r\n if rewarded then update public.profiles set coins=coins+20,gems=gems+2,updated_at=now() where id=learner; end if;\r\n update public.minigame_sessions set completed_at=now() where id=session.id;\r\n return jsonb_build_object('coins',case when rewarded then 20 else 0 end,'gems',case when rewarded then 2 else 0 end,'already_completed',false);\r\nend; $function$\n",
+      "permissions": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "security_definer": true
+    },
+    {
+      "proname": "start_travel_match",
+      "arguments": "",
+      "definition": "CREATE OR REPLACE FUNCTION public.start_travel_match()\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\r\ndeclare learner uuid:=auth.uid(); session public.minigame_sessions%rowtype;\r\nbegin\r\n if learner is null then raise exception 'Sign in to play'; end if;\r\n perform 1 from public.profiles where id=learner for update;\r\n if not found then raise exception 'Profile unavailable'; end if;\r\n -- Reuse a recent unfinished board instead of creating unlimited sessions.\r\n select * into session from public.minigame_sessions where user_id=learner and completed_at is null and started_at>now()-interval '20 minutes' order by started_at desc limit 1;\r\n if not found then\r\n   insert into public.minigame_sessions(user_id,tiles,answer_keys)\r\n   select learner,array_agg(label order by shuffle),array_agg(pair_key order by shuffle)\r\n   from (select label,pair_key,random() shuffle from (values\r\n    ('Cat',1),('🐱',1),('Sun',2),('☀️',2),('Apple',3),('🍎',3),\r\n    ('Book',4),('📚',4),('House',5),('🏠',5),('Tree',6),('🌳',6)\r\n   ) vocabulary(label,pair_key)) shuffled returning * into session;\r\n end if;\r\n return jsonb_build_object('id',session.id,'tiles',session.tiles);\r\nend; $function$\n",
+      "permissions": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "security_definer": true
+    }
+  ],
+  "constraints": [
+    {
+      "conname": "achievements_coin_reward_check",
+      "definition": "CHECK ((coin_reward >= 0))",
+      "table_name": "achievements"
+    },
+    {
+      "conname": "achievements_pkey",
+      "definition": "PRIMARY KEY (id)",
+      "table_name": "achievements"
+    },
+    {
+      "conname": "achievements_requirement_type_check",
+      "definition": "CHECK ((requirement_type = ANY (ARRAY['lessons_completed'::text, 'activities_completed'::text, 'course_completed'::text, 'streak'::text, 'xp_earned'::text, 'speaking_completed'::text, 'quiz_completed'::text])))",
+      "table_name": "achievements"
+    },
+    {
+      "conname": "achievements_requirement_value_check",
+      "definition": "CHECK ((requirement_value > 0))",
+      "table_name": "achievements"
+    },
+    {
+      "conname": "achievements_xp_reward_check",
+      "definition": "CHECK ((xp_reward >= 0))",
+      "table_name": "achievements"
+    },
+    {
+      "conname": "activity_progress_activity_id_fkey",
+      "definition": "FOREIGN KEY (activity_id) REFERENCES activities(id) ON DELETE CASCADE",
+      "table_name": "activity_progress"
+    },
+    {
+      "conname": "activity_progress_attempts_check",
+      "definition": "CHECK ((attempts >= 0))",
+      "table_name": "activity_progress"
+    },
+    {
+      "conname": "activity_progress_pkey",
+      "definition": "PRIMARY KEY (id)",
+      "table_name": "activity_progress"
+    },
+    {
+      "conname": "activity_progress_score_check",
+      "definition": "CHECK (((score >= (0)::numeric) AND (score <= (100)::numeric)))",
+      "table_name": "activity_progress"
+    },
+    {
+      "conname": "activity_progress_status_check",
+      "definition": "CHECK ((status = ANY (ARRAY['not_started'::text, 'in_progress'::text, 'completed'::text])))",
+      "table_name": "activity_progress"
+    },
+    {
+      "conname": "activity_progress_user_id_activity_id_key",
+      "definition": "UNIQUE (user_id, activity_id)",
+      "table_name": "activity_progress"
+    },
+    {
+      "conname": "activity_progress_user_id_fkey",
+      "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE",
+      "table_name": "activity_progress"
+    },
+    {
+      "conname": "coin_transactions_amount_check",
+      "definition": "CHECK ((amount <> 0))",
+      "table_name": "coin_transactions"
+    },
+    {
+      "conname": "coin_transactions_pkey",
+      "definition": "PRIMARY KEY (id)",
+      "table_name": "coin_transactions"
+    },
+    {
+      "conname": "coin_transactions_transaction_type_check",
+      "definition": "CHECK ((transaction_type = ANY (ARRAY['lesson'::text, 'activity'::text, 'quiz'::text, 'speaking'::text, 'conversation'::text, 'mini_game'::text, 'achievement'::text, 'daily_goal'::text, 'purchase'::text])))",
+      "table_name": "coin_transactions"
+    },
+    {
+      "conname": "coin_transactions_user_id_fkey",
+      "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE",
+      "table_name": "coin_transactions"
+    },
+    {
+      "conname": "daily_goals_completed_activities_check",
+      "definition": "CHECK ((completed_activities >= 0))",
+      "table_name": "daily_goals"
+    },
+    {
+      "conname": "daily_goals_pkey",
+      "definition": "PRIMARY KEY (id)",
+      "table_name": "daily_goals"
+    },
+    {
+      "conname": "daily_goals_target_activities_check",
+      "definition": "CHECK ((target_activities > 0))",
+      "table_name": "daily_goals"
+    },
+    {
+      "conname": "daily_goals_user_id_fkey",
+      "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE",
+      "table_name": "daily_goals"
+    },
+    {
+      "conname": "daily_goals_user_id_goal_date_key",
+      "definition": "UNIQUE (user_id, goal_date)",
+      "table_name": "daily_goals"
+    },
+    {
+      "conname": "lesson_progress_attempts_check",
+      "definition": "CHECK ((attempts >= 0))",
+      "table_name": "lesson_progress"
+    },
+    {
+      "conname": "lesson_progress_lesson_id_fkey",
+      "definition": "FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE CASCADE",
+      "table_name": "lesson_progress"
+    },
+    {
+      "conname": "lesson_progress_pkey",
+      "definition": "PRIMARY KEY (id)",
+      "table_name": "lesson_progress"
+    },
+    {
+      "conname": "lesson_progress_status_check",
+      "definition": "CHECK ((status = ANY (ARRAY['not_started'::text, 'in_progress'::text, 'completed'::text])))",
+      "table_name": "lesson_progress"
+    },
+    {
+      "conname": "lesson_progress_user_id_fkey",
+      "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE",
+      "table_name": "lesson_progress"
+    },
+    {
+      "conname": "lesson_progress_user_id_lesson_id_key",
+      "definition": "UNIQUE (user_id, lesson_id)",
+      "table_name": "lesson_progress"
+    },
+    {
+      "conname": "profiles_coins_check",
+      "definition": "CHECK ((coins >= 0))",
+      "table_name": "profiles"
+    },
+    {
+      "conname": "profiles_gems_check",
+      "definition": "CHECK ((gems >= 0))",
+      "table_name": "profiles"
+    },
+    {
+      "conname": "profiles_hearts_check",
+      "definition": "CHECK (((hearts >= 0) AND (hearts <= 5)))",
+      "table_name": "profiles"
+    },
+    {
+      "conname": "profiles_id_fkey",
+      "definition": "FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE",
+      "table_name": "profiles"
+    },
+    {
+      "conname": "profiles_level_check",
+      "definition": "CHECK ((level >= 1))",
+      "table_name": "profiles"
+    },
+    {
+      "conname": "profiles_pkey",
+      "definition": "PRIMARY KEY (id)",
+      "table_name": "profiles"
+    },
+    {
+      "conname": "profiles_role_check",
+      "definition": "CHECK ((role = ANY (ARRAY['learner'::text, 'admin'::text])))",
+      "table_name": "profiles"
+    },
+    {
+      "conname": "profiles_streak_check",
+      "definition": "CHECK ((streak >= 0))",
+      "table_name": "profiles"
+    },
+    {
+      "conname": "profiles_username_key",
+      "definition": "UNIQUE (username)",
+      "table_name": "profiles"
+    },
+    {
+      "conname": "profiles_xp_check",
+      "definition": "CHECK ((xp >= 0))",
+      "table_name": "profiles"
+    },
+    {
+      "conname": "question_answers_pkey",
+      "definition": "PRIMARY KEY (id)",
+      "table_name": "question_answers"
+    },
+    {
+      "conname": "question_answers_question_id_fkey",
+      "definition": "FOREIGN KEY (question_id) REFERENCES questions(id) ON DELETE CASCADE",
+      "table_name": "question_answers"
+    },
+    {
+      "conname": "question_answers_user_id_fkey",
+      "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE",
+      "table_name": "question_answers"
+    },
+    {
+      "conname": "streak_history_activities_completed_check",
+      "definition": "CHECK ((activities_completed >= 0))",
+      "table_name": "streak_history"
+    },
+    {
+      "conname": "streak_history_pkey",
+      "definition": "PRIMARY KEY (id)",
+      "table_name": "streak_history"
+    },
+    {
+      "conname": "streak_history_user_id_activity_date_key",
+      "definition": "UNIQUE (user_id, activity_date)",
+      "table_name": "streak_history"
+    },
+    {
+      "conname": "streak_history_user_id_fkey",
+      "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE",
+      "table_name": "streak_history"
+    },
+    {
+      "conname": "user_achievements_achievement_id_fkey",
+      "definition": "FOREIGN KEY (achievement_id) REFERENCES achievements(id) ON DELETE CASCADE",
+      "table_name": "user_achievements"
+    },
+    {
+      "conname": "user_achievements_pkey",
+      "definition": "PRIMARY KEY (id)",
+      "table_name": "user_achievements"
+    },
+    {
+      "conname": "user_achievements_user_id_achievement_id_key",
+      "definition": "UNIQUE (user_id, achievement_id)",
+      "table_name": "user_achievements"
+    },
+    {
+      "conname": "user_achievements_user_id_fkey",
+      "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE",
+      "table_name": "user_achievements"
+    },
+    {
+      "conname": "xp_transactions_amount_check",
+      "definition": "CHECK ((amount > 0))",
+      "table_name": "xp_transactions"
+    },
+    {
+      "conname": "xp_transactions_pkey",
+      "definition": "PRIMARY KEY (id)",
+      "table_name": "xp_transactions"
+    },
+    {
+      "conname": "xp_transactions_source_type_check",
+      "definition": "CHECK ((source_type = ANY (ARRAY['lesson'::text, 'activity'::text, 'quiz'::text, 'speaking'::text, 'conversation'::text, 'mini_game'::text, 'achievement'::text, 'daily_goal'::text])))",
+      "table_name": "xp_transactions"
+    },
+    {
+      "conname": "xp_transactions_user_id_fkey",
+      "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE",
+      "table_name": "xp_transactions"
+    }
+  ],
+  "table_grants": [
+    {
+      "grantee": "anon",
+      "table_name": "activity_progress",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "activity_progress",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "activity_progress",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "activity_progress",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "activity_progress",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "activity_progress",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "activity_progress",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "activity_progress",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "coin_transactions",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "coin_transactions",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "coin_transactions",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "coin_transactions",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "coin_transactions",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "coin_transactions",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "coin_transactions",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "coin_transactions",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "coin_transactions",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "coin_transactions",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "coin_transactions",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "coin_transactions",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "coin_transactions",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "coin_transactions",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "daily_goals",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "daily_goals",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "daily_goals",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "daily_goals",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "daily_goals",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "daily_goals",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "daily_goals",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "daily_goals",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "daily_goals",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "daily_goals",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "daily_goals",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "daily_goals",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "daily_goals",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "daily_goals",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "lesson_progress",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "lesson_progress",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "lesson_progress",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "lesson_progress",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "lesson_progress",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "lesson_progress",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "lesson_progress",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "lesson_progress",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "question_answers",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "question_answers",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "question_answers",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "question_answers",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "question_answers",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "question_answers",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "question_answers",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "question_answers",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "streak_history",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "streak_history",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "streak_history",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "streak_history",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "streak_history",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "streak_history",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "streak_history",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "streak_history",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "streak_history",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "streak_history",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "streak_history",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "streak_history",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "streak_history",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "streak_history",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "xp_transactions",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "xp_transactions",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "xp_transactions",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "xp_transactions",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "xp_transactions",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "xp_transactions",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "xp_transactions",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "xp_transactions",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "xp_transactions",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "xp_transactions",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "xp_transactions",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "xp_transactions",
+      "privilege_type": "TRIGGER"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "xp_transactions",
+      "privilege_type": "TRUNCATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "xp_transactions",
+      "privilege_type": "UPDATE"
+    }
+  ],
+  "profile_column_grants": [
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "coins",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "coins",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "coins",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "coins",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "coins",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "coins",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "coins",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "coins",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "created_at",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "created_at",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "created_at",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "created_at",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "created_at",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "created_at",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "created_at",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "created_at",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "display_name",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "display_name",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "display_name",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "display_name",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "display_name",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "display_name",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "display_name",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "display_name",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "gems",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "gems",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "gems",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "gems",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "gems",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "gems",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "gems",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "gems",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "hearts",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "hearts",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "hearts",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "hearts",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "hearts",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "hearts",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "hearts",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "hearts",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "id",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "id",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "id",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "id",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "id",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "id",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "id",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "id",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "level",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "level",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "level",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "level",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "level",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "level",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "level",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "level",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "role",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "role",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "role",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "role",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "role",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "role",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "role",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "role",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "streak",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "streak",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "streak",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "streak",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "streak",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "streak",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "streak",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "streak",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "updated_at",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "updated_at",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "updated_at",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "updated_at",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "updated_at",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "updated_at",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "updated_at",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "updated_at",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "username",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "username",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "username",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "username",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "username",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "username",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "username",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "username",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "xp",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "xp",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "xp",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "profiles",
+      "column_name": "xp",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "xp",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "xp",
+      "privilege_type": "REFERENCES"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "xp",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "profiles",
+      "column_name": "xp",
+      "privilege_type": "UPDATE"
+    }
+  ]
+}

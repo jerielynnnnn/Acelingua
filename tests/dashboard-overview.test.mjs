@@ -3,7 +3,8 @@ import { test } from "node:test";
 import { readFileSync } from "node:fs";
 import ts from "typescript";
 const source = readFileSync(new URL("../lib/dashboard-overview.ts", import.meta.url), "utf8")
-  .replace('import { loadLearnerAvatar } from "@/lib/avatar";', 'const loadLearnerAvatar = async () => ({ items: [], ownedIds: new Set(), equipped: null });');
+  .replace('import { loadLearnerAvatar } from "@/lib/avatar";', 'const loadLearnerAvatar = async () => ({ items: [], ownedIds: new Set(), equipped: null });')
+  .replace('import { levelProgress } from "@/lib/level-progress";', readFileSync(new URL('../lib/level-progress.ts', import.meta.url), 'utf8').replaceAll('export ', ''));
 const output = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ES2022, target: ts.ScriptTarget.ES2022 } }).outputText;
 const { loadDashboardOverview, achievementPreviews } = await import(`data:text/javascript;base64,${Buffer.from(output).toString("base64")}`);
 function database({ empty = false, goalFailure = false } = {}) {

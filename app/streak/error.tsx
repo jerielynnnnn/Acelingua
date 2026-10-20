@@ -1,0 +1,3 @@
+﻿"use client";
+import Link from "next/link";
+export default function StreakError({reset}:{error:Error & {digest?:string};reset:()=>void}){return <main className="mx-auto my-12 max-w-lg rounded-3xl bg-[#FFFCF7] p-8 text-[#102452]"><h1 className="text-2xl font-bold">Let&apos;s try your streak again</h1><p role="alert" className="mt-4 text-sm">We couldn&apos;t load your practice history. Your saved progress has not been changed.</p><button type="button" onClick={reset} className="mt-5 rounded-xl bg-[#102452] px-5 py-3 font-bold text-white">Retry</button><Link href="/dashboard" className="ml-4 text-sm font-bold">Dashboard</Link></main>;}
