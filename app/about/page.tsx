@@ -1,620 +1,326 @@
 "use client";
 
+import { Fredoka } from "next/font/google";
+
+const fredoka = Fredoka({
+  subsets: ["latin"],
+  weight: ["600", "700"],
+  display: "swap",
+});
 import Image from "next/image";
 import Logo from "@/components/Logo";
 import Link from "next/link";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import {
-  useEffect,
-  useRef,
-  useState,
-  type FormEvent,
-  type ReactNode,
-} from "react";
-
-import {
-  ArrowRight,
-  Bell,
-  BookOpen,
-  ChevronRight,
-  Globe2,
-  Home,
-  Languages,
-  Send,
-  Trophy,
-  UserRound,
-  X as CloseIcon,
+  ArrowRight, BookOpen, ChevronRight, Cloud,
+  Compass, Flame, Globe2, Heart, Languages,
+  Rocket, Send, Star, Trophy, UserRound, X as CloseIcon,
 } from "lucide-react";
 
-/* =========================================================
-   TYPES
-========================================================= */
+// These languages mirror the destinations showcased on ACELingua's home page.
+const languages = [
+  { name: "Japanese", native: "日本語", flag: "🇯🇵", hello: "Konnichiwa", tint: "#FCE7EA" },
+  { name: "Korean", native: "한국어", flag: "🇰🇷", hello: "Annyeonghaseyo", tint: "#E9EEFF" },
+  { name: "Mandarin", native: "中文", flag: "🇨🇳", hello: "Nǐ hǎo", tint: "#FFEDD7" },
+  { name: "Spanish", native: "Español", flag: "🇪🇸", hello: "Hola", tint: "#FFF2CD" },
+  { name: "German", native: "Deutsch", flag: "🇩🇪", hello: "Hallo", tint: "#EDE8FC" },
+  { name: "Thai", native: "ไทย", flag: "🇹🇭", hello: "Sawasdee", tint: "#E6F7F1" },
+  { name: "French", native: "Français", flag: "🇫🇷", hello: "Bonjour", tint: "#E6F3FF" },
+] as const;
 
-type FlagCode = "JP" | "KR" | "ES" | "FR";
+const flowSteps = [
+  { n: "01", title: "Create account", text: "Sign up to set up your ACELingua learning profile and save your progress.", icon: Rocket, tint: "#E5F4FF" },
+  { n: "02", title: "Choose language", text: "Choose the language you want to learn and explore its learning path.", icon: Languages, tint: "#F4E9FF" },
+  { n: "03", title: "Learn & practice", text: "Follow structured lessons, learn phrases, and practice with interactive activities.", icon: BookOpen, tint: "#FFF1DF" },
+  { n: "04", title: "Explore cultures", text: "Discover destinations, landmarks, and interesting facts alongside each language.", icon: Compass, tint: "#E4F8EC" },
+  { n: "05", title: "Earn rewards", text: "Complete lessons and challenges to collect XP, coins, achievements, and more.", icon: Trophy, tint: "#FFE7EF" },
+] as const;
 
-type ChatMessage = {
-  id: number;
-  sender: "user" | "bot";
-  text: string;
-};
+const featureCards = [
+  {
+    icon: BookOpen, title: "Lessons that click", overline: "LEARN",
+    description: "Go from your first greeting to practical everyday conversations with clear, bite-sized lessons.",
+    bg: "#EAF4FF", color: "#3558AE", deco: "✦",
+  },
+  {
+    icon: Globe2, title: "A world to explore", overline: "DISCOVER",
+    description: "Go beyond vocabulary with destinations, landmarks, history, and cultural discoveries.",
+    bg: "#F1E8FF", color: "#8064B8", deco: "✳",
+  },
+  {
+    icon: Trophy, title: "Every win counts", overline: "GROW",
+    description: "Stay motivated with XP, coins, streaks, challenges, and achievements as you progress.",
+    bg: "#FFF0D8", color: "#B67A28", deco: "✧",
+  },
+  {
+    icon: UserRound, title: "A journey that's yours", overline: "EXPRESS",
+    description: "Make the adventure your own with a customizable avatar, outfits, and unlockable accessories.",
+    bg: "#FFE7ED", color: "#B64074", deco: "♡",
+  },
+] as const;
 
-/* =========================================================
-   CHATBOT QUESTIONS
-========================================================= */
-
+type ChatMessage = { id: number; sender: "user" | "bot"; text: string };
 const chatbotQuestions = [
-  {
-    question: "What is ACELingua?",
-    answer:
-      "ACELingua is an interactive language-learning platform where learners can study languages, complete lessons, explore cultures, earn rewards, and customize their avatar.",
-  },
-  {
-    question: "What languages can I learn?",
-    answer:
-      "ACELingua currently features Japanese, Korean, Spanish, and French. More languages can be added as the platform grows.",
-  },
-  {
-    question: "How do lessons work?",
-    answer:
-      "Lessons are organized from beginner to more advanced levels. You can learn vocabulary, useful phrases, grammar, and practical conversations step by step.",
-  },
-  {
-    question: "How do I start learning?",
-    answer:
-      "Create an account, choose the language you want to learn, and ACELingua will guide you to your first lesson.",
-  },
-  {
-    question: "What are XP and coins?",
-    answer:
-      "You earn XP by completing lessons and activities. Coins can be used for rewards and avatar customization in ACELingua.",
-  },
-  {
-    question: "Can I customize my avatar?",
-    answer:
-      "Yes! You can customize your avatar using different outfits, hairstyles, accessories, and other unlockable items.",
-  },
+  { question: "What is ACELingua?", answer: "ACELingua is an interactive language-learning platform where you can learn new languages through lessons, practice activities, cultural exploration, and rewards." },
+  { question: "What languages are available?", answer: "ACELingua showcases Japanese, Korean, Mandarin, Spanish, German, Thai, and French. Explore the languages page for the current selection." },
+  { question: "How do I start learning?", answer: "Create an account, choose a language, and follow the guided lessons. The steps on this About page lead to registration." },
+  { question: "How do lessons work?", answer: "Lessons are organized from beginner to more advanced topics. You can learn vocabulary, useful phrases, grammar, and practical conversations." },
+  { question: "Do I earn rewards?", answer: "Yes! As you complete lessons and activities, you can earn XP, coins, achievements, and other rewards." },
+  { question: "Can I customize my avatar?", answer: "Yes. ACELingua includes avatar customization with outfits, hairstyles, accessories, and unlockable items." },
 ];
 
-/* =========================================================
-   ABOUT PAGE
-========================================================= */
-
 export default function AboutPage() {
-  const flowSteps = [
-    {
-      number: "01",
-      title: "Create Account",
-      description: "Sign up and create your ACELingua learning profile.",
-      href: "/register",
-    },
-    {
-      number: "02",
-      title: "Choose Language",
-      description: "Select the language you want to start learning.",
-      href: "/register",
-    },
-    {
-      number: "03",
-      title: "Learn",
-      description: "Complete lessons and practice real conversations.",
-      href: "/register",
-    },
-    {
-      number: "04",
-      title: "Explore",
-      description: "Discover destinations, culture, and language trivia.",
-      href: "/register",
-    },
-    {
-      number: "05",
-      title: "Earn Rewards",
-      description: "Gain XP, coins, achievements, and avatar items.",
-      href: "/register",
-    },
-  ];
-
-  const languages: {
-    code: FlagCode;
-    language: string;
-  }[] = [
-    {
-      code: "JP",
-      language: "Japanese",
-    },
-    {
-      code: "KR",
-      language: "Korean",
-    },
-    {
-      code: "ES",
-      language: "Spanish",
-    },
-    {
-      code: "FR",
-      language: "French",
-    },
-  ];
-
   return (
-    <main className="min-h-screen bg-[#fcfcfd] text-[#111111]">
-      {/* =====================================================
-          SOCIAL SIDEBAR
-      ====================================================== */}
+    <main className="acel-about relative isolate min-h-screen overflow-x-clip text-[#102452]">
+      <AboutAtmosphere />
+      <div className="relative z-10">
+        <AboutHeader />
+        <FloatingChatbot />
 
-      <SocialSidebar />
+        {/* HERO — welcoming brand story alongside the app preview. */}
+        <section className="relative mx-auto grid w-full max-w-[1380px] items-center gap-12 px-5 pb-20 pt-12 sm:px-8 md:pt-16 lg:min-h-[720px] lg:grid-cols-[1.04fr_.96fr] lg:gap-16 lg:px-14 lg:pb-24 lg:pt-12">
+          <div className="acel-about-reveal relative z-10 max-w-[675px] text-center lg:text-left">
+            
+  <h1 className="text-[clamp(3rem,5.8vw,5.7rem)] font-black leading-[1.035] tracking-[-.055em] text-[#102452]">
+  About{" "}
+  </h1>
+  <h1
+  className={`${fredoka.className} text-[clamp(3rem,5.8vw,5.7rem)] font-bold leading-[1.035] tracking-[-.045em] text-[#102452]`}
+>{" "}
+  <span className="text-[#FFD36E]">A</span>
+  <span className="text-[#FF7D82]">C</span>
+  <span className="text-[#69CEFF]">E</span>
+  Lingua
+</h1>
 
-      {/* =====================================================
-          ACE CHATBOT
-      ====================================================== */}
 
-      <FloatingChatbot />
-
-      {/* =====================================================
-          HERO / ABOUT
-      ====================================================== */}
-
-      <section className="min-h-screen">
-        <div className="mx-auto w-full max-w-[var(--page-max-width)] px-6 pb-20 pt-8 md:px-10 lg:px-12">
-          {/* HEADER */}
-
-          <header className="flex items-center justify-between">
-            <Link href="/" className="inline-flex items-center">
-              <Logo
-                alt="ACELingua"
-                priority
-                className="h-auto w-[210px] object-contain sm:w-[240px] lg:w-[250px]"
-              />
-            </Link>
-
-            <Link
-              href="/register"
-              className="group hidden items-center gap-2 text-[13px] font-medium text-[#777d89] transition-colors duration-200 hover:text-[#071a50] sm:flex"
-            >
-              Create an account
-
-              <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
-            </Link>
-          </header>
-
-          {/* HERO CONTENT */}
-
-          <div className="grid min-h-[700px] items-center gap-12 py-12 lg:grid-cols-[410px_minmax(0,1fr)] lg:gap-16">
-            {/* =================================================
-                PHONE
-            ================================================== */}
-
-            <div className="flex items-center justify-center lg:justify-end">
-              <div className="relative w-[280px] rounded-[48px] bg-[#111111] p-[9px] shadow-[0_30px_70px_rgba(15,27,69,0.16)] sm:w-[310px]">
-                {/* PHONE BUTTONS */}
-
-                <div className="absolute -left-[4px] top-[105px] h-[45px] w-[5px] rounded-l bg-[#242424]" />
-
-                <div className="absolute -left-[4px] top-[165px] h-[65px] w-[5px] rounded-l bg-[#242424]" />
-
-                <div className="absolute -right-[4px] top-[150px] h-[80px] w-[5px] rounded-r bg-[#242424]" />
-
-                {/* SCREEN */}
-
-                <div className="relative overflow-hidden rounded-[40px] bg-white">
-                  {/* STATUS */}
-
-                  <div className="relative flex h-10 items-center justify-between px-6 pt-2 text-[9px] font-semibold text-[#151515]">
-                    <span>9:41</span>
-
-                    <div className="absolute left-1/2 top-[9px] h-[22px] w-[82px] -translate-x-1/2 rounded-full bg-black" />
-
-                    <div className="flex items-center gap-[3px]">
-                      <span>●</span>
-                      <span>◒</span>
-                    </div>
-                  </div>
-
-                  {/* APP CONTENT */}
-
-                  <div className="px-5 pb-5 pt-4">
-                    {/* HEADER */}
-
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-xl bg-[#071a50]">
-                          <Languages className="h-[17px] w-[17px] text-white" />
-                        </div>
-
-                        <p className="text-[10px] font-medium text-[#8c919d]">
-                          Good morning,
-                        </p>
-
-                        <h2 className="mt-1 text-[18px] font-extrabold leading-tight text-[#101936]">
-                          Let&apos;s learn
-                          <br />
-                          together!
-                        </h2>
-                      </div>
-
-                      <button
-                        type="button"
-                        aria-label="Notifications"
-                        className="flex h-8 w-8 items-center justify-center rounded-full border border-[#e8eaf0]"
-                      >
-                        <Bell className="h-3.5 w-3.5 text-[#737986]" />
-                      </button>
-                    </div>
-
-                    {/* CONTINUE LEARNING */}
-
-                    <div className="mt-6">
-                      <p className="mb-2 text-[9px] font-semibold text-[#7c8290]">
-                        Continue Learning
-                      </p>
-
-                      <div className="rounded-[20px] bg-[#edf3ff] p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex min-w-0 items-center gap-3">
-                            <FlagIcon country="JP" size={38} />
-
-                            <div className="min-w-0">
-                              <p className="text-[12px] font-bold text-[#132153]">
-                                Japanese
-                              </p>
-
-                              <p className="text-[8px] text-[#7c8496]">
-                                Daily Conversation
-                              </p>
-                            </div>
-                          </div>
-
-                          <span className="ml-2 shrink-0 text-[8px] font-semibold text-[#6f7690]">
-                            5/10
-                          </span>
-                        </div>
-
-                        <div className="mt-4 h-[5px] rounded-full bg-white">
-                          <div className="h-full w-[55%] rounded-full bg-[#3867e8]" />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* LANGUAGES */}
-
-                    <div className="mt-5">
-                      <div className="flex items-center justify-between">
-                        <p className="text-[11px] font-bold text-[#121b3e]">
-                          Explore Languages
-                        </p>
-
-                        <button
-                          type="button"
-                          className="text-[8px] font-medium text-[#7d8492] transition-colors hover:text-[#3867e8]"
-                        >
-                          See All
-                        </button>
-                      </div>
-
-                      <div className="mt-3 grid grid-cols-4 gap-2">
-                        {languages.map(({ code, language }) => (
-                          <div
-                            key={language}
-                            className="flex min-w-0 flex-col items-center rounded-[14px] bg-[#f7f8fb] px-1 py-3"
-                          >
-                            <FlagIcon country={code} size={34} />
-
-                            <p className="mt-2 w-full truncate text-center text-[7px] font-medium text-[#495168]">
-                              {language}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* TODAY'S LESSON */}
-
-                    <div className="mt-5">
-                      <p className="text-[11px] font-bold text-[#121b3e]">
-                        Today&apos;s Lesson
-                      </p>
-
-                      <div className="mt-3 flex items-center gap-3 rounded-[17px] border border-[#eef0f5] p-2.5">
-                        <div className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-xl bg-[#edf2ff]">
-                          <BookOpen className="h-5 w-5 text-[#3867e8]" />
-                        </div>
-
-                        <div className="min-w-0 flex-1">
-                          <span className="rounded bg-[#edf2ff] px-1.5 py-0.5 text-[7px] font-bold text-[#3867e8]">
-                            A1
-                          </span>
-
-                          <p className="mt-1 truncate text-[10px] font-bold text-[#15204a]">
-                            Greetings &amp; Basics
-                          </p>
-
-                          <p className="mt-0.5 truncate text-[7px] text-[#8b909d]">
-                            Learn useful phrases for daily life.
-                          </p>
-                        </div>
-
-                        <ChevronRight className="h-4 w-4 shrink-0 text-[#3867e8]" />
-                      </div>
-                    </div>
-
-                    {/* NAVIGATION */}
-
-                    <div className="mt-5 flex items-center justify-around border-t border-[#f0f1f4] pt-4">
-                      <PhoneNav
-                        icon={<Home className="h-4 w-4" />}
-                        label="Home"
-                        active
-                      />
-
-                      <PhoneNav
-                        icon={<BookOpen className="h-4 w-4" />}
-                        label="Learn"
-                      />
-
-                      <PhoneNav
-                        icon={<Globe2 className="h-4 w-4" />}
-                        label="Explore"
-                      />
-
-                      <PhoneNav
-                        icon={<UserRound className="h-4 w-4" />}
-                        label="Profile"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* =================================================
-                ABOUT
-            ================================================== */}
-
-            <div className="max-w-[590px] lg:pl-2">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#a0a4ae]">
-                Overview
-              </p>
-
-              <h1 className="mt-3 text-[44px] font-black leading-[1.04] tracking-[-0.04em] text-[#070707] sm:text-[52px] lg:text-[58px]">
-                About ACELingua
-              </h1>
-
-              <p className="mt-8 max-w-[560px] text-[15px] leading-[1.9] text-[#777d89] [text-align:justify] [text-justify:inter-word] sm:text-[16px]">
-                ACELingua is an interactive language-learning platform designed
-                to make learning new languages simple, engaging, and enjoyable.
-                Learners can practice through structured lessons, explore
-                different cultures, earn rewards, and build confidence through
-                everyday language experiences.
-              </p>
-
-              {/* GOAL */}
-
-              <div className="mt-10 border-t border-[#eceef2] pt-8">
-                <p className="text-[12px] font-bold uppercase tracking-[0.06em] text-[#3867e8]">
-                  Goal
-                </p>
-
-                <p className="mt-3 max-w-[540px] text-[14px] leading-[1.85] text-[#777d89] [text-align:justify] [text-justify:inter-word] sm:text-[15px]">
-                  To provide an accessible and enjoyable learning experience
-                  where users can study a language while discovering different
-                  destinations, cultures, and real-world conversations.
-                </p>
-              </div>
-
-              {/* PLATFORM */}
-
-              <div className="mt-8">
-                <p className="text-[12px] font-bold uppercase tracking-[0.06em] text-[#3867e8]">
-                  Platform
-                </p>
-
-                <p className="mt-2 text-[14px] text-[#686e7c]">
-                  Web Application
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* =====================================================
-          LEARNING FLOW
-      ====================================================== */}
-
-      <section className="border-t border-[#f0f1f4] bg-white px-6 py-28 md:px-10 lg:px-16">
-        <div className="mx-auto max-w-[var(--page-max-width)]">
-          <div className="text-center">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#a0a4ae]">
-              Planning
+            <p className="mx-auto mt-7 max-w-[570px] text-[15px] leading-[1.85] text-[#536384] sm:text-[17px] lg:mx-0">
+              ACELingua is a gamified language-learning platform that brings lessons, interactive practice, world exploration, and cultural discovery into one experience. Learners can progress through structured language courses while tracking achievements and personalizing their avatars.
             </p>
-
-            <h2 className="mt-3 text-[38px] font-black tracking-[-0.04em] text-[#090909] sm:text-[48px]">
-              Learning Flow
-            </h2>
-
-            <p className="mx-auto mt-4 max-w-[600px] text-[14px] leading-7 text-[#8b909b]">
-              A simple overview of how learners move through the ACELingua
-              experience.
+            <p className="mx-auto mt-5 max-w-[570px] text-[14px] leading-[1.85] text-[#536384] sm:text-[15px] lg:mx-0">
+              Our aim is to make language learning approachable and engaging, with everyday conversation skills at the center of each journey.
             </p>
           </div>
 
-          <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            {flowSteps.map((step) => (
-              <Link
-                href={step.href}
-                key={step.number}
-                className="
-                  group
-                  relative
-                  block
-                  overflow-hidden
-                  rounded-[20px]
-                  border
-                  border-[#edf0f4]
-                  bg-white
-                  p-6
-                  transition-all
-                  duration-300
-                  ease-out
-
-                  hover:-translate-y-2
-                  hover:border-[#d6e1ff]
-                  hover:shadow-[0_20px_45px_rgba(20,40,90,0.09)]
-                "
-              >
-                <div
-                  className="
-                    flex
-                    h-10
-                    w-10
-                    items-center
-                    justify-center
-                    rounded-full
-                    bg-[#edf2ff]
-                    text-[11px]
-                    font-bold
-                    text-[#3867e8]
-                    transition-all
-                    duration-300
-
-                    group-hover:bg-[#3867e8]
-                    group-hover:text-white
-                  "
-                >
-                  {step.number}
-                </div>
-
-                <h3 className="mt-5 text-[15px] font-bold text-[#131b38]">
-                  {step.title}
-                </h3>
-
-                <p className="mt-2 min-h-[72px] text-[12px] leading-6 text-[#8b909c]">
-                  {step.description}
-                </p>
-
-                <div
-                  className="
-                    mt-4
-                    flex
-                    items-center
-                    gap-2
-                    text-[11px]
-                    font-semibold
-                    text-[#3867e8]
-                    opacity-0
-                    transition-all
-                    duration-300
-
-                    group-hover:translate-x-1
-                    group-hover:opacity-100
-                  "
-                >
-                  Get started
-
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </div>
-              </Link>
-            ))}
+          <div className="relative mx-auto flex w-full max-w-[560px] items-center justify-center py-10 lg:py-0" aria-label="Illustration of the ACELingua learning dashboard">
+            <div aria-hidden="true" className="absolute inset-8 rounded-full bg-[radial-gradient(circle,rgba(133,216,250,.42)_0%,rgba(199,169,212,.16)_50%,transparent_75%)] blur-[28px]" />
+            <AppPhonePreview />
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* =====================================================
-          LEARNING EXPERIENCE
-      ====================================================== */}
-
-      <section className="bg-[#f8faff] px-6 py-28 md:px-10 lg:px-16">
-        <div className="mx-auto max-w-[var(--page-max-width)]">
-          <div className="grid items-center gap-16 lg:grid-cols-[0.9fr_1.1fr]">
-            {/* LEFT */}
-
+        {/* OUR PURPOSE */}
+        <section id="our-story" className="relative scroll-mt-24 px-5 py-20 sm:px-8 lg:px-14 lg:py-28">
+          <div className="mx-auto grid max-w-[1240px] items-center gap-9 lg:grid-cols-[.9fr_1.1fr] lg:gap-20">
+            <div className="relative flex min-h-[340px] items-center justify-center overflow-hidden rounded-[36px] border border-white/75 bg-white/35 p-8 shadow-[0_25px_65px_rgba(16,36,82,.06)] backdrop-blur-xl sm:min-h-[410px]">
+              <div aria-hidden="true" className="absolute -left-20 -top-24 h-72 w-72 rounded-full bg-[#85D8FA]/40 blur-3xl" />
+              <div aria-hidden="true" className="absolute -bottom-20 -right-16 h-64 w-64 rounded-full bg-[#FF9297]/30 blur-3xl" />
+              <div className="acel-about-float-slow relative flex flex-col items-center text-center">
+                <div className="relative flex h-[165px] w-[165px] items-center justify-center rounded-full bg-white/80 shadow-[0_18px_50px_rgba(16,36,82,.09)] sm:h-[200px] sm:w-[200px]">
+                  <Image src="/icon head.png" alt="Ace, the ACELingua mascot" width={185} height={185} sizes="(min-width: 640px) 185px, 155px" className="h-full w-full object-contain p-3" />
+                  <span className="absolute -right-3 top-1 rounded-2xl bg-[#fff] px-3 py-1.5 text-xs font-black shadow-md">Hello, Explorer! 👋</span>
+                </div>
+                <p className="mt-7 text-sm font-black tracking-wide text-[#102452]">Your language-learning sidekick</p>
+                <p className="mt-1 text-xs font-medium text-[#536384]">Meet Ace, your companion on the way.</p>
+              </div>
+              <Languages aria-hidden="true" className="absolute left-[13%] top-[14%] h-8 w-8 fill-[#FFD46E] text-[#E8AD4A]" />
+              <Languages aria-hidden="true" className="absolute bottom-[17%] right-[12%] h-9 w-9 text-[#A48DE2]" />
+            </div>
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#3867e8]">
-                Learning Experience
-              </p>
-
-              <h2 className="mt-4 max-w-[500px] text-[36px] font-black leading-tight tracking-[-0.035em] text-[#0a0a0b] sm:text-[44px]">
-                Language learning that feels like a journey.
-              </h2>
-
-              <p className="mt-6 max-w-[510px] text-[14px] leading-7 text-[#7e8490] [text-align:justify] [text-justify:inter-word]">
-                Learn through structured lessons, explore destinations and
-                cultures, customize your avatar, and earn rewards while you
-                progress.
-              </p>
-
-              <Link
-                href="/register"
-                className="group mt-8 inline-flex items-center gap-3 rounded-full bg-[#071a50] px-6 py-3 text-[13px] font-semibold text-white transition-all duration-300 hover:bg-[#102b72]"
-              >
-                Start Learning
-
-                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-              </Link>
-            </div>
-
-            {/* FEATURE CARDS */}
-
-            <div className="grid gap-5 sm:grid-cols-2">
-              <FeatureCard
-                icon={<BookOpen className="h-6 w-6" />}
-                title="Interactive Lessons"
-                text="Progress from beginner lessons to practical conversations."
-              />
-
-              <FeatureCard
-                icon={<Globe2 className="h-6 w-6" />}
-                title="World Exploration"
-                text="Discover destinations, culture, history, and useful trivia."
-              />
-
-              <FeatureCard
-                icon={<Trophy className="h-6 w-6" />}
-                title="Progress & Rewards"
-                text="Earn XP, coins, streaks, achievements, and exclusive items."
-              />
-
-              <FeatureCard
-                icon={<UserRound className="h-6 w-6" />}
-                title="Custom Avatar"
-                text="Create a character using outfits and accessories."
-              />
+              <SectionEyebrow>WHY WE CREATED ACELINGUA</SectionEyebrow>
+              <h2 className="mt-4 text-[clamp(2.2rem,4.2vw,3.9rem)] font-black leading-[1.12] tracking-[-.045em]">Big dreams start with small conversations.</h2>
+              <p className="mt-6 text-[15px] leading-[1.9] text-[#536384]">Our goal is to make language learning welcoming, accessible, and genuinely enjoyable. Instead of memorizing words alone, learners explore useful conversations and the cultures that give them meaning.</p>
+              <div className="mt-7 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-[22px] border border-white/85 bg-white/60 p-5 shadow-[0_8px_22px_rgba(16,36,82,.04)] backdrop-blur-md">
+                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[#E4F5FF] text-[#3558AE]"><Heart size={20} /></div>
+                  <h3 className="text-sm font-black">Our mission</h3>
+                  <p className="mt-2 text-[12px] leading-6 text-[#536384]">Build confidence with meaningful, everyday language practice.</p>
+                </div>
+                <div className="rounded-[22px] border border-white/85 bg-white/60 p-5 shadow-[0_8px_22px_rgba(16,36,82,.04)] backdrop-blur-md">
+                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[#F1E8FF] text-[#8064B8]"><Globe2 size={20} /></div>
+                  <h3 className="text-sm font-black">Our vision</h3>
+                  <p className="mt-2 text-[12px] leading-6 text-[#536384]">Connect people to more cultures, places, and possibilities.</p>
+                </div>
+              </div>
+              <p className="mt-6 text-xs font-semibold text-[#536384]/75">Platform: web-based language learning experience</p>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* =====================================================
-          FOOTER
-      ====================================================== */}
+        {/* HOW IT WORKS */}
+        <section id="how-it-works" className="relative px-5 py-20 sm:px-8 lg:px-14 lg:py-28">
+          <div className="mx-auto max-w-[1240px]">
+            <div className="mx-auto max-w-[680px] text-center">
+              <SectionEyebrow>THE LEARNING JOURNEY</SectionEyebrow>
+              <h2 className="mt-4 text-[clamp(2.2rem,4.5vw,3.8rem)] font-black leading-[1.15] tracking-[-.045em]">Five steps</h2>
+              <p className="mt-4 text-sm leading-7 text-[#536384] sm:text-base">A simple path from your first word to your next discovery.</p>
+            </div>
+            <div className="relative mt-14 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+              {flowSteps.map((step) => {
+                const Icon = step.icon;
+                return (
+                  <Link href="/register" key={step.n} aria-label={`${step.title}: create an account to begin`} className="group relative block overflow-hidden rounded-[26px] border border-white/85 bg-white/65 p-6 shadow-[0_10px_35px_rgba(16,36,82,.055)] backdrop-blur-lg transition-all duration-300 hover:-translate-y-2 hover:bg-white/85 hover:shadow-[0_22px_45px_rgba(16,36,82,.12)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#85D8FA]">
+                    <div className="flex items-center justify-between"><span className="text-[12px] font-black tracking-[.18em] text-[#536384]/55">{step.n}</span></div>
+                    <div className="mt-7 flex h-14 w-14 items-center justify-center rounded-[18px] text-[#3558AE] transition-transform duration-300 group-hover:rotate-[-7deg] group-hover:scale-110" style={{ backgroundColor: step.tint }}><Icon size={25} strokeWidth={2} /></div>
+                    <h3 className="mt-6 text-lg font-black">{step.title}</h3>
+                    <p className="mt-3 min-h-[75px] text-[13px] leading-[1.8] text-[#536384]">{step.text}</p>
+                    <div className="mt-5 flex items-center gap-2 text-[11px] font-bold text-[#3558AE]">Create an account <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" /></div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
 
-      <footer className="border-t border-[#eef0f4] bg-white px-6 py-8 md:px-10 lg:px-16">
-        <div className="mx-auto flex max-w-[var(--page-max-width)] flex-col items-center justify-between gap-5 text-center sm:flex-row sm:text-left">
-          <Logo
-            alt="ACELingua"
-            className="h-auto w-[145px] object-contain"
-          />
+        {/* THE PRODUCT */}
+        <section className="relative px-5 py-20 sm:px-8 lg:px-14 lg:py-28">
+          <div className="mx-auto max-w-[1240px]">
+            <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
+              <div className="max-w-[720px]">
+                <SectionEyebrow>THE ACELINGUA EXPERIENCE</SectionEyebrow>
+                <h2 className="mt-4 text-[clamp(2.2rem,4.5vw,3.8rem)] font-black leading-[1.12] tracking-[-.045em]">More than lessons. A whole new world.</h2>
+              </div>
+            </div>
+            <div className="mt-11 grid gap-5 sm:grid-cols-2">
+              {featureCards.map((feature) => {
+                const Icon = feature.icon;
+                return (
+                  <article key={feature.title} className="group relative min-h-[265px] overflow-hidden rounded-[30px] border border-white/80 bg-white/65 p-7 shadow-[0_14px_40px_rgba(16,36,82,.055)] backdrop-blur-lg transition-all duration-500 hover:-translate-y-1.5 hover:bg-white/90 hover:shadow-[0_25px_55px_rgba(16,36,82,.11)] sm:p-9">
+                    <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-20 h-52 w-52 rounded-full opacity-45 blur-2xl transition-transform duration-700 group-hover:scale-125" style={{ backgroundColor: feature.bg }} />
+                    <div aria-hidden="true" className="absolute right-8 top-8 text-5xl font-black opacity-20" style={{ color: feature.color }}>{feature.deco}</div>
+                    <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl" style={{ backgroundColor: feature.bg, color: feature.color }}><Icon size={27} strokeWidth={1.9} /></div>
+                    <p className="relative mt-6 text-[10px] font-black tracking-[.19em]" style={{ color: feature.color }}>{feature.overline}</p>
+                    <h3 className="relative mt-2 text-[22px] font-black tracking-tight">{feature.title}</h3>
+                    <p className="relative mt-3 max-w-[410px] text-[13px] leading-7 text-[#536384] sm:text-sm">{feature.description}</p>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
+        </section>
 
-          <p className="text-[11px] text-[#9ca1aa]">
-            © 2026 ACELingua. Learn languages. Explore the world.
-          </p>
-        </div>
-      </footer>
+        {/* LANGUAGES — aligned to landing gallery */}
+        <section className="relative px-5 py-20 sm:px-8 lg:px-14 lg:py-28">
+          <div className="mx-auto max-w-[1240px] rounded-[38px] border border-white/85 bg-white/40 px-5 py-12 shadow-[0_18px_55px_rgba(16,36,82,.06)] backdrop-blur-xl sm:px-10 lg:px-14 lg:py-16">
+            <div className="mx-auto max-w-[670px] text-center">
+              <SectionEyebrow>HELLO, WORLD</SectionEyebrow>
+              <h2 className="mt-4 text-[clamp(2.2rem,4.5vw,3.8rem)] font-black tracking-[-.045em]">So many ways to say hello.</h2>
+              <p className="mt-4 text-sm leading-7 text-[#536384]">Explore the languages and cultures featured on our journey.</p>
+            </div>
+            <div className="mt-11 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
+              {languages.map((language) => (
+                <div key={language.name} className="group flex flex-col items-center rounded-[23px] border border-white/90 bg-white/70 px-3 py-5 text-center shadow-[0_8px_24px_rgba(16,36,82,.05)] transition-all duration-300 hover:-translate-y-2 hover:bg-white hover:shadow-[0_18px_35px_rgba(16,36,82,.12)]">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full border border-white/80 text-[34px] shadow-[0_5px_18px_rgba(16,36,82,.07)]" style={{ backgroundColor: language.tint }}><span role="img" aria-label={`${language.name} flag`}>{language.flag}</span></div>
+                  <h3 className="mt-4 text-[13px] font-black">{language.name}</h3>
+                  <p className="mt-1 text-[10px] font-semibold text-[#536384]">{language.native}</p>
+                  <p className="mt-3 text-[10px] font-bold text-[#3558AE]">{language.hello}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <footer className="border-t border-white/65 bg-white/25 px-5 py-8 backdrop-blur-md sm:px-8 lg:px-14">
+          <div className="mx-auto flex max-w-[1240px] flex-col items-center justify-between gap-5 sm:flex-row">
+            <Link href="/" aria-label="ACELingua home"><Logo alt="ACELingua" className="h-auto w-[150px] object-contain" /></Link>
+            <p className="text-center text-[11px] font-medium text-[#536384]">© 2026 ACELingua · Learn languages. Explore the world.</p>
+            <div className="flex items-center gap-5 text-[12px] font-bold text-[#536384]"><Link href="/" className="transition hover:text-[#3558AE]">Home</Link><Link href="/languages" className="transition hover:text-[#3558AE]">Languages</Link><Link href="/login" className="transition hover:text-[#3558AE]">Log in</Link></div>
+          </div>
+        </footer>
+      </div>
+
+      <style jsx global>{`
+        .acel-about { background: linear-gradient(124deg,#f9f2ff 0%,#e6f7ff 29%,#eeeafd 61%,#fff0e9 100%); background-size: 220% 220%; animation: acel-about-background 24s ease-in-out infinite alternate; }
+        .acel-about-dot-pattern { background-image: radial-gradient(rgba(87,105,168,.13) 1px, transparent 1px); background-size: 26px 26px; mask-image: linear-gradient(to bottom,transparent,black 12%,black 80%,transparent); }
+        .acel-about-reveal { animation: acel-about-rise .8s both cubic-bezier(.2,.8,.2,1); }
+        .acel-about-float-slow { animation: acel-about-bob 8s -1s ease-in-out infinite; }
+        .acel-about-aurora-one { animation: acel-about-drift 16s ease-in-out infinite alternate; }
+        .acel-about-aurora-two { animation: acel-about-drift 21s -7s ease-in-out infinite alternate-reverse; }
+        .acel-about-aurora-three { animation: acel-about-drift 18s -5s ease-in-out infinite alternate; }
+        .acel-about-cloud-one { animation: acel-about-bob 10s ease-in-out infinite; }
+        .acel-about-cloud-two { animation: acel-about-bob 13s -4s ease-in-out infinite alternate-reverse; }
+        .acel-about-cloud-three { animation: acel-about-bob 11s -2s ease-in-out infinite; }
+        @keyframes acel-about-background { from { background-position: 0% 30%; } to { background-position: 100% 70%; } }
+        @keyframes acel-about-rise { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes acel-about-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-13px); } }
+        @keyframes acel-about-drift { from { transform:translate3d(-16px,10px,0) scale(1); } to { transform:translate3d(24px,-18px,0) scale(1.08); } }
+        @media(prefers-reduced-motion:reduce) { .acel-about,.acel-about-reveal,.acel-about-float-slow,.acel-about-aurora-one,.acel-about-aurora-two,.acel-about-aurora-three,.acel-about-cloud-one,.acel-about-cloud-two,.acel-about-cloud-three { animation:none!important; } .acel-about * { scroll-behavior:auto!important; } }
+      `}</style>
     </main>
   );
 }
 
-/* =========================================================
-   FLOATING ACE CHATBOT
-========================================================= */
+function AboutHeader() {
+  return (
+    <header className="relative z-40 w-full border-b border-white/35 bg-white/10 backdrop-blur-[10px]">
+      <div className="mx-auto flex min-h-[88px] w-full max-w-[1380px] flex-wrap items-center justify-between gap-x-5 gap-y-3 px-5 py-3 sm:px-8 lg:px-14">
+        <Link href="/" className="flex shrink-0 items-center" aria-label="ACELingua home"><Logo alt="ACELingua" priority className="h-auto w-[165px] object-contain sm:w-[200px]" /></Link>
+        <nav aria-label="Public navigation" className="order-3 flex w-full items-center justify-center gap-3 text-[12px] font-bold text-[#536384] sm:order-none sm:w-auto sm:gap-7 sm:text-sm">
+        </nav>
+        <Link href="/login" className="group relative isolate inline-flex h-11 shrink-0 items-center justify-center rounded-[14px] bg-[#102452] px-5 text-[13px] font-black text-white shadow-[0_8px_20px_rgba(16,36,82,.17)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#3558AE] hover:shadow-[0_12px_26px_rgba(53,88,174,.25)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#85D8FA]/60">Log In <ArrowRight size={14} className="ml-2 transition-transform group-hover:translate-x-1" /></Link>
+      </div>
+    </header>
+  );
+}
 
+function AboutAtmosphere() {
+  return (
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+      <div className="acel-about-dot-pattern absolute inset-0 opacity-55" />
+      <div className="acel-about-aurora-one absolute -left-44 top-10 h-[600px] w-[600px] rounded-full bg-[#CDB8FF]/30 blur-[85px]" />
+      <div className="acel-about-aurora-two absolute -right-40 top-32 h-[580px] w-[580px] rounded-full bg-[#78D6FF]/36 blur-[85px]" />
+      <div className="acel-about-aurora-three absolute left-[29%] top-[670px] h-[520px] w-[560px] rounded-full bg-[#FFC3CD]/27 blur-[95px]" />
+      <Cloud className="acel-about-cloud-one absolute left-[5%] top-[4%] h-16 w-20 text-[#fff]/50 sm:h-20 sm:w-28" strokeWidth={1.25} />
+      <Cloud className="acel-about-cloud-two absolute right-[8%] top-[9%] h-16 w-24 text-[#69ceff]/50 sm:h-24 sm:w-32" strokeWidth={1.25} />
+      <Cloud className="acel-about-cloud-three absolute left-[6%] top-[36%] h-16 w-24 text-white/55" strokeWidth={1.25} />
+      <Cloud className="acel-about-cloud-two absolute right-[5%] top-[63%] h-20 w-28 text-white/60" strokeWidth={1.25} />
+      <Cloud className="absolute left-[17%] top-[12%] h-6 w-6 fill-[#fff]/50 text-[#69ceff]/50" />
+    </div>
+  );
+}
+
+function SectionEyebrow({ children }: { children: ReactNode }) {
+  return <p className="inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[.2em] text-[#3558AE]"><BookOpen size={13} className="text-[#00008B]" /> {children}</p>;
+}
+
+function AppPhonePreview() {
+  return (
+    <div className="acel-about-float-slow relative z-10 w-[265px] rounded-[43px] bg-[#142044] p-[8px] shadow-[0_35px_85px_rgba(16,36,82,.22)] sm:w-[310px]">
+      <div className="absolute -left-[3px] top-[95px] h-10 w-[4px] rounded-l-lg bg-[#142044]" /><div className="absolute -right-[3px] top-[145px] h-16 w-[4px] rounded-r-lg bg-[#142044]" />
+      <div className="relative overflow-hidden rounded-[36px] bg-[#FBFCFF]">
+        <div className="relative flex h-10 items-center justify-between px-6 pt-2 text-[9px] font-black text-[#102452]"><span>9:41</span><div className="absolute left-1/2 top-[8px] h-[21px] w-[77px] -translate-x-1/2 rounded-full bg-[#142044]" /><span>● ◕</span></div>
+        <div className="px-5 pb-5 pt-3">
+          <div className="flex items-start justify-between"><div><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#102452] text-white"><Languages size={18} /></div><p className="mt-3 text-[10px] font-bold text-[#7986A2]">Good morning, explorer!</p><h3 className="mt-1 text-[19px] font-black leading-[1.1] tracking-tight text-[#102452]">Let's learn<br/>together!</h3></div><div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-[#E9EDFF]"><Image src="/icon head.png" alt="" width={32} height={32} className="h-full w-full object-contain" /></div></div>
+          <div className="mt-5 rounded-[19px] bg-[#E8F2FF] p-4"><div className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[24px]">🇯🇵</span><div className="min-w-0 flex-1"><p className="text-[11px] font-black text-[#102452]">Continue Japanese</p><p className="mt-1 text-[8px] font-medium text-[#536384]">Greetings & Basics</p></div><span className="rounded-full bg-white px-2 py-1 text-[8px] font-bold text-[#3558AE]">5/10</span></div><div className="mt-4 h-[6px] overflow-hidden rounded-full bg-white"><div className="h-full w-[55%] rounded-full bg-gradient-to-r from-[#85D8FA] to-[#3558AE]" /></div></div>
+          <div className="mt-5 flex items-center justify-between"><p className="text-[11px] font-black">Explore languages</p><span className="text-[8px] font-bold text-[#3558AE]">See all →</span></div><div className="mt-3 grid grid-cols-4 gap-2">{languages.slice(0,4).map(l=><div key={l.name} className="rounded-xl bg-[#F0F4FA] px-1 py-2 text-center"><span className="text-xl">{l.flag}</span><p className="mt-1 text-[7px] font-bold text-[#536384]">{l.name}</p></div>)}</div>
+          <p className="mt-5 text-[11px] font-black">Today's lesson</p><div className="mt-3 flex items-center gap-3 rounded-[17px] border border-[#E9EEFA] bg-white p-2.5"><div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F0EFFF] text-[#8064B8]"><BookOpen size={19} /></div><div className="min-w-0 flex-1"><p className="text-[9px] font-black">Say hello!</p><p className="mt-1 text-[8px] text-[#8C97AC]">Vocabulary & greetings</p></div><ChevronRight size={14} className="text-[#3558AE]" /></div>
+          <div className="mt-5 flex items-center justify-around border-t border-[#E8EDF5] pt-4"><PhoneTab icon={<Globe2 size={16}/>} label="World"/><PhoneTab icon={<BookOpen size={16}/>} label="Learn" active/><PhoneTab icon={<Flame size={16}/>} label="Streak"/><PhoneTab icon={<UserRound size={16}/>} label="Avatar"/></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PhoneTab({ icon, label, active=false }: {icon: ReactNode; label: string; active?: boolean}) {
+  return <div className={`flex flex-col items-center gap-1 ${active ? "text-[#3558AE]" : "text-[#A2AABD]"}`}>{icon}<span className="text-[7px] font-bold">{label}</span></div>;
+}
+
+// Keep the same Ace assistant functionality and styling as the landing page.
 function FloatingChatbot() {
+
   const [open, setOpen] = useState(false);
 
   const [messages, setMessages] = useState<ChatMessage[]>([
+
     {
+
       id: 1,
+
       sender: "bot",
-      text: "Hi! I'm Ace. 👋 How can I help you with ACELingua today?",
+
+      text: "Hi! I'm Ace 👋 How can I help you with ACELingua today?",
+
     },
+
   ]);
 
   const [input, setInput] = useState("");
@@ -623,96 +329,170 @@ function FloatingChatbot() {
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  /* AUTO SCROLL */
-
   useEffect(() => {
-    if (open) {
-      messagesEndRef.current?.scrollIntoView({
-        behavior: "smooth",
-      });
-    }
+
+    if (!open) return;
+
+    messagesEndRef.current?.scrollIntoView({
+
+      behavior: "smooth",
+
+    });
+
   }, [messages, isTyping, open]);
 
-  /* =======================================================
-     AUTO ANSWER
-  ======================================================== */
-
   function getAutoAnswer(question: string) {
+
     const normalized = question.toLowerCase();
 
     if (
+
       normalized.includes("what is acelingua") ||
-      normalized.includes("about acelingua")
+
+      normalized.includes("about acelingua") ||
+
+      normalized.includes("acelingua")
+
     ) {
+
       return chatbotQuestions[0].answer;
+
     }
 
     if (
+
       normalized.includes("language") ||
+
       normalized.includes("japanese") ||
+
       normalized.includes("korean") ||
+
+      normalized.includes("mandarin") ||
+
       normalized.includes("spanish") ||
+
+      normalized.includes("german") ||
+
+      normalized.includes("thai") ||
+
       normalized.includes("french")
+
     ) {
+
       return chatbotQuestions[1].answer;
+
     }
 
     if (
-      normalized.includes("lesson") ||
-      normalized.includes("course") ||
-      normalized.includes("study")
-    ) {
-      return chatbotQuestions[2].answer;
-    }
 
-    if (
       normalized.includes("start") ||
+
       normalized.includes("register") ||
+
       normalized.includes("account") ||
+
       normalized.includes("sign up")
+
     ) {
+
+      return chatbotQuestions[2].answer;
+
+    }
+
+    if (
+
+      normalized.includes("lesson") ||
+
+      normalized.includes("course") ||
+
+      normalized.includes("study") ||
+
+      normalized.includes("learn")
+
+    ) {
+
       return chatbotQuestions[3].answer;
+
     }
 
     if (
+
       normalized.includes("xp") ||
+
       normalized.includes("coin") ||
-      normalized.includes("reward")
+
+      normalized.includes("reward") ||
+
+      normalized.includes("achievement")
+
     ) {
+
       return chatbotQuestions[4].answer;
+
     }
 
     if (
+
       normalized.includes("avatar") ||
+
       normalized.includes("outfit") ||
+
       normalized.includes("hair") ||
+
+      normalized.includes("accessory") ||
+
       normalized.includes("custom")
+
     ) {
+
       return chatbotQuestions[5].answer;
+
     }
 
-    return (
-      "I can help you with ACELingua languages, lessons, registration, " +
-      "XP, coins, rewards, and avatar customization. You can also try one " +
-      "of the suggested questions below."
-    );
+    if (
+
+      normalized.includes("hello") ||
+
+      normalized.includes("hi") ||
+
+      normalized.includes("hey")
+
+    ) {
+
+      return "Hi! 👋 I'm Ace. Ask me anything about ACELingua, available languages, lessons, rewards, or getting started.";
+
+    }
+
+    if (
+
+      normalized.includes("thank") ||
+
+      normalized.includes("thanks")
+
+    ) {
+
+      return "You're welcome! I'm happy to help. 😊";
+
+    }
+
+    return "I can help you with ACELingua, available languages, lessons, registration, XP, coins, rewards, and avatar customization. Try one of the quick questions below.";
+
   }
 
-  /* =======================================================
-     SEND MESSAGE
-  ======================================================== */
-
   function sendMessage(question: string) {
+
     const cleanedQuestion = question.trim();
 
-    if (!cleanedQuestion || isTyping) {
-      return;
-    }
+    if (!cleanedQuestion || isTyping) return;
 
     const userMessage: ChatMessage = {
+
       id: Date.now(),
+
       sender: "user",
+
       text: cleanedQuestion,
+
     };
 
     setMessages((current) => [...current, userMessage]);
@@ -722,935 +502,643 @@ function FloatingChatbot() {
     setIsTyping(true);
 
     const exactAnswer = chatbotQuestions.find(
+
       (item) =>
+
         item.question.toLowerCase() === cleanedQuestion.toLowerCase(),
+
     )?.answer;
 
     window.setTimeout(() => {
+
       const botMessage: ChatMessage = {
+
         id: Date.now() + 1,
+
         sender: "bot",
+
         text: exactAnswer ?? getAutoAnswer(cleanedQuestion),
+
       };
 
       setMessages((current) => [...current, botMessage]);
 
       setIsTyping(false);
+
     }, 650);
+
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
+
     event.preventDefault();
 
     sendMessage(input);
+
   }
 
   return (
+
     <>
-      {/* =====================================================
-          CHAT WINDOW
-      ====================================================== */}
 
       <div
+
         className={`
+
           fixed
-          bottom-[105px]
-          right-5
+
+          bottom-[6.5625rem]
+
+          right-4
+
           z-[80]
-          w-[calc(100%-40px)]
-          max-w-[365px]
+
+          w-[calc(100%-32px)]
+
+          max-w-[22.8125rem]
+
           origin-bottom-right
+
           overflow-hidden
+
           rounded-[26px]
+
           border
-          border-[#e8ecf4]
+
+          border-[#3558AE]/10
+
           bg-white
-          shadow-[0_25px_80px_rgba(7,26,80,0.18)]
+
+          shadow-[0_25px_80px_rgba(7,26,74,0.20)]
 
           transition-all
+
           duration-300
+
           ease-out
 
           sm:right-7
 
           ${
-            open
-              ? "pointer-events-auto translate-y-0 scale-100 opacity-100"
-              : "pointer-events-none translate-y-5 scale-95 opacity-0"
-          }
-        `}
-      >
-        {/* CHAT HEADER */}
 
-        <div className="flex items-center justify-between bg-[#071a50] px-5 py-4">
+            open
+
+              ? "pointer-events-auto translate-y-0 scale-100 opacity-100"
+
+              : "pointer-events-none translate-y-5 scale-95 opacity-0"
+
+          }
+
+        `}
+
+      >
+
+        <div className="flex items-center justify-between bg-[#071A4A] px-5 py-4">
+
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-white">
+
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#EAF5FF]">
+
               <Image
-                src="/icons/ace-chatbot.png"
+
+                src="/icon head.png"
+
                 alt="Ace"
+
                 width={44}
+
                 height={44}
+
                 className="h-full w-full object-contain p-1"
+
               />
+
             </div>
 
             <div>
+
               <div className="flex items-center gap-2">
-                <p className="text-[14px] font-bold text-white">
+
+                <p className="text-sm font-bold text-white">
+
                   Ace
+
                 </p>
 
-                <span className="h-2 w-2 rounded-full bg-[#63e698]" />
+                <span className="h-2 w-2 rounded-full bg-[#62DD92]" />
+
               </div>
 
-              <p className="text-[10px] text-white/60">
+              <p className="text-[0.625rem] text-white/60">
+
                 ACELingua Assistant
+
               </p>
+
             </div>
+
           </div>
 
           <button
+
             type="button"
+
             onClick={() => setOpen(false)}
+
             aria-label="Close chatbot"
-            className="
-              flex
-              h-9
-              w-9
-              items-center
-              justify-center
-              rounded-full
-              text-white/70
 
-              transition-all
-              duration-200
+            className="flex h-9 w-9 items-center justify-center rounded-full text-white/70 transition-all duration-200 hover:rotate-90 hover:bg-white/10 hover:text-white"
 
-              hover:rotate-90
-              hover:bg-white/10
-              hover:text-white
-            "
           >
+
             <CloseIcon className="h-4 w-4" />
+
           </button>
+
         </div>
 
-        {/* =================================================
-            CHAT MESSAGES
-        ================================================== */}
+        <div className="max-h-[18.75rem] min-h-[260px] space-y-4 overflow-y-auto bg-[#F8FBFF] px-4 py-5">
 
-        <div className="max-h-[315px] min-h-[270px] space-y-4 overflow-y-auto bg-[#fbfcff] px-4 py-5">
           {messages.map((message) => (
+
             <div
+
               key={message.id}
+
               className={`flex ${
+
                 message.sender === "user"
+
                   ? "justify-end"
+
                   : "justify-start"
+
               }`}
+
             >
-              {/* BOT ICON */}
 
               {message.sender === "bot" && (
-                <div className="mr-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#e6eaf3] bg-white">
+
+                <div className="mr-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#3558AE]/10 bg-white">
+
                   <Image
-                    src="/icons/ace-chatbot.png"
+
+                    src="/icon head.png"
+
                     alt="Ace"
-                    width={26}
-                    height={26}
-                    className="h-full w-full object-contain p-1"
+
+                    width={27}
+
+                    height={27}
+
+                    className="h-full w-full object-contain p-0.5"
+
                   />
+
                 </div>
+
               )}
 
-              {/* MESSAGE */}
-
               <div
+
                 className={`
+
                   max-w-[78%]
+
                   px-4
+
                   py-3
-                  text-[12px]
+
+                  text-left
+
+                  text-[0.75rem]
+
                   leading-5
 
                   ${
+
                     message.sender === "user"
-                      ? "rounded-[18px] rounded-br-[5px] bg-[#3867e8] text-white"
-                      : "rounded-[18px] rounded-bl-[5px] border border-[#edf0f5] bg-white text-[#656c79] shadow-[0_4px_14px_rgba(20,40,90,0.035)]"
+
+                      ? "rounded-[18px] rounded-br-[5px] bg-[#3558AE] text-white"
+
+                      : "rounded-[18px] rounded-bl-[5px] border border-[#071A4A]/5 bg-white text-[#071A4A]/70 shadow-[0_4px_14px_rgba(7,26,74,0.04)]"
+
                   }
+
                 `}
+
               >
+
                 {message.text}
+
               </div>
+
             </div>
+
           ))}
 
-          {/* TYPING */}
-
           {isTyping && (
+
             <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full border border-[#e6eaf3] bg-white">
+
+              <div className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full border border-[#3558AE]/10 bg-white">
+
                 <Image
-                  src="/icons/ace-chatbot.png"
+
+                  src="/icon head.png"
+
                   alt="Ace"
-                  width={26}
-                  height={26}
-                  className="h-full w-full object-contain p-1"
+
+                  width={27}
+
+                  height={27}
+
+                  className="h-full w-full object-contain p-0.5"
+
                 />
+
               </div>
 
-              <div className="flex items-center gap-1 rounded-[16px] rounded-bl-[5px] border border-[#edf0f5] bg-white px-4 py-3">
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#9ba2af] [animation-delay:-0.3s]" />
+              <div className="flex items-center gap-1 rounded-[16px] rounded-bl-[5px] border border-[#071A4A]/5 bg-white px-4 py-3">
 
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#9ba2af] [animation-delay:-0.15s]" />
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#071A4A]/35 [animation-delay:-0.3s]" />
 
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#9ba2af]" />
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#071A4A]/35 [animation-delay:-0.15s]" />
+
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#071A4A]/35" />
+
               </div>
+
             </div>
+
           )}
 
           <div ref={messagesEndRef} />
+
         </div>
 
-        {/* =================================================
-            QUICK QUESTIONS
-        ================================================== */}
+        <div className="border-t border-[#071A4A]/5 bg-white px-4 py-3">
 
-        <div className="border-t border-[#eef0f5] bg-white px-4 py-3">
-          <p className="mb-2 text-[9px] font-semibold uppercase tracking-[0.12em] text-[#a0a6b1]">
-            Quick Questions
+          <p className="mb-2 text-left text-[0.5625rem] font-bold uppercase tracking-[0.15em] text-[#071A4A]/35">
+
+            Quick questions
+
           </p>
 
           <div className="flex gap-2 overflow-x-auto pb-1">
+
             {chatbotQuestions.slice(0, 4).map((item) => (
+
               <button
+
                 key={item.question}
+
                 type="button"
+
                 disabled={isTyping}
+
                 onClick={() => sendMessage(item.question)}
+
                 className="
+
                   shrink-0
+
                   rounded-full
+
                   border
-                  border-[#dfe6fa]
-                  bg-[#f5f8ff]
+
+                  border-[#3558AE]/15
+
+                  bg-[#EAF5FF]
+
                   px-3
+
                   py-2
-                  text-[10px]
-                  font-medium
-                  text-[#3867e8]
+
+                  text-[0.625rem]
+
+                  font-semibold
+
+                  text-[#3558AE]
 
                   transition-all
+
                   duration-200
 
-                  hover:border-[#3867e8]
-                  hover:bg-[#3867e8]
+                  hover:-translate-y-0.5
+
+                  hover:border-[#3558AE]
+
+                  hover:bg-[#3558AE]
+
                   hover:text-white
 
                   disabled:cursor-not-allowed
+
                   disabled:opacity-50
+
                 "
+
               >
+
                 {item.question}
+
               </button>
+
             ))}
+
           </div>
+
         </div>
 
-        {/* =================================================
-            INPUT
-        ================================================== */}
-
         <form
+
           onSubmit={handleSubmit}
-          className="flex items-center gap-2 border-t border-[#eef0f5] bg-white p-3"
+
+          className="flex items-center gap-2 border-t border-[#071A4A]/5 bg-white p-3"
+
         >
+
           <input
+
             type="text"
+
             value={input}
+
             disabled={isTyping}
+
             onChange={(event) => setInput(event.target.value)}
+
             placeholder="Ask Ace something..."
+
             className="
+
               min-w-0
+
               flex-1
+
               rounded-full
+
               border
-              border-[#e2e6ee]
-              bg-[#f8f9fb]
+
+              border-[#071A4A]/10
+
+              bg-[#F7FAFD]
+
               px-4
+
               py-2.5
-              text-[12px]
-              text-[#303746]
+
+              text-[0.75rem]
+
+              text-[#071A4A]
+
               outline-none
 
               transition-all
+
               duration-200
 
-              placeholder:text-[#a7acb5]
+              placeholder:text-[#071A4A]/35
 
-              focus:border-[#9db3f1]
+              focus:border-[#3558AE]/40
+
               focus:bg-white
+
               focus:ring-2
-              focus:ring-[#3867e8]/10
+
+              focus:ring-[#3558AE]/10
+
             "
+
           />
 
           <button
+
             type="submit"
+
             disabled={!input.trim() || isTyping}
+
             aria-label="Send message"
+
             className="
+
               flex
+
               h-10
+
               w-10
+
               shrink-0
+
               items-center
+
               justify-center
+
               rounded-full
-              bg-[#071a50]
+
+              bg-[#071A4A]
+
               text-white
 
               transition-all
+
               duration-200
 
               hover:scale-105
-              hover:bg-[#3867e8]
+
+              hover:bg-[#3558AE]
 
               disabled:cursor-not-allowed
+
               disabled:opacity-40
+
             "
+
           >
+
             <Send className="h-4 w-4" />
+
           </button>
+
         </form>
+
       </div>
 
-      {/* =====================================================
-          FLOATING ACE BUTTON
-      ====================================================== */}
-
       <button
+
         type="button"
+
         onClick={() => setOpen((current) => !current)}
+
         aria-label={open ? "Close Ace chatbot" : "Open Ace chatbot"}
+
         className="
+
           group
+
           fixed
-          bottom-6
-          right-5
+
+          bottom-5
+
+          right-4
+
           z-[81]
+
           flex
-          h-[68px]
-          w-[68px]
+
+          h-[4.25rem]
+
+          w-[4.25rem]
+
           items-center
+
           justify-center
+
           rounded-full
+
           border
-          border-[#dfe5f1]
+
+          border-[#3558AE]/15
+
           bg-white
-          shadow-[0_12px_40px_rgba(7,26,80,0.18)]
+
+          shadow-[0_12px_40px_rgba(7,26,74,0.18)]
 
           transition-all
+
           duration-300
+
           ease-out
 
           hover:-translate-y-1
+
           hover:scale-105
-          hover:shadow-[0_18px_48px_rgba(7,26,80,0.24)]
+
+          hover:shadow-[0_18px_48px_rgba(7,26,74,0.24)]
 
           sm:right-7
+
         "
+
       >
-        {/* PULSE */}
 
         {!open && (
-          <span className="absolute inset-0 animate-ping rounded-full border border-[#3867e8]/25" />
+
+          <span className="absolute inset-0 animate-ping rounded-full border border-[#3558AE]/20" />
+
         )}
 
-        {/* ACE */}
-
         <div
+
           className={`
+
             relative
+
             z-10
+
             flex
-            h-[56px]
-            w-[56px]
+
+            h-[3.5625rem]
+
+            w-[3.5625rem]
+
             items-center
+
             justify-center
+
             overflow-hidden
+
             rounded-full
-            bg-[#f2f5ff]
+
+            bg-[#EAF5FF]
 
             transition-all
+
             duration-300
 
             group-hover:-rotate-6
+
             group-hover:scale-105
 
             ${
+
               open
+
                 ? "scale-75 opacity-0"
+
                 : "scale-100 opacity-100"
+
             }
+
           `}
+
         >
+
           <Image
-            src="/icons/ace-chatbot.png"
+
+            src="/icon head.png"
+
             alt="Chat with Ace"
-            width={56}
-            height={56}
-            priority
-            className="h-full w-full object-contain p-1.5"
+
+            width={57}
+
+            height={57}
+
+            className="h-full w-full object-contain p-1"
+
           />
+
         </div>
 
-        {/* CLOSE */}
-
         <div
+
           className={`
+
             absolute
+
             inset-0
+
             flex
+
             items-center
+
             justify-center
-            text-[#071a50]
+
+            text-[#071A4A]
 
             transition-all
+
             duration-300
 
             ${
-              open
-                ? "rotate-0 scale-100 opacity-100"
-                : "rotate-90 scale-75 opacity-0"
-            }
-          `}
-        >
-          <CloseIcon className="h-6 w-6" />
-        </div>
 
-        {/* ONLINE */}
+              open
+
+                ? "rotate-0 scale-100 opacity-100"
+
+                : "rotate-90 scale-75 opacity-0"
+
+            }
+
+          `}
+
+        >
+
+          <CloseIcon className="h-6 w-6" />
+
+        </div>
 
         {!open && (
-          <span className="absolute bottom-[5px] right-[4px] z-20 h-4 w-4 rounded-full border-[3px] border-white bg-[#52d987]" />
+
+          <span className="absolute bottom-[5px] right-[4px] z-20 h-4 w-4 rounded-full border-[3px] border-white bg-[#56D88A]" />
+
         )}
+
       </button>
+
     </>
+
   );
-}
 
-/* =========================================================
-   SOCIAL SIDEBAR
-========================================================= */
-
-function SocialSidebar() {
-  return (
-    <aside className="fixed right-0 top-1/2 z-50 hidden -translate-y-1/2 flex-col gap-2 lg:flex">
-      <SocialLink
-        href="#"
-        label="Facebook"
-        icon={<FacebookLogo />}
-      />
-
-      <SocialLink
-        href="#"
-        label="Instagram"
-        icon={<InstagramLogo />}
-      />
-
-      <SocialLink
-        href="#"
-        label="X"
-        icon={<XLogo />}
-      />
-    </aside>
-  );
-}
-
-/* =========================================================
-   SOCIAL LINK
-========================================================= */
-
-function SocialLink({
-  href,
-  label,
-  icon,
-}: {
-  href: string;
-  label: string;
-  icon: ReactNode;
-}) {
-  function handleClick(event: React.MouseEvent<HTMLAnchorElement>) {
-    if (href === "#") {
-      event.preventDefault();
-    }
-  }
-
-  return (
-    <a
-      href={href}
-      onClick={handleClick}
-      aria-label={label}
-      target={href === "#" ? undefined : "_blank"}
-      rel={href === "#" ? undefined : "noopener noreferrer"}
-      className="
-        group
-        flex
-        h-12
-        w-12
-        items-center
-        overflow-hidden
-        rounded-l-[14px]
-        border
-        border-r-0
-        border-[#e6eaf1]
-        bg-white
-        text-[#071a50]
-        shadow-[0_7px_25px_rgba(15,27,69,0.07)]
-
-        transition-all
-        duration-300
-        ease-out
-
-        hover:w-[140px]
-        hover:-translate-x-1
-        hover:border-[#d4def8]
-        hover:bg-[#071a50]
-        hover:text-white
-        hover:shadow-[0_12px_30px_rgba(7,26,80,0.16)]
-      "
-    >
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center transition-transform duration-300 group-hover:scale-110">
-        {icon}
-      </div>
-
-      <span
-        className="
-          -translate-x-2
-          whitespace-nowrap
-          pr-5
-          text-[12px]
-          font-semibold
-          opacity-0
-
-          transition-all
-          delay-75
-          duration-300
-
-          group-hover:translate-x-0
-          group-hover:opacity-100
-        "
-      >
-        {label}
-      </span>
-    </a>
-  );
-}
-
-/* =========================================================
-   FACEBOOK
-========================================================= */
-
-function FacebookLogo() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      className="h-[19px] w-[19px]"
-      fill="currentColor"
-    >
-      <path d="M13.5 22V13.2H16.5L16.95 9.75H13.5V7.55C13.5 6.55 13.78 5.87 15.23 5.87H17.08V2.79C16.76 2.75 15.66 2.65 14.38 2.65C11.71 2.65 9.88 4.28 9.88 7.28V9.75H6.86V13.2H9.88V22H13.5Z" />
-    </svg>
-  );
-}
-
-/* =========================================================
-   INSTAGRAM
-========================================================= */
-
-function InstagramLogo() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      className="h-[19px] w-[19px]"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect
-        x="3"
-        y="3"
-        width="18"
-        height="18"
-        rx="5"
-        ry="5"
-      />
-
-      <circle cx="12" cy="12" r="4" />
-
-      <circle
-        cx="17.5"
-        cy="6.5"
-        r="1"
-        fill="currentColor"
-        stroke="none"
-      />
-    </svg>
-  );
-}
-
-/* =========================================================
-   X LOGO
-========================================================= */
-
-function XLogo() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      className="h-[17px] w-[17px]"
-      fill="currentColor"
-    >
-      <path d="M18.244 2H21.552L14.325 10.26L22.827 22H16.17L10.956 15.183L4.99 22H1.68L9.414 13.165L1.254 2H8.08L12.793 8.231L18.244 2ZM17.083 19.932H18.916L7.084 3.96H5.117L17.083 19.932Z" />
-    </svg>
-  );
-}
-
-/* =========================================================
-   PHONE NAV
-========================================================= */
-
-function PhoneNav({
-  icon,
-  label,
-  active = false,
-}: {
-  icon: ReactNode;
-  label: string;
-  active?: boolean;
-}) {
-  return (
-    <div
-      className={`text-center ${
-        active ? "text-[#3867e8]" : "text-[#979ca7]"
-      }`}
-    >
-      <div className="mx-auto flex h-5 w-5 items-center justify-center">
-        {icon}
-      </div>
-
-      <p className="mt-1 text-[7px] font-medium">{label}</p>
-    </div>
-  );
-}
-
-/* =========================================================
-   FEATURE CARD
-========================================================= */
-
-function FeatureCard({
-  icon,
-  title,
-  text,
-}: {
-  icon: ReactNode;
-  title: string;
-  text: string;
-}) {
-  return (
-    <div
-      tabIndex={0}
-      className="
-        group
-        relative
-        h-[225px]
-        cursor-pointer
-        overflow-hidden
-        rounded-[24px]
-        border
-        border-[#e8ecf3]
-        bg-white
-        outline-none
-        shadow-[0_8px_25px_rgba(30,50,110,0.035)]
-
-        transition-all
-        duration-500
-        ease-[cubic-bezier(0.4,0,0.2,1)]
-
-        hover:-translate-y-2
-        hover:scale-[1.03]
-        hover:border-[#d4def8]
-        hover:bg-[#071a50]
-        hover:shadow-[0_25px_55px_rgba(7,26,80,0.18)]
-
-        focus:-translate-y-2
-        focus:scale-[1.03]
-        focus:bg-[#071a50]
-      "
-    >
-      {/* GLOW */}
-
-      <div
-        className="
-          pointer-events-none
-          absolute
-          -right-16
-          -top-16
-          h-36
-          w-36
-          scale-50
-          rounded-full
-          bg-[#3867e8]/20
-          opacity-0
-          blur-3xl
-          transition-all
-          duration-700
-
-          group-hover:scale-125
-          group-hover:opacity-100
-        "
-      />
-
-      {/* FIRST */}
-
-      <div
-        className="
-          absolute
-          inset-0
-          flex
-          flex-col
-          items-center
-          justify-center
-          px-6
-          text-center
-          opacity-100
-
-          transition-all
-          duration-500
-
-          group-hover:-translate-y-8
-          group-hover:scale-[0.92]
-          group-hover:opacity-0
-
-          group-focus:-translate-y-8
-          group-focus:scale-[0.92]
-          group-focus:opacity-0
-        "
-      >
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#edf2ff] text-[#3867e8]">
-          {icon}
-        </div>
-
-        <h3 className="mt-6 text-[17px] font-bold text-[#151d3c]">
-          {title}
-        </h3>
-
-        <div className="mt-3 flex items-center gap-2">
-          <span className="h-px w-4 bg-[#cbd2df]" />
-
-          <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#adb2bd]">
-            Hover to explore
-          </p>
-
-          <span className="h-px w-4 bg-[#cbd2df]" />
-        </div>
-      </div>
-
-      {/* SECOND */}
-
-      <div
-        className="
-          absolute
-          inset-0
-          flex
-          translate-y-10
-          rotate-[7deg]
-          scale-[0.88]
-          flex-col
-          items-center
-          justify-center
-          px-7
-          text-center
-          opacity-0
-
-          transition-all
-          duration-500
-          ease-[cubic-bezier(0.34,1.56,0.64,1)]
-
-          group-hover:translate-y-0
-          group-hover:rotate-0
-          group-hover:scale-100
-          group-hover:opacity-100
-
-          group-focus:translate-y-0
-          group-focus:rotate-0
-          group-focus:scale-100
-          group-focus:opacity-100
-        "
-      >
-        <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white">
-          {icon}
-        </div>
-
-        <h3 className="mt-5 text-[18px] font-bold text-white">
-          {title}
-        </h3>
-
-        <p className="mt-3 max-w-[220px] text-[12px] leading-[1.8] text-white/70">
-          {text}
-        </p>
-
-        <div className="mt-5 h-[2px] w-10 rounded-full bg-[#6f92ff]" />
-      </div>
-    </div>
-  );
-}
-
-/* =========================================================
-   COUNTRY FLAGS
-========================================================= */
-
-function FlagIcon({
-  country,
-  size = 36,
-}: {
-  country: FlagCode;
-  size?: number;
-}) {
-  return (
-    <div
-      style={{
-        width: size,
-        height: size,
-      }}
-      className="flex shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#e1e5ec] bg-white shadow-[0_2px_8px_rgba(20,35,80,0.06)]"
-    >
-      {/* JAPAN */}
-
-      {country === "JP" && (
-        <svg
-          viewBox="0 0 48 48"
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-full w-full"
-          aria-label="Japan flag"
-        >
-          <rect width="48" height="48" fill="#FFFFFF" />
-
-          <circle cx="24" cy="24" r="10" fill="#BC002D" />
-        </svg>
-      )}
-
-      {/* KOREA */}
-
-      {country === "KR" && (
-        <svg
-          viewBox="0 0 48 48"
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-full w-full"
-          aria-label="South Korea flag"
-        >
-          <rect width="48" height="48" fill="#FFFFFF" />
-
-          <path
-            d="M24 14 A10 10 0 0 1 24 34 A5 5 0 0 0 24 24 A5 5 0 0 1 24 14"
-            fill="#E31D1C"
-          />
-
-          <path
-            d="M24 34 A10 10 0 0 1 24 14 A5 5 0 0 0 24 24 A5 5 0 0 1 24 34"
-            fill="#3D58DB"
-          />
-
-          <g
-            stroke="#272727"
-            strokeWidth="2"
-            strokeLinecap="round"
-          >
-            <line x1="9" y1="12" x2="15" y2="8" />
-            <line x1="10.5" y1="15" x2="16.5" y2="11" />
-            <line x1="12" y1="18" x2="18" y2="14" />
-
-            <line x1="33" y1="8" x2="39" y2="12" />
-            <line x1="31.5" y1="11" x2="37.5" y2="15" />
-            <line x1="30" y1="14" x2="36" y2="18" />
-
-            <line x1="9" y1="36" x2="15" y2="40" />
-            <line x1="10.5" y1="33" x2="16.5" y2="37" />
-            <line x1="12" y1="30" x2="18" y2="34" />
-
-            <line x1="33" y1="40" x2="39" y2="36" />
-            <line x1="31.5" y1="37" x2="37.5" y2="33" />
-            <line x1="30" y1="34" x2="36" y2="30" />
-          </g>
-        </svg>
-      )}
-
-      {/* SPAIN */}
-
-      {country === "ES" && (
-        <div className="flex h-full w-full items-center justify-center bg-white">
-          <div className="h-[88%] w-[88%] overflow-hidden rounded-full">
-            <svg
-              viewBox="0 0 32 24"
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-full w-full"
-              aria-label="Spain flag"
-              preserveAspectRatio="xMidYMid slice"
-            >
-              <path d="M0 0V24H32V0H0Z" fill="#FFB400" />
-
-              <path d="M0 0V6H32V0H0Z" fill="#C51918" />
-
-              <path d="M0 18V24H32V18H0Z" fill="#C51918" />
-
-              <rect
-                x="6"
-                y="9"
-                width="4"
-                height="7"
-                rx="0.6"
-                fill="#AD1619"
-              />
-
-              <rect
-                x="6.8"
-                y="10"
-                width="2.4"
-                height="5"
-                rx="0.3"
-                fill="#FFC034"
-              />
-
-              <circle
-                cx="8"
-                cy="8.5"
-                r="1.2"
-                fill="#C88A02"
-              />
-            </svg>
-          </div>
-        </div>
-      )}
-
-      {/* FRANCE */}
-
-      {country === "FR" && (
-        <svg
-          viewBox="0 0 48 48"
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-full w-full"
-          aria-label="France flag"
-        >
-          <rect width="16" height="48" x="0" fill="#0055A4" />
-
-          <rect width="16" height="48" x="16" fill="#FFFFFF" />
-
-          <rect width="16" height="48" x="32" fill="#EF4135" />
-        </svg>
-      )}
-    </div>
-  );
 }
