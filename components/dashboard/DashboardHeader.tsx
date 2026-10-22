@@ -6,11 +6,13 @@ import type { ReactNode } from "react";
 
 import PublicHeader from "@/components/PublicHeader";
 import HeartStatus from "@/components/learning/HeartStatus";
+import StreakShortcut from "@/components/streak/StreakShortcut";
 
 import fireIcon from "@/public/icons/fire.png";
 import gemsIcon from "@/public/icons/gems.png";
 import coinsIcon from "@/public/icons/coins.png";
 import trophyIcon from "@/public/icons/trophy-star.png";
+import lessonIcon from "@/public/icons/learnicon.png";
 
 type DashboardHeaderProps = {
   streak: number | null;
@@ -18,6 +20,7 @@ type DashboardHeaderProps = {
   gems: number | null;
   coins: number | null;
   achievements: number | null;
+  lessons?: number;
   profileMenu?: ReactNode;
 };
 
@@ -59,6 +62,7 @@ export default function DashboardHeader({
   gems,
   coins,
   achievements,
+  lessons,
   profileMenu,
 }: DashboardHeaderProps) {
   const statuses: StatusItem[] = [
@@ -82,11 +86,12 @@ export default function DashboardHeader({
             className="flex flex-wrap items-center justify-end gap-1 sm:gap-2"
             aria-label="Learner status"
           >
-            <StatusLink status={statuses[0]} />
+            <StreakShortcut streak={streak} />
             <HeartStatus initial={hearts} />
             {statuses.slice(1).map((status) => (
               <StatusLink key={status.label} status={status} />
             ))}
+            {lessons !== undefined && <StatusLink status={{ label: "Lessons", icon: lessonIcon, value: lessons, href: "/learn" }} />}
           </div>
           {profileMenu}
         </>

@@ -1,9 +1,10 @@
-export type WritingBlock = { title: string; text: string; japanese?: string; reading?: string; translation?: string; segments?: { text: string; system: "hiragana" | "katakana" | "kanji" }[] };
+export type WritingBlock = { title: string; text: string; japanese?: string; korean?: string; reading?: string; translation?: string; segments?: { text: string; system: "hiragana" | "katakana" | "kanji" }[] };
 export type WritingExercise = {
   slug: string; kind: "choice" | "word" | "sentence" | "character";
   prompt: string; explanation: string; answer: string; alternatives?: string[];
   choices?: string[]; tiles?: string[]; reading?: string; hint?: string;
   requiredParticle?: string; ending?: string; characterSlug?: string;
+  languageCode?: "ja" | "ko"; characterSystem?: string; responseMode?: "tiles" | "typing" | "independent";
 };
 export type WritingLesson = { slug: string; title: string; stage: string; description: string; blocks: WritingBlock[]; exercises: WritingExercise[] };
 

@@ -85,7 +85,9 @@ test('Streak Society server render uses loaded data and no invented freeze inven
  const data=await loadStreak(db,'owner',undefined,new Date('2026-10-19T01:00:00Z'));
  const css={__esModule:true,default:new Proxy({},{get:(_,key)=>String(key)})};
  const {default:Calendar}=load('components/streak/StreakCalendar.tsx',{'@/lib/streak':core,'./StreakSociety.module.css':css});
+ const {default:Challenge}=load('components/streak/StreakChallenge.tsx',{'@/lib/streak':core,'./StreakShortcut.module.css':css});
  const {default:Society}=load('components/streak/StreakSociety.tsx',{
+  './StreakChallenge':{default:Challenge,__esModule:true},
   '@/lib/streak':core,'./StreakSociety.module.css':css,'./StreakCalendar':{default:Calendar,__esModule:true},
   './StreakDateRefresh':{default:()=>null,__esModule:true},'next/navigation':{useRouter:()=>({refresh(){}})},
   '@/app/streak/actions':{claimStreakMilestone:async()=>{throw Error('Render must not claim');}},
@@ -94,6 +96,7 @@ test('Streak Society server render uses loaded data and no invented freeze inven
  const html=renderToStaticMarkup(React.createElement(Society,{data}));
  assert.match(html,/Streak Society/);assert.match(html,/October 2026/);assert.match(html,/Days practiced/);assert.match(html,/Not available yet/);assert.ok(html.includes('1 / 3 activities'));
  assert.ok(!html.includes('Claim reward'));assert.match(html,/aria-label="Previous month"/);
+ assert.match(html,/3-day challenge/);assert.match(html,/aria-label="3-day streak challenge"/);
 });
 
 const {loadDailyGoal}=load('lib/daily-goal.ts',{'./streak':core});

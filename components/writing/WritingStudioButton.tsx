@@ -11,8 +11,8 @@ export default function WritingStudioButton({ languageCode, courseId }: { langua
   const returnTo = `${pathname}${params.size ? `?${params.toString()}` : ""}`;
   const query = new URLSearchParams({ course: courseId, returnTo });
   return <div className={styles.launcher}>
-    <Link href={`/writing/${encodeURIComponent(languageCode)}?${query}`} title="Learn the Alphabet" aria-label="Learn the Alphabet" className={styles.launchButton}>
-      <BookOpen size={23} aria-hidden="true" /><span>Alphabet &amp; Writing</span>
+    <Link href={`/writing/${encodeURIComponent(languageCode)}?${query}`} title={languageCode === "ko" ? "Learn Hangul and Korean writing" : "Learn the Alphabet"} aria-label={languageCode === "ko" ? "Open Hangul and Writing Studio" : "Learn the Alphabet"} className={styles.launchButton}>
+      <BookOpen size={23} aria-hidden="true" /><span>{languageCode === "ko" ? "Hangul & Writing" : "Alphabet & Writing"}</span>
     </Link>
   </div>;
 }

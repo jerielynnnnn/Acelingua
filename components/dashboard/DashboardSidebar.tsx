@@ -26,18 +26,13 @@ const navigation: { name: string; href: string; icon?: LucideIcon; image?: strin
     href: "/dashboard",
     icon: House,
   },
-  { name: "Daily Quests", href: "/missions", icon: Target },
+  { name: "Daily Missions", href: "/missions", icon: Target },
   { name: "Streak Society", href: "/streak", icon: Flame },
   { name: "Achievements", href: "/achievements", icon: Trophy },
   {
     name: "Learn",
     href: "/learn",
     image: "/icons/learnicon.png",
-  },
-  {
-    name: "World",
-    href: "/world",
-    image: "/icons/world.png",
   },
   {
     name: "Avatar",

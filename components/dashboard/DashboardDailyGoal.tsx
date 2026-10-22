@@ -32,7 +32,8 @@ export default function DashboardDailyGoal(){
  const ready=daily.filter(q=>!q.claimed&&q.progress>=q.target);
  return <>
   <button type="button" className={styles.launcher} onClick={()=>{dialog.current?.showModal();retry();}} aria-haspopup="dialog">
-   <span className={styles.launchIcon}><Target size={25}/></span><span><strong>Daily goals</strong><small>{summary?`${summary.completed}/${summary.total} missions complete`:"Your daily learning missions"}</small></span><ChevronRight size={19}/>
+   <span className={styles.launchIcon}><Target size={25}/></span><span><strong>Daily missions</strong><small>{summary?`${summary.completed}/${summary.total} missions complete`:error?"Tap to retry loading missions":"Loading your missions…"}</small></span><ChevronRight size={19}/>
+   {summary && <progress className={styles.launchProgress} aria-label="Daily missions completed" value={summary.completed} max={summary.total || 1} />}
    {summary&&summary.ready>0&&<span className={styles.badge}>{summary.ready} rewards ready</span>}
   </button>
   <dialog ref={dialog} className={styles.dialog} aria-labelledby="daily-mission-title" onClick={event=>{if(event.target===dialog.current)dialog.current.close();}}>

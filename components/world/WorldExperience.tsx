@@ -12,21 +12,20 @@ import { enrollStartingCourse } from "@/lib/auth-onboarding";
 import { loadWorldData, type WorldCourse, type WorldLanguage } from "@/lib/world/data";
 import { languageLocations } from "@/lib/world/languageLocations";
 
-import CountryLearningStage from "./CountryLearningStage";
-import CountryTravel from "@/components/travel/CountryTravel";
-import CountryJourney from "./CountryJourney";
+import CountryLanding from "./CountryLanding";
 import WorldMap from "./WorldMap";
 import DestinationDiscovery from "./DestinationDiscovery";
 import styles from "./World.module.css";
 
 type WorldData = Awaited<ReturnType<typeof loadWorldData>>;
-export default function WorldExperience({ languageCode }: { languageCode?: string }) {
+export default function WorldExperience({ languageCode, dashboard = false }: { languageCode?: string; dashboard?: boolean }) {
   const userId = useLearnerId();
   const router = useRouter();
   const [data, setData] = useState<WorldData | null>(null);
   const [error, setError] = useState("");
   const [attempt, setAttempt] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [islandSelected, setIslandSelected] = useState(false);
   const [discoveredIds, setDiscoveredIds] = useState<Set<string>>(new Set());
   const [traveling, setTraveling] = useState(false);
   const [starting, setStarting] = useState(false);
@@ -58,6 +57,7 @@ export default function WorldExperience({ languageCode }: { languageCode?: strin
   function retry() { setError(""); setData(null); setAttempt(n => n + 1); }
   function discover(language: WorldLanguage) {
     if (traveling) return;
+    setIslandSelected(false);
     setSelectedId(language.id);
     setDiscoveredIds(previous => {
       const next = new Set([...previous, language.id]);
@@ -91,21 +91,36 @@ export default function WorldExperience({ languageCode }: { languageCode?: strin
       startInFlight.current = false;
     }
   }
-  if (error) return <main className={styles.page}><section className={styles.state}><h1>Your journey is still here</h1><p role="alert" className={styles.subtitle}>{error}</p><button onClick={retry} className={styles.action}>Try again</button></section></main>;
-  if (!data) return <main className={styles.page} aria-busy="true"><p role="status" className="mb-6 flex items-center gap-2"><Loader2 className="animate-spin" size={18} /> Loading your world...</p><div className={styles.skeleton} /></main>;
-  if (!data.languages.length) return <main className={styles.page}><section className={styles.state}><h1>No destinations are available yet.</h1><p className={styles.subtitle}>Check back as the language catalog grows.</p><button className={styles.action} onClick={retry}>Check again</button></section></main>;
+  if (error) return <section className={dashboard ? styles.dashboardWorld : styles.page}><section className={styles.state}><h1>Your journey is still here</h1><p role="alert" className={styles.subtitle}>{error}</p><button onClick={retry} className={styles.action}>Try again</button></section></section>;
+  if (!data) return <section className={dashboard ? styles.dashboardWorld : styles.page} aria-busy="true"><p role="status" className="mb-6 flex items-center gap-2"><Loader2 className="animate-spin" size={18} /> Loading your world...</p><div className={styles.skeleton} /></section>;
+  if (!data.languages.length) return <section className={dashboard ? styles.dashboardWorld : styles.page}><section className={styles.state}><h1>No destinations are available yet.</h1><p className={styles.subtitle}>Check back as the language catalog grows.</p><button className={styles.action} onClick={retry}>Check again</button></section></section>;
 
   if (languageCode) {
     const language = data.languages.find(item => item.code === languageCode);
-    if (!language) return <main className={styles.page}><section className={styles.state}><h1>Destination unavailable</h1><p className={styles.subtitle}>This language is not currently active.</p><Link href="/world" className={styles.action}>Back to World</Link></section></main>;
+    if (!language) return <section className={dashboard ? styles.dashboardWorld : styles.page}><section className={styles.state}><h1>Destination unavailable</h1><p className={styles.subtitle}>This language is not currently active.</p><Link href="/world" className={styles.action}>Back to World</Link></section></section>;
     const courses = data.courses.filter(course => course.language_id === language.id);
-    return <CountryTravel key={`travel-${language.id}`} languageCode={language.code} avatar={data.avatar}>{courses.map(course => <CountryJourney key={course.id} courseId={course.id} />)}<CountryLearningStage key={language.id} language={language} courses={courses} avatar={data.avatar} starting={starting} error={startError} onStart={() => void startLearning(language)} /></CountryTravel>;
+    return <CountryLanding key={language.id} language={language} courses={courses} avatar={data.avatar} starting={starting} error={startError} onStart={() => void startLearning(language)} />;
   }
   const mapped = data.languages.filter(language => languageLocations[language.code]);
   const selected = data.languages.find(language => language.id === selectedId) ?? mapped[0] ?? null;
   const location = selected ? languageLocations[selected.code] : null;
   const courses = selected ? data.courses.filter(course => course.language_id === selected.id) : [];
+  const learningCourses = courses.length ? courses : data.courses;
+  const resumeCourse = learningCourses.find(course => course.progress && course.progress.progress_percentage > 0 && course.progress.progress_percentage < 100)
+    ?? learningCourses.find(course => (course.progress?.progress_percentage ?? 0) < 100)
+    ?? learningCourses[0];
   const languagesLearning = new Set(data.courses.filter(course => data.languages.some(language => language.id === course.language_id)).map(course => course.language_id)).size;
+  if (dashboard) return <section className={styles.dashboardWorld} aria-label="Explore your world map">
+    <section className={styles.continueCourse} aria-label="Continue your course">
+      <div><span>YOUR COURSE ROADMAP</span><h2>{resumeCourse?.title ?? "Your next learning adventure"}</h2><p>{resumeCourse?.progress ? `${resumeCourse.progress.completed_lessons} of ${resumeCourse.progress.total_lessons} lessons complete` : resumeCourse ? "Pick up your course and follow your next lesson." : "Choose a course to begin your learning journey."}</p></div>
+      <Link href={resumeCourse ? `/learn/${encodeURIComponent(resumeCourse.id)}` : "/learn"}>{resumeCourse ? "Continue Learning" : "Choose a course"}<span aria-hidden="true">→</span></Link>
+    </section>
+    <div className={styles.mapCard}>
+      <WorldMap languages={mapped} selectedId={islandSelected ? "play-island" : selected?.id ?? null} onSelect={discover} avatarLayers={data.avatar} onSelectIsland={() => { if (!traveling) setIslandSelected(true); }} />
+    </div>
+    {islandSelected ? <div className={styles.dashboardDestination} aria-live="polite"><div><span className="text-2xl" aria-hidden="true">🏝️</span><div><h2>Play Island</h2><p>Explore minigames and daily bonus challenges</p></div></div><button type="button" onClick={() => router.push("/world/minigames")}>Explore Play Island</button></div> : selected && location && <div className={styles.dashboardDestination} aria-live="polite"><div><span className="text-2xl" aria-hidden="true">{selected.flag_emoji}</span><div><h2>{location.country}</h2><p>{selected.name}{courses.length ? " · In your library" : " · Discover a new language"}</p></div></div><button type="button" disabled={traveling} onClick={() => visit(selected)}>{traveling ? "Opening destination…" : `Explore ${location.country}`}</button></div>}
+    <p className={styles.dashboardMapHint}>Drag to explore, zoom in, or select a flag to discover a country and its lessons.</p>
+  </section>;
   return <main className={`${styles.page} ${styles.worldPage}`}>
     <header className={styles.header}><div><p className={styles.eyebrow}>Your world passport</p><h1>Explore the World</h1><p className={styles.subtitle}>Learn languages and discover new destinations.</p></div>
       <div className={styles.stats}><div><strong>{mapped.length}</strong><span>Destinations available</span></div><div><strong>{discoveredIds.size}</strong><span>Discovered on this device</span></div><div><strong>{languagesLearning}</strong><span>Languages learning</span></div></div>

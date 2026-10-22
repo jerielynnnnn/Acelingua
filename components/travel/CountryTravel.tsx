@@ -63,10 +63,10 @@ export default function CountryTravel({ languageCode, avatar, children }: { lang
     finally { setBusy(false); inFlight.current = false; }
   }
   return <><section className={styles.travelPanel} aria-label="Your virtual journey">
-    <div className={styles.toolbar}><Link href="/passport"><BookOpen size={18} />My Passport</Link>{ticket && phase === "map" && <><button type="button" onClick={() => setPhase("ticket")}>View boarding pass</button><button type="button" onClick={() => setPhase("intro")}>Replay arrival</button></>}</div>
+    <div className={styles.toolbar}><Link href="/passport"><BookOpen size={18} />My Passport</Link>{ticket?.status === "arrived" && <details className={styles.passDetails}><summary>View collectible boarding pass</summary><BoardingPass ticket={ticket} country={country} avatar={avatar} /></details>}</div>
     {error && <div className={styles.error} role="alert"><p>{error}</p><button type="button" disabled={busy} onClick={() => { setError(""); setAttempt(value => value + 1); setPhase("loading"); }}>Retry travel setup</button><p>Complete your passport and arrival before starting lessons from this destination.</p><Link href="/world">Return to World Hub</Link></div>}
     {phase === "loading" && <p role="status">Preparing your adventure pass…</p>}
-    {phase === "ticket" && ticket && <><p className={styles.mapLink}>Your passport is ready! Board your flight and collect your arrival stamp to begin learning.</p><BoardingPass ticket={ticket} country={country} avatar={avatar} busy={busy} onBoard={() => void board()} /></>}
+    {phase === "ticket" && ticket && <div className={styles.visitCard}><div><p className={styles.eyebrow}>Your first virtual visit</p><h2>Ready to explore {country?.name ?? "your destination"}?</h2><p>A short welcome starts your learning journey and saves an arrival stamp to your passport.</p></div><button type="button" className={styles.primary} disabled={busy} onClick={() => void board()}>{busy ? "Preparing your welcome…" : "Start my visit"}</button><details className={styles.passDetails}><summary>See your collectible boarding pass</summary><BoardingPass ticket={ticket} country={country} avatar={avatar} /></details></div>}
     {phase === "intro" && ticket && country && destination && <article className={styles.intro}>
       <Plane className={styles.flyingPlane} size={44} aria-hidden="true" />
       <Image src="/icon head.png" alt="Ace, your travel guide" width={72} height={72} />

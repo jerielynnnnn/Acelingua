@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Check, Lock, Play, MapPin, Flag } from "lucide-react";
+import { Check, Lock, Play, MapPin, Flag, Trophy } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
 import type { LessonProgress, LessonState, RoadmapUnit } from "@/lib/roadmap";
 import styles from "./JourneyRoadmap.module.css";
@@ -11,6 +11,7 @@ import WritingStudioButton from "@/components/writing/WritingStudioButton";
 import UnitOverview from "./UnitOverview";
 import ArrivalRequiredNotice from "@/components/travel/ArrivalRequired";
 import type { CourseTravelAccess } from "@/lib/travel/access";
+import koreanDestinations from "@/lib/curriculum/korean-destinations.json";
 
 type Props = { units: RoadmapUnit[]; states: Map<string, LessonState>; progress: LessonProgress[]; courseId: string; currentMarker?: ReactNode; languageCode?: string; travelAccess: CourseTravelAccess };
 const positions = [50, 28, 50, 72];
@@ -26,6 +27,7 @@ export default function JourneyRoadmap({ units, states, progress, courseId, curr
     <div className={styles.introduction}><Flag size={18} aria-hidden="true" /><span>Your journey roadmap</span></div>
     {!units.length && <p className="py-12 text-center">Published destinations for this course are coming soon.</p>}
     {units.map((unit, unitIndex) => {
+      const koreanDestination = languageCode === "ko" ? koreanDestinations.find(destination => destination.destination === unit.location_name) : null;
       const future = unit.lessons.length > 0 && unit.lessons.every((lesson) => states.get(lesson.id) === "locked");
       const complete = unit.lessons.length > 0 && unit.lessons.every((lesson) => states.get(lesson.id) === "completed");
       return <section key={unit.id} aria-labelledby={`destination-${unit.id}`} data-map-x={unit.map_x ?? undefined} data-map-y={unit.map_y ?? undefined} className={`${styles.destination} ${complete ? styles.completeDestination : future ? styles.lockedDestination : styles.availableDestination}`}>
@@ -37,6 +39,7 @@ export default function JourneyRoadmap({ units, states, progress, courseId, curr
           <h2 id={`destination-${unit.id}`} className={styles.destinationName}>{unit.location_name || unit.title}</h2>
           {unit.location_name && <p className={styles.unitTitle}>{unit.title}</p>}
           {unit.description && <p className={styles.description}>{unit.description}</p>}
+          {koreanDestination && <div className="mx-auto mt-4 max-w-xl rounded-2xl border border-[#85D8FA]/40 bg-white/90 p-4 text-left"><p className="text-xs leading-6 text-[#53627F]">{koreanDestination.culture}</p><p className="mt-2 text-xs font-bold text-[#3558AE]">Hangul Studio · Stage {koreanDestination.writingStage}</p></div>}
           {unit.lessons.length > 0 && <p className="mt-3 text-xs font-semibold text-[#3558AE]">{unit.lessons.filter(lesson => states.get(lesson.id) === "completed").length} / {unit.lessons.length} published lessons completed</p>}
           <button type="button" aria-expanded={selected === unit.id} aria-controls={`overview-${unit.id}`} onClick={() => setSelected(selected === unit.id ? null : unit.id)} className="mt-4 min-h-11 rounded-xl border border-[#102452]/15 bg-white px-5 py-3 text-xs font-bold text-[#102452] hover:bg-[#EDE7FA] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#3558AE]">{selected === unit.id ? "Close Overview" : future ? "Preview Destination" : "View Lessons"}</button>
         </header>
@@ -55,17 +58,18 @@ export default function JourneyRoadmap({ units, states, progress, courseId, curr
             })}
           </svg>)}
           <ol className={styles.lessons}>{unit.lessons.map((lesson, index) => {
+            const isChallenge = languageCode === "ko" && /^(Final )?Challenge:/u.test(lesson.title);
             const state = states.get(lesson.id) ?? "locked";
             const inProgress = state === "current" && progress.some((row) => row.lesson_id === lesson.id && row.status === "in_progress");
             const status = inProgress ? "In progress" : state === "current" ? "Current" : state === "completed" ? "Completed" : "Locked";
             const label = `Lesson ${lesson.lesson_order}: ${lesson.title}. ${status}. ${lesson.xp_reward} XP, ${lesson.coin_reward} coins.`;
-            const icon = state === "completed" ? <Check size={30} aria-hidden="true" /> : state === "locked" ? <Lock size={25} aria-hidden="true" /> : <Play size={27} fill="currentColor" aria-hidden="true" />;
+            const icon = state === "completed" ? <Check size={30} aria-hidden="true" /> : state === "locked" ? <Lock size={25} aria-hidden="true" /> : isChallenge ? <Trophy size={27} aria-hidden="true" /> : <Play size={27} fill="currentColor" aria-hidden="true" />;
             return <li key={lesson.id} className={styles.lesson} style={{ "--node-x": `${positions[index % 4]}%`, "--mobile-node-x": `${mobilePositions[index % 4]}%` } as CSSProperties}>
               <div className={styles.stop}>
                 {state === "current" && currentMarker && <div className={styles.currentMarker}>{currentMarker}</div>}
                 <span className={`${styles.status} ${state === "current" ? styles.currentStatus : ""}`}>{status}</span>
                 {state === "locked" ? <button type="button" disabled aria-label={label} className={`${styles.node} ${styles.locked}`}>{icon}</button> : <Link href={`/learn/lesson?course=${encodeURIComponent(courseId)}&lesson=${encodeURIComponent(lesson.id)}`} aria-label={label} className={`${styles.node} ${state === "current" ? styles.current : styles.completed}`}>{icon}</Link>}
-                <div className={styles.lessonDetails}><p className={styles.lessonNumber}>Lesson {lesson.lesson_order}</p><h3 className={styles.lessonTitle}>{lesson.title}</h3><p className={styles.rewards}>{lesson.xp_reward} XP <span aria-hidden="true">·</span> {lesson.coin_reward} coins</p></div>
+                <div className={styles.lessonDetails}><p className={styles.lessonNumber}>{isChallenge ? "Destination challenge" : `Lesson ${lesson.lesson_order}`}</p><h3 className={styles.lessonTitle}>{lesson.title}</h3><p className={styles.rewards}>{lesson.xp_reward} XP <span aria-hidden="true">·</span> {lesson.coin_reward} coins</p></div>
               </div>
             </li>;
           })}</ol>

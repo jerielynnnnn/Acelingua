@@ -1,3 +1,3 @@
-import WorldExperience from "@/components/world/WorldExperience";
+import { redirect } from "next/navigation";
 
-export default function WorldPage() { return <WorldExperience />; }
+export default function WorldPage() { redirect("/dashboard"); }

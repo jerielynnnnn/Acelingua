@@ -47,11 +47,11 @@
 .calendarDay { position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; min-height:58px; border:2px solid transparent; border-radius:15px; background:#f6f7fa; color:#8490a4; font-size:14px; font-weight:800; transition:transform .15s,background .15s; }
 .calendarDay:enabled:hover { background:#ede7fa; transform:translateY(-2px); }
 .calendarDay:disabled { background:transparent; color:#bbc2cd; cursor:not-allowed; }
-.calendarDay[data-active] { background:linear-gradient(135deg,#ffb65b,#ff9297); color:#102452; }
+.calendarDay[data-active] { background:#ffd46e; color:#102452; border-top-color:#ffbd59; border-bottom-color:#ffbd59; }
 .calendarDay[data-join-left] { border-top-left-radius:0; border-bottom-left-radius:0; }
 .calendarDay[data-join-right] { border-top-right-radius:0; border-bottom-right-radius:0; }
 .calendarDay[data-frozen] { background:#85d8fa45; color:#197cac; }
-.calendarDay[aria-current=date] { border-color:#102452; }
+.calendarDay[aria-current=date] { border-color:#3558ae; box-shadow:inset 0 0 0 3px #fffaf1; }
 .calendarDay[aria-pressed=true] { outline:2px solid #3558ae; outline-offset:2px; z-index:1; }
 .dayDot { width:4px; height:4px; margin:6px; border-radius:50%; background:currentColor; opacity:.4; }
 .dayDetails { margin-top:22px; min-height:130px; padding:18px; border-radius:17px; background:#fffcf7; }

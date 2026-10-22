@@ -1,0 +1,132 @@
+[
+  {
+    "title": "Welcome to Korea",
+    "destination": "Incheon Airport",
+    "culture": "Greet airport staff politely. A small bow is common; use everyday polite speech with people you do not know.",
+    "objectives": [
+      "Greet someone and choose a farewell for who is leaving.",
+      "Introduce your name and identify yourself politely.",
+      "Thank someone, apologize, and make a simple request.",
+      "Confirm understanding and ask for repetition."
+    ],
+    "challenge": "Challenge: Meet Your Korean Guide",
+    "writingStage": 1
+  },
+  {
+    "title": "Read Your First Korean Words",
+    "destination": "Hangul Discovery Center",
+    "culture": "Hangul letters combine into syllable blocks. Romanization is a temporary aid, not a pronunciation system that replaces listening.",
+    "objectives": [
+      "Recognize consonants, vowels, and syllable blocks.",
+      "Distinguish basic consonants and vowel orientations.",
+      "Assemble blocks and read short words.",
+      "Decode useful signs without relying on romanization."
+    ],
+    "challenge": "Challenge: Decode the Hangul Signs",
+    "writingStage": 2
+  },
+  {
+    "title": "Making New Friends",
+    "destination": "Hongdae",
+    "culture": "Use polite speech with new acquaintances, even when they seem your age. Ask before switching to casual speech.",
+    "objectives": [
+      "Ask about origin and distinguish nationality from language.",
+      "Ask about occupations without assuming someone’s role.",
+      "Identify nearby objects and ask what they are.",
+      "Say what you like using an object particle."
+    ],
+    "challenge": "Challenge: Make a New Friend",
+    "writingStage": 3
+  },
+  {
+    "title": "Shopping in Korea",
+    "destination": "Myeongdong",
+    "culture": "Korean uses two number systems. Prices use Sino-Korean numbers; many counters use native numbers with shortened forms.",
+    "objectives": [
+      "Count one to eight and recognize counter forms.",
+      "Read prices and combine units of ten, hundred, and thousand.",
+      "Ask a price and choose a payment method.",
+      "Ask for an item and a different size politely."
+    ],
+    "challenge": "Challenge: Shop with Ace",
+    "writingStage": 4
+  },
+  {
+    "title": "Taste of Korea",
+    "destination": "Gwangjang Market",
+    "culture": "Food names do not reliably identify every ingredient. Ask staff about ingredients and allergies; do not assume a dish is vegetarian or allergen-free.",
+    "objectives": [
+      "Recognize common dishes and ask about ingredients.",
+      "Place an order and ask about ingredients.",
+      "Order drinks using appropriate counters.",
+      "Describe taste and ask for a less spicy option."
+    ],
+    "challenge": "Challenge: Korean Street Food Mission",
+    "writingStage": 5
+  },
+  {
+    "title": "Getting Around Korea",
+    "destination": "Seoul Subway",
+    "culture": "Follow station signage and priority seating rules. Check the line and direction; a station name alone does not identify the correct platform.",
+    "objectives": [
+      "Name useful places and state a destination.",
+      "Understand a short direction sequence.",
+      "Ask for a station and recognize boarding vocabulary.",
+      "Ask and explain where something is located."
+    ],
+    "challenge": "Challenge: Find Your Destination",
+    "writingStage": 6
+  },
+  {
+    "title": "Everyday Life in Korea",
+    "destination": "Bukchon Hanok Village",
+    "culture": "Bukchon includes residential streets. Keep voices low, follow visiting-hour signs, and ask before photographing residents.",
+    "objectives": [
+      "Recognize weekdays and ask the date.",
+      "Tell hours and minutes with the correct number system.",
+      "Describe a routine using polite present tense.",
+      "Describe a completed past action."
+    ],
+    "challenge": "Challenge: A Day in Seoul",
+    "writingStage": 7
+  },
+  {
+    "title": "Korean Culture and Manners",
+    "destination": "Gyeongbokgung Palace",
+    "culture": "Courtesy depends on relationship and situation, not age alone. Use respectful titles and follow photography and access rules at heritage sites.",
+    "objectives": [
+      "Distinguish polite conversation from casual forms.",
+      "Use respectful titles and familiar respectful requests.",
+      "Ask permission and recognize restrictions.",
+      "Name major holidays and discuss a cultural activity."
+    ],
+    "challenge": "Challenge: Cultural Explorer",
+    "writingStage": 8
+  },
+  {
+    "title": "My Korean Travel Diary",
+    "destination": "Busan",
+    "culture": "Busan has regional speech, but standard polite Korean is widely understood. Stay on marked coastal paths and follow weather warnings.",
+    "objectives": [
+      "Describe weather and distinguish seasonal vocabulary.",
+      "Describe scenery and compare an impression.",
+      "State an intended future plan with a time and destination.",
+      "Write a short account of a trip and a future plan."
+    ],
+    "challenge": "Challenge: My Busan Postcard",
+    "writingStage": 9
+  },
+  {
+    "title": "Korean Adventure Finale",
+    "destination": "N Seoul Tower",
+    "culture": "Use what you know to solve everyday travel tasks. Ask for clarification rather than pretending to understand.",
+    "objectives": [
+      "Greet, introduce yourself, and ask a follow-up question.",
+      "Order, pay, and ask for directions in sequence.",
+      "Read signs and compose short sentences in Hangul.",
+      "Combine requests, permission, past experience, and a plan."
+    ],
+    "challenge": "Final Challenge: ACE Korean Travel Mission",
+    "writingStage": 10
+  }
+]

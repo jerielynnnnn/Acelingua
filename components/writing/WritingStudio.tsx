@@ -51,7 +51,7 @@ function Studio({ languageCode, systemSlug, characterSlug }: Props) {
         <h2>What would you like to explore?</h2>
         <div className={styles.systems}>{data.systems.map(item => { const entries = data.characters.filter(c => c.writing_system_id === item.id); return <button type="button" key={item.id} onClick={() => setSelected(item.slug)}><span className={styles.systemGlyph}>{entries[0]?.character ?? "Aa"}</span><strong>{item.name}</strong><span>{item.description}</span><span>{entries.length ? `${entries.length} characters` : "In preparation"}</span></button>; })}</div>
         {!data.systems.length && <p>Writing content is being prepared.</p>}
-        {languageCode === "ja" && <details className={styles.optionalWorkbook}><summary>Japanese writing workbook</summary><WorkbookOverview data={data} query={query} /></details>}
+        {(languageCode === "ja" || languageCode === "ko") && <details className={styles.optionalWorkbook} open={languageCode === "ko"}><summary>{data.language.name} writing workbook</summary><WorkbookOverview data={data} query={query} /></details>}
         {languageCode === "ja" && <LearnedCharacters data={data} query={query} />}
       </div>}
       <p className={styles.storageNote}>{data.local ? "Progress saves in this browser." : "Progress saves to your account."}</p>

@@ -1,0 +1,689 @@
+[
+  {
+    "slug": "ko-hangul-introduction",
+    "title": "Meet Hangul",
+    "stage": "1 · Introduction to Hangul",
+    "description": "Read a syllable block and discover the jobs of its letters.",
+    "blocks": [
+      {
+        "title": "Letters form blocks",
+        "text": "Hangul is an alphabet whose letters combine into syllable blocks. Each block has an initial consonant and a vowel; a final consonant is optional. Read blocks left to right in ordinary horizontal text.",
+        "korean": "한글",
+        "reading": "hangeul",
+        "translation": "Hangul"
+      },
+      {
+        "title": "Silent first, audible last",
+        "text": "ㅇ is silent at the beginning of 아, but sounds like ng at the end of 강. Its position changes its role.",
+        "korean": "아 · 강"
+      },
+      {
+        "title": "Writing and sound",
+        "text": "Romanization is a temporary reading aid. Korean sounds do not map perfectly to English letters. Audio uses a Korean device voice when available; it is not a verified recording. Stroke demonstrations require verified assets; unverified paths are never supplied."
+      }
+    ],
+    "exercises": [
+      {
+        "slug": "blocks",
+        "kind": "choice",
+        "prompt": "What does one Hangul block usually represent?",
+        "choices": [
+          "A syllable",
+          "A whole English sentence",
+          "One Latin letter"
+        ],
+        "answer": "A syllable",
+        "explanation": "A block combines consonant and vowel letters.",
+        "languageCode": "ko"
+      },
+      {
+        "slug": "ieung",
+        "kind": "choice",
+        "prompt": "What is initial ㅇ doing in 아?",
+        "choices": [
+          "A silent initial placeholder",
+          "An ng sound",
+          "A final consonant"
+        ],
+        "answer": "A silent initial placeholder",
+        "explanation": "Final ㅇ is ng, but initial ㅇ is silent.",
+        "languageCode": "ko"
+      }
+    ]
+  },
+  {
+    "slug": "ko-basic-consonants",
+    "title": "Basic consonants",
+    "stage": "2 · Basic consonants",
+    "description": "Recognize fourteen basic consonants in short words.",
+    "blocks": [
+      {
+        "title": "Your basic consonants",
+        "text": "Read ㄱ ㄴ ㄷ ㄹ ㅁ ㅂ ㅅ ㅇ ㅈ ㅊ ㅋ ㅌ ㅍ ㅎ. Their names and sounds are different: ㄱ is called 기역, but that name is not the sound you insert into a word.",
+        "korean": "ㄱ ㄴ ㄷ ㄹ ㅁ ㅂ ㅅ ㅇ ㅈ ㅊ ㅋ ㅌ ㅍ ㅎ"
+      },
+      {
+        "title": "Learn sounds in words",
+        "text": "ㄱ varies with position and is not always English g. ㄹ can be a short tap or an l-like sound. Aspirated ㅋ ㅌ ㅍ ㅊ have a stronger puff than their plain counterparts. Use the character cards for examples and recall mastery.",
+        "korean": "가 · 나 · 마",
+        "reading": "ga · na · ma"
+      }
+    ],
+    "exercises": [
+      {
+        "slug": "mieum",
+        "kind": "choice",
+        "prompt": "Which consonant begins 마?",
+        "choices": [
+          "ㅁ",
+          "ㄴ",
+          "ㄱ"
+        ],
+        "answer": "ㅁ",
+        "explanation": "마 is ㅁ plus ㅏ.",
+        "languageCode": "ko"
+      },
+      {
+        "slug": "nieun",
+        "kind": "choice",
+        "prompt": "Which consonant begins 나무 (tree)?",
+        "choices": [
+          "ㄴ",
+          "ㅂ",
+          "ㅅ"
+        ],
+        "answer": "ㄴ",
+        "explanation": "나 begins with ㄴ.",
+        "languageCode": "ko"
+      },
+      {
+        "slug": "aspirated",
+        "kind": "choice",
+        "prompt": "Which is the aspirated counterpart of ㄱ?",
+        "choices": [
+          "ㅋ",
+          "ㄲ",
+          "ㄴ"
+        ],
+        "answer": "ㅋ",
+        "explanation": "ㅋ is aspirated; ㄲ is tense, not the same contrast.",
+        "languageCode": "ko"
+      }
+    ]
+  },
+  {
+    "slug": "ko-basic-vowels",
+    "title": "Basic vowels",
+    "stage": "3 · Basic vowels",
+    "description": "Recognize ten basic vowels and their orientation.",
+    "blocks": [
+      {
+        "title": "Ten basic vowels",
+        "text": "Learn ㅏ ㅑ ㅓ ㅕ ㅗ ㅛ ㅜ ㅠ ㅡ ㅣ. A vertical vowel usually sits beside the consonant; a horizontal vowel usually sits underneath it.",
+        "korean": "아 야 어 여 오 요 우 유 으 이",
+        "reading": "a ya eo yeo o yo u yu eu i"
+      },
+      {
+        "title": "Distinguish rather than guess",
+        "text": "ㅓ (eo) is not the same as ㅗ (o). ㅡ (eu) is not English oo. Listen when a Korean voice is available and compare 우 and 으; romanization alone cannot teach the contrast.",
+        "korean": "어 · 오 · 우 · 으"
+      }
+    ],
+    "exercises": [
+      {
+        "slug": "o",
+        "kind": "choice",
+        "prompt": "Which block contains ㅗ?",
+        "choices": [
+          "오",
+          "어",
+          "우"
+        ],
+        "answer": "오",
+        "explanation": "오 combines silent ㅇ and ㅗ.",
+        "languageCode": "ko"
+      },
+      {
+        "slug": "eu",
+        "kind": "choice",
+        "prompt": "Which block contains ㅡ?",
+        "choices": [
+          "으",
+          "우",
+          "이"
+        ],
+        "answer": "으",
+        "explanation": "으 has the vowel eu.",
+        "languageCode": "ko"
+      },
+      {
+        "slug": "vertical",
+        "kind": "choice",
+        "prompt": "Which vowel normally goes to the right of the initial consonant?",
+        "choices": [
+          "ㅏ",
+          "ㅗ",
+          "ㅡ"
+        ],
+        "answer": "ㅏ",
+        "explanation": "Compare 가 and 고.",
+        "languageCode": "ko"
+      }
+    ]
+  },
+  {
+    "slug": "ko-syllable-blocks",
+    "title": "Build syllable blocks",
+    "stage": "4 · Syllable blocks",
+    "description": "Combine consonants and vowels into readable words.",
+    "blocks": [
+      {
+        "title": "Beside or underneath",
+        "text": "ㄴ + ㅏ becomes 나. ㄱ + ㅗ becomes 고. These letters share one block, rather than being written as a row of separate letters.",
+        "korean": "나 · 고"
+      },
+      {
+        "title": "Read meaningful words",
+        "text": "나무 has two blocks, 나 and 무. 바다 means sea. 우유 means milk. A word can have several syllables; a syllable does not automatically have its own English meaning.",
+        "korean": "나무 · 바다 · 우유",
+        "reading": "namu · bada · uyu",
+        "translation": "tree · sea · milk"
+      }
+    ],
+    "exercises": [
+      {
+        "slug": "assemble",
+        "kind": "choice",
+        "prompt": "What is ㄴ + ㅏ in one block?",
+        "choices": [
+          "나",
+          "고",
+          "무"
+        ],
+        "answer": "나",
+        "explanation": "The vertical vowel is beside ㄴ.",
+        "languageCode": "ko"
+      },
+      {
+        "slug": "tree",
+        "kind": "word",
+        "languageCode": "ko",
+        "prompt": "Build 나무 (tree) from syllable tiles.",
+        "answer": "나무",
+        "tiles": [
+          "무",
+          "나"
+        ],
+        "explanation": "나 + 무 forms 나무, tree."
+      },
+      {
+        "slug": "blocks-count",
+        "kind": "choice",
+        "prompt": "How many syllable blocks are in 우유?",
+        "choices": [
+          "Two",
+          "One",
+          "Four"
+        ],
+        "answer": "Two",
+        "explanation": "우 and 유 are separate blocks.",
+        "languageCode": "ko"
+      }
+    ]
+  },
+  {
+    "slug": "ko-batchim",
+    "title": "Final consonants: batchim",
+    "stage": "5 · Final consonants (batchim)",
+    "description": "Read a final consonant and notice connected pronunciation.",
+    "blocks": [
+      {
+        "title": "The bottom position",
+        "text": "받침 is the final consonant position below the vowel. In 강, ㅇ is the final ng. In 산, ㄴ is the final n.",
+        "korean": "강 · 산 · 밥",
+        "reading": "gang · san · bap",
+        "translation": "river · mountain · cooked rice / meal"
+      },
+      {
+        "title": "Spelling and connected sound",
+        "text": "Several written finals share the same unreleased final sound. When followed by a vowel-initial syllable, a final consonant may connect to it: 밥을 is pronounced 바블. Double finals and sound changes need word-specific study; do not pronounce every final with an extra vowel.",
+        "korean": "밥을",
+        "reading": "babeul"
+      }
+    ],
+    "exercises": [
+      {
+        "slug": "final",
+        "kind": "choice",
+        "prompt": "What is the batchim in 강?",
+        "choices": [
+          "ㅇ",
+          "ㄱ",
+          "ㅏ"
+        ],
+        "answer": "ㅇ",
+        "explanation": "The bottom ㅇ is ng.",
+        "languageCode": "ko"
+      },
+      {
+        "slug": "san",
+        "kind": "choice",
+        "prompt": "Which word means mountain?",
+        "choices": [
+          "산",
+          "강",
+          "나무"
+        ],
+        "answer": "산",
+        "explanation": "산 ends with ㄴ.",
+        "languageCode": "ko"
+      },
+      {
+        "slug": "no-vowel",
+        "kind": "choice",
+        "prompt": "How should a final consonant be practiced?",
+        "choices": [
+          "Without adding an extra vowel",
+          "Always add eu",
+          "Always ignore it"
+        ],
+        "answer": "Without adding an extra vowel",
+        "explanation": "Learn the final and its connected pronunciation in a word.",
+        "languageCode": "ko"
+      }
+    ]
+  },
+  {
+    "slug": "ko-compound-vowels",
+    "title": "Compound vowels",
+    "stage": "6 · Compound vowels",
+    "description": "Read common compound vowels in everyday words.",
+    "blocks": [
+      {
+        "title": "Combine vowel shapes",
+        "text": "Learn ㅐ ㅒ ㅔ ㅖ ㅘ ㅙ ㅚ ㅝ ㅞ ㅟ ㅢ. In modern speech ㅐ and ㅔ may sound alike for many speakers; keep the spelling distinction.",
+        "korean": "개 · 게 · 와 · 워 · 위"
+      },
+      {
+        "title": "Read in context",
+        "text": "과자 includes ㅘ, 귀 includes ㅟ, and 의자 begins with ㅢ. The pronunciation of ㅢ varies with position and grammatical use; learn 의자 as a whole word before particle 의.",
+        "korean": "과자 · 귀 · 의자",
+        "reading": "gwaja · gwi · uija",
+        "translation": "snack · ear · chair"
+      }
+    ],
+    "exercises": [
+      {
+        "slug": "wa",
+        "kind": "choice",
+        "prompt": "Which block contains ㅘ?",
+        "choices": [
+          "와",
+          "워",
+          "위"
+        ],
+        "answer": "와",
+        "explanation": "ㅗ plus ㅏ forms ㅘ.",
+        "languageCode": "ko"
+      },
+      {
+        "slug": "chair",
+        "kind": "choice",
+        "prompt": "Which word means chair?",
+        "choices": [
+          "의자",
+          "과자",
+          "귀"
+        ],
+        "answer": "의자",
+        "explanation": "의자 begins with ㅢ.",
+        "languageCode": "ko"
+      },
+      {
+        "slug": "spelling",
+        "kind": "choice",
+        "prompt": "If ㅐ and ㅔ sound similar, should their spellings be merged?",
+        "choices": [
+          "No, retain the word’s spelling",
+          "Yes, either is always correct"
+        ],
+        "answer": "No, retain the word’s spelling",
+        "explanation": "Pronunciation overlap does not erase spelling distinctions.",
+        "languageCode": "ko"
+      }
+    ]
+  },
+  {
+    "slug": "ko-tense-consonants",
+    "title": "Tense consonants",
+    "stage": "7 · Tense consonants",
+    "description": "Distinguish plain, aspirated, and tense consonants.",
+    "blocks": [
+      {
+        "title": "Five tense consonants",
+        "text": "ㄲ ㄸ ㅃ ㅆ ㅉ are tense consonants. They are not simply longer English consonants, and not the same as aspirated ㅋ ㅌ ㅍ ㅊ. Listen to complete words before trying to explain the contrast using English letters.",
+        "korean": "ㄲ ㄸ ㅃ ㅆ ㅉ"
+      },
+      {
+        "title": "The contrast can change meaning",
+        "text": "달 is moon; 딸 is daughter. 쌀 is uncooked rice, while 살 has several meanings, including flesh and the age counter. Learn the intended meaning in context.",
+        "korean": "달 · 딸 · 쌀",
+        "reading": "dal · ttal · ssal",
+        "translation": "moon · daughter · uncooked rice"
+      }
+    ],
+    "exercises": [
+      {
+        "slug": "daughter",
+        "kind": "choice",
+        "prompt": "Which word means daughter?",
+        "choices": [
+          "딸",
+          "달",
+          "탈"
+        ],
+        "answer": "딸",
+        "explanation": "딸 begins with tense ㄸ.",
+        "languageCode": "ko"
+      },
+      {
+        "slug": "rice",
+        "kind": "choice",
+        "prompt": "Which word means uncooked rice?",
+        "choices": [
+          "쌀",
+          "살",
+          "산"
+        ],
+        "answer": "쌀",
+        "explanation": "쌀 begins with tense ㅆ.",
+        "languageCode": "ko"
+      },
+      {
+        "slug": "tense",
+        "kind": "choice",
+        "prompt": "Which consonant is tense?",
+        "choices": [
+          "ㅃ",
+          "ㅍ",
+          "ㅂ"
+        ],
+        "answer": "ㅃ",
+        "explanation": "ㅂ is plain, ㅍ aspirated, and ㅃ tense.",
+        "languageCode": "ko"
+      }
+    ]
+  },
+  {
+    "slug": "ko-reading-words",
+    "title": "Read Korean words",
+    "stage": "8 · Reading Korean words",
+    "description": "Decode useful signs and practice comprehension.",
+    "blocks": [
+      {
+        "title": "A sign-reading mission",
+        "text": "Read without romanization first. 입구 is entrance, 출구 is exit, and 약국 is pharmacy. 서울역 is Seoul Station; its connected pronunciation differs from spelling letter by letter.",
+        "korean": "입구 · 출구 · 약국 · 서울역",
+        "translation": "entrance · exit · pharmacy · Seoul Station"
+      },
+      {
+        "title": "Reading before speed",
+        "text": "Break unfamiliar words into blocks, connect them, then check meaning. If your device has no Korean voice, read aloud yourself; silent reading is not proof of listening comprehension."
+      }
+    ],
+    "exercises": [
+      {
+        "slug": "exit",
+        "kind": "choice",
+        "prompt": "Which sign leads to the exit?",
+        "choices": [
+          "출구",
+          "입구",
+          "약국"
+        ],
+        "answer": "출구",
+        "explanation": "출구 is exit; 입구 is entrance.",
+        "languageCode": "ko"
+      },
+      {
+        "slug": "pharmacy",
+        "kind": "choice",
+        "prompt": "You need a pharmacy. Which sign do you seek?",
+        "choices": [
+          "약국",
+          "서울역",
+          "출구"
+        ],
+        "answer": "약국",
+        "explanation": "약국 is a pharmacy.",
+        "languageCode": "ko"
+      },
+      {
+        "slug": "station",
+        "kind": "choice",
+        "prompt": "Which word includes station?",
+        "choices": [
+          "서울역",
+          "우유",
+          "나무"
+        ],
+        "answer": "서울역",
+        "explanation": "역 means station.",
+        "languageCode": "ko"
+      }
+    ]
+  },
+  {
+    "slug": "ko-writing-vocabulary",
+    "title": "Write useful vocabulary",
+    "stage": "9 · Writing vocabulary",
+    "description": "Rebuild familiar words, type them, and compare your handwriting.",
+    "blocks": [
+      {
+        "title": "Read, build, type, recall",
+        "text": "Begin with tiles, then type the same word using a Korean keyboard, then choose independent mode. Korean input normally composes jamo into NFC syllables. Finish IME composition before checking.",
+        "korean": "한국어 · 가방 · 학교 · 커피"
+      },
+      {
+        "title": "Honest handwriting feedback",
+        "text": "Independent mode includes an optional drawing canvas. Compare with a printed model yourself. This records self-reviewed practice only; it is not stroke-order verification, automatic handwriting recognition, or a currency reward."
+      }
+    ],
+    "exercises": [
+      {
+        "slug": "language",
+        "kind": "word",
+        "languageCode": "ko",
+        "prompt": "Build 한국어 (Korean language).",
+        "answer": "한국어",
+        "tiles": [
+          "어",
+          "한",
+          "국"
+        ],
+        "explanation": "한 + 국 + 어 forms 한국어."
+      },
+      {
+        "slug": "bag",
+        "kind": "word",
+        "languageCode": "ko",
+        "prompt": "Type 가방 (bag), then try independent mode.",
+        "answer": "가방",
+        "tiles": [
+          "방",
+          "가"
+        ],
+        "responseMode": "typing",
+        "hint": "가 + 방",
+        "explanation": "가방 has two blocks."
+      },
+      {
+        "slug": "coffee",
+        "kind": "word",
+        "languageCode": "ko",
+        "prompt": "Write 커피 (coffee) independently.",
+        "answer": "커피",
+        "tiles": [
+          "피",
+          "커"
+        ],
+        "responseMode": "independent",
+        "hint": "커 + 피",
+        "explanation": "Use the model to self-review the two blocks."
+      }
+    ]
+  },
+  {
+    "slug": "ko-building-sentences",
+    "title": "Build Korean sentences",
+    "stage": "10 · Building Korean sentences",
+    "description": "Move from guided explanations to tiles, gap filling, independent typing, and optional handwriting.",
+    "blocks": [
+      {
+        "title": "Level 1 · Understand the roles",
+        "text": "Korean normally places the predicate last. 저는 is a topic; 제가 is a subject form. 은/는 follows a final consonant/vowel respectively. 이/가 follows a final consonant/vowel respectively. 을/를 marks many objects. Topics are not simply the same thing as subjects.",
+        "korean": "저는 책을 읽어요.",
+        "translation": "I read a book."
+      },
+      {
+        "title": "Level 2 · Arrange words",
+        "text": "Build a complete model with tiles. 학생이에요 follows a final consonant; 가수예요 follows a vowel. Polite questions can keep statement order and use rising intonation.",
+        "korean": "저는 학생이에요.",
+        "translation": "I am a student."
+      },
+      {
+        "title": "Level 3 · Fill a gap",
+        "text": "For the gap 저는 커피를 ___, supply 마셔요. 먹다 → 먹어요, 가다 → 가요, 하다 → 해요. Place 안 before an ordinary verb to negate it: 안 마셔요. Do not replace a noun negation 학생이 아니에요 with 안 학생이에요."
+      },
+      {
+        "title": "Level 4 · Write independently",
+        "text": "Time often comes early. 에 marks destination or many time points; 에서 marks where an action occurs. 어제 and 내일 take no time 에. Past 가다 → 갔어요; future 가다 → 갈 거예요, 먹다 → 먹을 거예요.",
+        "korean": "어제 카페에서 공부했어요.",
+        "translation": "Yesterday I studied at a café."
+      },
+      {
+        "title": "Level 5 · Optional handwriting",
+        "text": "In independent mode, write on the canvas or on paper and compare to the model. Account completion records practice, not verified penmanship. Stroke order remains review-required until sourced assets are attached."
+      }
+    ],
+    "exercises": [
+      {
+        "slug": "particle-roles",
+        "kind": "choice",
+        "prompt": "In 저는 책을 읽어요, what does 을 mark?",
+        "choices": [
+          "The object 책",
+          "A future tense",
+          "The polite ending"
+        ],
+        "answer": "The object 책",
+        "explanation": "책 ends in a consonant, so it takes 을.",
+        "languageCode": "ko"
+      },
+      {
+        "slug": "student",
+        "kind": "sentence",
+        "prompt": "Arrange: I am a student.",
+        "answer": "저는 학생이에요.",
+        "tiles": [
+          "저는 ",
+          "학생이에요."
+        ],
+        "explanation": "학생 ends in a consonant: 학생이에요.",
+        "languageCode": "ko",
+        "ending": "이에요"
+      },
+      {
+        "slug": "gap-drink",
+        "kind": "sentence",
+        "prompt": "Fill the gap: 저는 커피를 ___. Type only the missing polite verb for drink.",
+        "answer": "마셔요",
+        "tiles": [
+          "마셔요"
+        ],
+        "explanation": "마시다 becomes 마셔요.",
+        "languageCode": "ko",
+        "responseMode": "typing",
+        "hint": "마시다 → 마셔요"
+      },
+      {
+        "slug": "subject",
+        "kind": "sentence",
+        "prompt": "Arrange: There is a book here.",
+        "answer": "여기에 책이 있어요.",
+        "tiles": [
+          "여기에 ",
+          "책이 ",
+          "있어요."
+        ],
+        "explanation": "책 takes subject 이; 에 marks its location.",
+        "languageCode": "ko",
+        "requiredParticle": "이"
+      },
+      {
+        "slug": "negative",
+        "kind": "sentence",
+        "prompt": "Write: I do not drink coffee.",
+        "answer": "저는 커피를 안 마셔요.",
+        "tiles": [
+          "저는 ",
+          "커피를 ",
+          "안 ",
+          "마셔요."
+        ],
+        "explanation": "안 negates 마셔요. The topic may be omitted when clear.",
+        "languageCode": "ko",
+        "alternatives": [
+          "커피를 안 마셔요."
+        ],
+        "responseMode": "independent",
+        "requiredParticle": "를"
+      },
+      {
+        "slug": "question",
+        "kind": "sentence",
+        "prompt": "Arrange the question: Where is the restroom?",
+        "answer": "화장실이 어디에 있어요?",
+        "tiles": [
+          "화장실이 ",
+          "어디에 ",
+          "있어요?"
+        ],
+        "explanation": "이 marks the subject and 에 the location.",
+        "languageCode": "ko"
+      },
+      {
+        "slug": "past",
+        "kind": "sentence",
+        "prompt": "Write: Yesterday I studied at a café.",
+        "answer": "어제 카페에서 공부했어요.",
+        "tiles": [
+          "어제 ",
+          "카페에서 ",
+          "공부했어요."
+        ],
+        "explanation": "Use 에서 for the action location and 했어요 for past 하다.",
+        "languageCode": "ko",
+        "responseMode": "independent",
+        "requiredParticle": "에서",
+        "ending": "했어요"
+      },
+      {
+        "slug": "future",
+        "kind": "sentence",
+        "prompt": "Write: Tomorrow I will go to school.",
+        "answer": "내일 학교에 갈 거예요.",
+        "tiles": [
+          "내일 ",
+          "학교에 ",
+          "갈 거예요."
+        ],
+        "explanation": "에 marks the destination; 갈 거예요 expresses the plan.",
+        "languageCode": "ko",
+        "responseMode": "independent",
+        "requiredParticle": "에",
+        "ending": "거예요"
+      }
+    ]
+  }
+]
