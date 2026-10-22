@@ -12,7 +12,7 @@ import styles from "./WritingStudio.module.css";
 type Props = { exercise: WritingExercise; character?: WritingCharacter; onAttempt: (response: string, correct: boolean, mode: string) => Promise<void> };
 type Mode = "tiles" | "typing" | "independent";
 export default function WorkbookExercise({ exercise, character, onAttempt }: Props) {
-  const [mode, setMode] = useState<Mode>("tiles");
+  const [mode, setMode] = useState<Mode>(exercise.responseMode ?? "tiles");
   return <section className={styles.card}>
     <h2>{exercise.prompt}</h2>
     {(exercise.kind === "word" || exercise.kind === "sentence") && <div className={styles.actions} role="group" aria-label="Writing activity mode">
@@ -24,6 +24,8 @@ export default function WorkbookExercise({ exercise, character, onAttempt }: Pro
 }
 
 function AnswerActivity({ exercise, mode, onAttempt }: Props & { mode: Mode }) {
+  const languageCode = exercise.languageCode ?? "ja";
+  const languageName = languageCode === "ko" ? "Korean" : "Japanese";
   const inputId = useId();
   const [answer, setAnswer] = useState("");
   const [selected, setSelected] = useState<number[]>([]);
@@ -61,26 +63,26 @@ function AnswerActivity({ exercise, mode, onAttempt }: Props & { mode: Mode }) {
   return <form onSubmit={event => { event.preventDefault(); void check(); }}>
     {isChoice ? <fieldset disabled={saving} className={styles.options}><legend className="sr-only">Choose an answer</legend>{exercise.choices?.map(choice => <label key={choice} className={answer === choice ? styles.selected : ""}><input type="radio" name="workbook-answer" required checked={answer === choice} onChange={() => { setAnswer(choice); setResult(null); }} />{choice}</label>)}</fieldset>
       : mode === "tiles" ? <>
-        <div className={styles.sentenceTray} aria-label="Your arranged answer" aria-live="polite">{selected.length ? selected.map((tile, index) => <button type="button" key={index} onClick={() => { setSelected(selected.filter((_, position) => position !== index)); setResult(null); }} aria-label={`Remove ${tiles[tile]}`} lang="ja">{tiles[tile]}</button>) : <span>Choose tiles below. Tap a chosen tile to return it.</span>}</div>
-        <div className={styles.actions} aria-label="Available word tiles">{tiles.map((tile, index) => <button key={index} type="button" disabled={selected.includes(index) || saving} onClick={() => { setSelected([...selected, index]); setResult(null); }} lang="ja">{tile}</button>)}</div>
+        <div className={styles.sentenceTray} aria-label="Your arranged answer" aria-live="polite">{selected.length ? selected.map((tile, index) => <button type="button" key={index} onClick={() => { setSelected(selected.filter((_, position) => position !== index)); setResult(null); }} aria-label={`Remove ${tiles[tile]}`} lang={languageCode}>{tiles[tile]}</button>) : <span>Choose tiles below. Tap a chosen tile to return it.</span>}</div>
+        <div className={styles.actions} aria-label="Available word tiles">{tiles.map((tile, index) => <button key={index} type="button" disabled={selected.includes(index) || saving} onClick={() => { setSelected([...selected, index]); setResult(null); }} lang={languageCode}>{tile}</button>)}</div>
       </> : <>
-        <label className={styles.answerLabel} htmlFor={inputId}>{mode === "typing" ? "Type your Japanese answer" : "Write the requested sentence without looking at a model"}</label>
-        <textarea id={inputId} lang="ja" inputMode="text" autoComplete="off" spellCheck={false} maxLength={1000} rows={3} value={answer}
+        <label className={styles.answerLabel} htmlFor={inputId}>{mode === "typing" ? `Type your ${languageName} answer` : "Write the requested sentence without looking at a model"}</label>
+        <textarea id={inputId} lang={languageCode} inputMode="text" autoComplete="off" spellCheck={false} maxLength={1000} rows={3} value={answer}
           onCompositionStart={() => { composing.current = true; }} onCompositionEnd={() => { composing.current = false; }}
           onChange={event => { setAnswer(event.target.value); setResult(null); }}
-          placeholder="日本語で書いてみましょう" className={styles.sentenceInput} aria-describedby={`${inputId}-help`} />
-        <p id={`${inputId}-help`}>Use your device&apos;s Japanese keyboard / IME. Finish choosing your conversion before checking. No Japanese keyboard? Use Arrange tiles instead.</p>
+          placeholder={languageCode === "ko" ? "한국어로 써 보세요" : "日本語で書いてみましょう"} className={styles.sentenceInput} aria-describedby={`${inputId}-help`} />
+        <p id={`${inputId}-help`}>Use your device&apos;s {languageName} keyboard / IME. Finish composing before checking. You can use Arrange tiles instead.</p>
         {mode === "typing" && <p><strong>Hint:</strong> {exercise.hint ?? exercise.reading}</p>}
         {mode === "independent" && <details><summary>Need a hint?</summary><p>{exercise.hint ?? exercise.reading}</p></details>}
       </>}
     <div className={styles.actions}><button type="submit" disabled={!value || saving}>{saving ? "Saving..." : saveError ? "Retry check and save" : "Check answer"}</button><button type="button" onClick={reset} disabled={saving}>Try again</button></div>
     {result && <div role="status" className={styles.feedback}><strong>{result.correct ? "Well done!" : "Let's review"}</strong><p>{result.feedback}</p></div>}
     {saveError && <p role="alert">{saveError}</p>}
-    {result && !isChoice && <><button type="button" onClick={() => setShowModel(!showModel)}>{showModel ? "Hide model answer" : "Compare with model answer"}</button>{showModel && <div className={styles.model}><p lang="ja">{exercise.answer}</p><p>{exercise.reading}</p><LanguageAudio languageCode="ja" text={exercise.answer} /></div>}</>}
+    {result && !isChoice && <><button type="button" onClick={() => setShowModel(!showModel)}>{showModel ? "Hide model answer" : "Compare with model answer"}</button>{showModel && <div className={styles.model}><p lang={languageCode}>{exercise.answer}</p><p>{exercise.reading}</p><LanguageAudio languageCode={languageCode} text={exercise.answer} /></div>}</>}
     {mode === "independent" && !isChoice && <>
       <WritingCanvas character={exercise.answer} independent onDrawn={setDrawn} />
       <button type="button" onClick={() => setShowModel(!showModel)}>{showModel ? "Hide handwriting model" : "Compare handwriting with model"}</button>
-      {showModel && !result && <p lang="ja" className={styles.exampleJapanese}>{exercise.answer}</p>}
+      {showModel && !result && <p lang={languageCode} className={styles.exampleJapanese}>{exercise.answer}</p>}
       <label><input type="checkbox" checked={reviewed} onChange={event => setReviewed(event.target.checked)} /> I compared my handwritten answer with the model.</label>
       <button type="button" disabled={!drawn || !reviewed || saving} onClick={() => void recordHandwriting()}>Record self-reviewed handwriting</button>
       <p>The canvas is not automatically read or graded. Typed answers above are checked only against this exercise&apos;s supported patterns.</p>
@@ -96,7 +98,7 @@ function CharacterActivity({ exercise, character, onAttempt }: Props) {
   const [message, setMessage] = useState("");
   const [saved, setSaved] = useState(false);
   const busy = useRef(false);
-  if (!character) return <p role="status">This lesson needs the published Hiragana あ character. The introduction and other writing lessons are still available.</p>;
+  if (!character) return <p role="status">This character needs published curriculum data. Other writing lessons are still available.</p>;
   async function save() {
     if (busy.current || saved || !((guided && independent) || paper)) return;
     busy.current = true; setSaving(true); setMessage("");

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Compass } from "lucide-react";
@@ -15,6 +16,10 @@ import { languageLocations } from "@/lib/world/languageLocations";
 import { describeCourseLevel } from "@/lib/curriculum/levels";
 
 type Snapshot = Awaited<ReturnType<typeof loadRoadmap>>;
+const countryBanners: Record<string, string> = {
+  ja: "/dashboard/japan.jpg", zh: "/dashboard/china.jpg", ko: "/dashboard/korea.jpg",
+  fr: "/dashboard/france.jpg", de: "/dashboard/germany.jpg", es: "/dashboard/spain.jpg", th: "/dashboard/thai.jpg",
+};
 export default function CourseRoadmap() {
   const requested = useSearchParams().get("course");
   if (!requested) return <LearnerShell><LearningLibrary /></LearnerShell>;
@@ -60,6 +65,11 @@ function RoadmapContent({ requested }: { requested: string | null }) {
     return () => { cancelled = true; };
   }, [requested, router, attempt]);
 
+  const lessons = data?.units.flatMap(unit => unit.lessons) ?? [];
+  const nextLesson = lessons.find(lesson => data?.states.get(lesson.id) === "current");
+  const reviewLesson = lessons.find(lesson => data?.states.get(lesson.id) === "completed");
+  const continueLesson = nextLesson ?? reviewLesson;
+
   return <main className="min-h-screen bg-[#EAF5FF] px-5 py-8 text-[#071A4A]">
     <div className="mx-auto max-w-[var(--page-max-width)]">
       <Link href="/learn" className="text-sm font-bold text-[#3558AE]">My Library</Link>
@@ -68,7 +78,7 @@ function RoadmapContent({ requested }: { requested: string | null }) {
         : !data ? <div role="status" className="py-20 text-center"><Loader2 className="mx-auto animate-spin" /><p className="mt-4">Loading your roadmap...</p></div>
         : <>
           <div className="relative mt-7 overflow-hidden rounded-[32px] border border-white bg-white shadow-sm">
-            <CountryScenery languageCode={data.language.code} className="h-52 w-full sm:h-72" />
+            {countryBanners[data.language.code] ? <div className="relative h-52 w-full sm:h-72"><Image src={countryBanners[data.language.code]} alt={`${languageLocations[data.language.code]?.country ?? data.language.name} roadmap banner`} fill sizes="(max-width: 767px) 100vw, 1200px" className="object-cover object-center" priority /></div> : <CountryScenery languageCode={data.language.code} className="h-52 w-full sm:h-72" />}
             <div className="absolute bottom-5 left-5 rounded-2xl bg-white/95 px-5 py-3 shadow-sm sm:left-8"><p className="text-[10px] font-bold uppercase tracking-widest text-[#3558AE]">Your language destination</p><p className="mt-1 text-xl font-extrabold">{languageLocations[data.language.code]?.country ?? data.language.name}<span className="ml-3 text-sm font-medium text-[#62759C]">{data.language.name}</span></p></div>
           </div>
           <header className="relative my-8 overflow-hidden rounded-[32px] border border-white bg-white/85 p-7 shadow-[0_12px_40px_rgba(7,26,74,0.04)] sm:p-10">
@@ -78,6 +88,10 @@ function RoadmapContent({ requested }: { requested: string | null }) {
               <div className="rounded-2xl bg-[#EAF5FF] p-6"><p className="text-xs font-bold uppercase tracking-widest text-[#3558AE]">Journey progress</p><p className="mt-3 text-3xl font-extrabold">{data.percentage}<span className="text-lg">%</span></p><p className="mt-1 text-xs text-[#071A4A]/60">{data.completed} / {data.total} lessons completed</p><progress aria-label="Course progress" value={data.completed} max={data.total || 1} className="mt-4 h-2 w-full accent-[#3558AE]" /></div>
             </div>
           </header>
+          {data.travelAccess.arrived && continueLesson && <section aria-label="Continue learning" className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#FFD46E]/60 bg-[#FFFCF7] p-5">
+            <div><p className="text-xs font-bold uppercase tracking-widest text-[#62759C]">{nextLesson ? "Your next lesson" : "Keep practicing"}</p><h2 className="mt-2 text-lg font-extrabold">{continueLesson.title}</h2></div>
+            <Link href={`/learn/lesson?course=${encodeURIComponent(data.course.id)}&lesson=${encodeURIComponent(continueLesson.id)}`} className="inline-flex min-h-11 items-center justify-center gap-3 rounded-xl bg-[#3558AE] px-6 py-3 text-sm font-bold text-white hover:bg-[#071A4A] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#3558AE]">{nextLesson ? "Continue Learning" : "Review lessons"}<span aria-hidden="true">→</span></Link>
+          </section>}
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#102452]/10 bg-[#FFFCF7] p-5"><div><p className="text-sm font-bold text-[#102452]">{describeCourseLevel(data.course.level, data.language.code)}</p><p className="mt-1 text-xs text-[#53627F]">A learning progression, not a proficiency certification. Further levels appear when their lessons are ready.</p></div><Link href="/passport" className="inline-flex min-h-11 items-center rounded-xl border border-[#102452]/15 px-4 py-3 text-sm font-bold">Open Passport</Link></div>
           <JourneyRoadmap travelAccess={data.travelAccess} units={data.units} states={data.states} progress={data.progress} courseId={data.course.id} languageCode={data.language.code} />
         </>}

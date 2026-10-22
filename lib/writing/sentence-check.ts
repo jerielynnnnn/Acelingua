@@ -14,6 +14,16 @@ export function canonicalJapanese(value: string) {
 }
 
 export function checkWritingAnswer(exercise: WritingExercise, input: string) {
+  if (exercise.languageCode === "ko") {
+    // NFC joins decomposed Korean IME syllables. Preserve word boundaries: they
+    // matter in Korean, and stripping all spaces would accept malformed writing.
+    const normalize = (value: string) => value.normalize("NFC").trim().replace(/[.!?。！？]+$/u, "").replace(/\s+/gu, " ");
+    const actual = normalize(input);
+    if (!actual) return { correct: false, feedback: "Write or arrange an answer first." };
+    if ([exercise.answer, ...(exercise.alternatives ?? [])].some(answer => normalize(answer) === actual)) return { correct:true, feedback:`Correct. ${exercise.explanation}` };
+    if (exercise.kind === "sentence" && !/\p{Script=Hangul}/u.test(actual)) return { correct:false, feedback:"Use Hangul rather than romanization. Choose a Korean keyboard or Arrange tiles." };
+    return { correct:false, feedback:`Check the word spacing, particles, and polite ending. ${exercise.explanation} Only the model and listed equivalent answers are supported; this is not an open-ended Korean grammar grader.` };
+  }
   const actual = normalizeJapanese(input);
   const accepted = [exercise.answer, ...(exercise.alternatives ?? [])].map(canonicalJapanese);
   if (!actual) return { correct: false, feedback: "Write or arrange an answer first." };

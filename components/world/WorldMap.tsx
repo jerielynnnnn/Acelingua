@@ -1,19 +1,19 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type PointerEvent } from "react";
-import { LocateFixed, RotateCcw } from "lucide-react";
-import { constrainMapViewport, focusMapPosition, initialMapViewport, zoomMapAt } from "@/lib/world/mapViewport";
+import { constrainMapViewport, initialMapViewport, zoomMapAt } from "@/lib/world/mapViewport";
 import { languageLocations, mapPosition } from "@/lib/world/languageLocations";
 import type { WorldLanguage } from "@/lib/world/data";
 import UserAvatar, { type AvatarLayer } from "@/components/avatar/UserAvatar";
 import MinigameIsland from "./MinigameIsland";
+import CountryMapArtwork from "./CountryMapArtwork";
 import styles from "./World.module.css";
 
-type Props = { languages: WorldLanguage[]; selectedId: string | null; onSelect: (language: WorldLanguage) => void; avatarLayers?: AvatarLayer[] };
+type Props = { languages: WorldLanguage[]; selectedId: string | null; onSelect: (language: WorldLanguage) => void; avatarLayers?: AvatarLayer[]; onSelectIsland?: () => void };
 
 /** Original simplified equirectangular illustration; replace the SVG backdrop
  * with a 1000×500 asset using the same projection without changing markers. */
-export default function WorldMap({ languages, selectedId, onSelect, avatarLayers = [] }: Props) {
+export default function WorldMap({ languages, selectedId, onSelect, avatarLayers = [], onSelectIsland }: Props) {
   const [view, setView] = useState(initialMapViewport);
   const [dragging, setDragging] = useState(false);
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -22,11 +22,6 @@ export default function WorldMap({ languages, selectedId, onSelect, avatarLayers
   const pinchDistance = useRef<number | null>(null);
   const gridId = useId().replaceAll(":", "");
   function zoomBy(amount: number) { setView(previous => constrainMapViewport({ ...previous, zoom: previous.zoom + amount })); }
-  function focusSelected() {
-    const selected = languages.find(language => language.id === selectedId);
-    const location = selected && languageLocations[selected.code];
-    if (location) { const p = mapPosition(location); setView(focusMapPosition(p.x + location.markerOffset[0] / 10, p.y + location.markerOffset[1] / 5)); }
-  }
   useEffect(() => {
     const element = viewportRef.current;
     if (!element) return;
@@ -70,7 +65,6 @@ export default function WorldMap({ languages, selectedId, onSelect, avatarLayers
     if (!pointers.current.size) setDragging(false);
   }
   return <div className={styles.mapFrame}>
-    <div className={styles.mapControls} role="group" aria-label="World map controls"><button type="button" aria-label="Reset world view" onClick={() => setView(initialMapViewport)}><RotateCcw size={17} /></button><button type="button" disabled={!selectedId} onClick={focusSelected}><LocateFixed size={17} /> Find destination</button></div>
     <div ref={viewportRef} className={`${styles.mapViewport} ${dragging ? styles.mapDragging : ""}`} tabIndex={0} aria-label="Interactive world map. Scroll to zoom at the cursor, drag to move, or double-click to zoom in. Keyboard: plus or minus to zoom, arrow keys to pan, zero to reset." onDoubleClick={event => {
       if ((event.target as Element).closest("button, a")) return;
       const rect = event.currentTarget.getBoundingClientRect();
@@ -85,13 +79,13 @@ export default function WorldMap({ languages, selectedId, onSelect, avatarLayers
       else if (["+", "=", "-", "0"].includes(event.key)) { event.preventDefault(); if (event.key === "0") setView(initialMapViewport); else zoomBy(event.key === "-" ? -.4 : .4); }
     }}>
     <div className={styles.mapCanvas} style={{ transform: `translate(${view.x}%, ${view.y}%) scale(${view.zoom})` }}>
-      <svg viewBox="0 0 1000 500" preserveAspectRatio="none" className={styles.mapArt} role="img" aria-label="Stylized world map with approximate continent outlines">
+      <svg viewBox="0 0 1000 500" preserveAspectRatio="none" className={styles.mapArt} role="img" aria-label="World map">
         <defs>
-          <pattern id={gridId} width="100" height="83.333" patternUnits="userSpaceOnUse"><path d="M100 0H0V83.333" fill="none" stroke="#fff" strokeOpacity=".3" /></pattern>
+          <pattern id={gridId} width="100" height="83.333" patternUnits="userSpaceOnUse"><path d="M100 0H0V83.333" fill="none" stroke="#fff" strokeOpacity=".18" /></pattern>
         </defs>
         <rect width="1000" height="500" rx="28" fill="#DDEFF8" />
         <rect width="1000" height="500" fill={`url(#${gridId})`} />
-        <g fill="#FAFCFF" stroke="#B3C8DB" strokeWidth="2" strokeLinejoin="round">
+        <g className={styles.continents} fill="#FAFCFF" stroke="#B3C8DB" strokeWidth="2" strokeLinejoin="round">
           <path d="M65 95L105 65 180 60 220 85 270 85 325 115 315 145 285 170 270 200 240 212 215 230 225 250 260 264 282 292 268 305 245 277 212 260 185 215 140 185 112 153 72 145Z" />
           <path d="M280 278L320 270 357 292 385 315 375 350 348 380 328 425 300 465 288 442 292 392 275 365 270 323Z" />
           <path d="M350 52L395 40 425 65 409 109 377 121 355 88Z" />
@@ -104,7 +98,7 @@ export default function WorldMap({ languages, selectedId, onSelect, avatarLayers
           <path d="M945 415L956 401 964 407 954 434 940 452 932 447Z" />
           <path d="M560 348L566 361 557 388 549 379Z" />
         </g>
-        <g fill="#7595B1" fontSize="13" fontFamily="sans-serif" letterSpacing="3" opacity=".7">
+        <g fill="#3558AE" fontSize="13" fontFamily="sans-serif" letterSpacing="3" opacity=".7">
           <text x="115" y="340">PACIFIC OCEAN</text><text x="360" y="245" transform="rotate(-12 360 245)">ATLANTIC</text><text x="635" y="345">INDIAN OCEAN</text>
         </g>
         <path d="M180 335Q440 60 840 168" fill="none" stroke="#C7A9D4" strokeWidth="2" strokeDasharray="5 8" opacity=".6" />
@@ -121,13 +115,14 @@ export default function WorldMap({ languages, selectedId, onSelect, avatarLayers
         const p = mapPosition(location);
         return <button key={language.id} type="button" aria-label={`Explore ${location.country} — ${language.name}`} aria-pressed={selectedId === language.id}
           title={`${location.country} · ${language.name}`} onClick={() => onSelect(language)}
-          className={`${styles.marker} ${selectedId === language.id ? `${styles.selected} ${styles.avatarMarker}` : ""}`}
+          className={`${styles.marker} ${styles.landmarkMarker} ${selectedId === language.id ? styles.selected : ""}`}
           style={{ left: `${p.x + location.markerOffset[0] / 10}%`, top: `${p.y + location.markerOffset[1] / 5}%`, transform: `translate(-50%, -50%) scale(${1 / Math.sqrt(view.zoom)})` }}>
-          {selectedId === language.id ? <span className={styles.avatarHead} aria-hidden="true"><UserAvatar layers={avatarLayers} /></span> : <span aria-hidden="true">{language.flag_emoji || location.country.slice(0, 2).toUpperCase()}</span>}
-          <span className={styles.markerLabel}>{selectedId === language.id ? location.country : language.name}</span>
+          <span className={styles.countryArtwork} aria-hidden="true"><CountryMapArtwork code={language.code} /></span>
+          {selectedId === language.id && <span className={`${styles.avatarHead} ${styles.countryAvatar}`} aria-hidden="true"><UserAvatar layers={avatarLayers} /></span>}
+          <span className={styles.markerLabel}>{location.country}</span>
         </button>;
       })}
-      <div className={styles.islandPosition}><MinigameIsland /></div>
+      <div className={styles.islandPosition}><MinigameIsland avatarLayers={avatarLayers} selected={selectedId === "play-island"} onSelect={onSelectIsland} /></div>
       <span className={styles.mapCaption}>A world of words awaits</span>
     </div>
     </div>

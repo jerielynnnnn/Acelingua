@@ -1,0 +1,416 @@
+{
+  "checkedAt": "2026-10-22T08:57:17.110Z",
+  "scope": "Anonymous catalog reads only. RLS may hide unpublished content; private learner dependencies require the companion SQL audit. No database writes.",
+  "tables": {
+    "languages": {
+      "count": 1,
+      "rows": [
+        {
+          "id": "c3792eee-2458-45aa-859e-81e243a78c17",
+          "code": "ko",
+          "name": "Korean",
+          "native_name": "한국어",
+          "flag_emoji": "🇰🇷",
+          "is_active": true,
+          "created_at": "2026-10-03T13:27:50.330843+00:00"
+        }
+      ]
+    },
+    "courses": {
+      "count": 1,
+      "rows": [
+        {
+          "id": "a5c6b836-c1a8-70e6-b53b-cd1742d46707",
+          "language_id": "c3792eee-2458-45aa-859e-81e243a78c17",
+          "title": "Korean: your first conversations",
+          "description": "Learn everyday Korean through greetings, polite expressions, numbers, colors, food, and travel.",
+          "level": "beginner",
+          "is_published": true,
+          "created_at": "2026-10-05T09:18:37.992769+00:00",
+          "updated_at": "2026-10-05T09:18:37.992769+00:00"
+        }
+      ]
+    },
+    "units": {
+      "count": 1,
+      "rows": [
+        {
+          "id": "e33f7bfa-d32c-c894-1d1b-127883930e64",
+          "course_id": "a5c6b836-c1a8-70e6-b53b-cd1742d46707",
+          "title": "Korean: First conversations",
+          "description": "Start with everyday greetings and polite expressions.",
+          "unit_order": 1,
+          "is_published": true,
+          "created_at": "2026-10-05T09:18:37.992769+00:00",
+          "updated_at": "2026-10-05T09:18:37.992769+00:00",
+          "location_name": null,
+          "map_x": 50,
+          "map_y": 50
+        }
+      ]
+    },
+    "lessons": {
+      "count": 1,
+      "rows": [
+        {
+          "id": "b654cb47-ce9a-0c43-0124-528b330cf24d",
+          "unit_id": "e33f7bfa-d32c-c894-1d1b-127883930e64",
+          "title": "Korean: Hello and goodbye",
+          "description": "Learn three expressions to start and end a conversation.",
+          "lesson_order": 1,
+          "is_published": true,
+          "created_at": "2026-10-05T09:18:37.992769+00:00",
+          "updated_at": "2026-10-05T09:18:37.992769+00:00",
+          "xp_reward": 10,
+          "coin_reward": 5
+        }
+      ]
+    },
+    "writing_systems": {
+      "count": 3,
+      "rows": [
+        {
+          "id": "3e73e5d7-7783-0f09-e093-fc3752881fde",
+          "language_id": "c3792eee-2458-45aa-859e-81e243a78c17",
+          "name": "Hangul Vowels",
+          "slug": "vowels",
+          "description": "Explore Korean vowels.",
+          "display_order": 1,
+          "is_published": true
+        },
+        {
+          "id": "45c13879-f45d-17dd-c871-43cd6687a4b4",
+          "language_id": "c3792eee-2458-45aa-859e-81e243a78c17",
+          "name": "Syllable Formation",
+          "slug": "syllables",
+          "description": "Build syllable blocks.",
+          "display_order": 2,
+          "is_published": true
+        },
+        {
+          "id": "499bfbec-0fd9-defc-968b-b63717578ee4",
+          "language_id": "c3792eee-2458-45aa-859e-81e243a78c17",
+          "name": "Hangul Consonants",
+          "slug": "consonants",
+          "description": "Explore Korean consonants.",
+          "display_order": 0,
+          "is_published": true
+        }
+      ]
+    },
+    "writing_studio_lessons": {
+      "count": 0,
+      "rows": []
+    },
+    "activities": {
+      "count": 0,
+      "rows": []
+    },
+    "vocabulary": {
+      "count": 3,
+      "rows": [
+        {
+          "id": "70ec211c-5603-69fc-7205-bd7c5af47dcc",
+          "lesson_id": "b654cb47-ce9a-0c43-0124-528b330cf24d",
+          "word": "안녕하세요",
+          "translation": "Hello",
+          "pronunciation": "annyeonghaseyo",
+          "part_of_speech": null,
+          "example_sentence": null,
+          "example_translation": null,
+          "created_at": "2026-10-05T09:18:38.992769+00:00"
+        },
+        {
+          "id": "7c22d8df-0d38-a9db-6890-0dd4b43a4a05",
+          "lesson_id": "b654cb47-ce9a-0c43-0124-528b330cf24d",
+          "word": "안녕히 가세요",
+          "translation": "Goodbye",
+          "pronunciation": "annyeonghi gaseyo",
+          "part_of_speech": null,
+          "example_sentence": null,
+          "example_translation": null,
+          "created_at": "2026-10-05T09:18:39.992769+00:00"
+        },
+        {
+          "id": "b6b7fdc0-220e-b3de-0f47-f6e49903beda",
+          "lesson_id": "b654cb47-ce9a-0c43-0124-528b330cf24d",
+          "word": "좋은 아침이에요",
+          "translation": "Good morning",
+          "pronunciation": "joeun achimieyo",
+          "part_of_speech": null,
+          "example_sentence": null,
+          "example_translation": null,
+          "created_at": "2026-10-05T09:18:40.992769+00:00"
+        }
+      ]
+    },
+    "questions": {
+      "count": 0,
+      "rows": []
+    },
+    "writing_studio_activities": {
+      "count": 0,
+      "rows": []
+    },
+    "travel_country_units": {
+      "count": 26,
+      "rows": [
+        {
+          "country_id": "0e4133d6-714d-4096-a5c5-1679f208f01c",
+          "unit_id": "0690f130-2551-13cc-5e7e-82d13bc6f940",
+          "is_required": false
+        },
+        {
+          "country_id": "0e4133d6-714d-4096-a5c5-1679f208f01c",
+          "unit_id": "1b60e7e4-92c0-1554-7e39-9626324958b6",
+          "is_required": false
+        },
+        {
+          "country_id": "0e4133d6-714d-4096-a5c5-1679f208f01c",
+          "unit_id": "4555a11b-70e6-8bf8-b75e-5e47a241c6c4",
+          "is_required": false
+        },
+        {
+          "country_id": "2441219c-f1fe-4e2a-a021-7f92207a8888",
+          "unit_id": "52415885-0083-ee11-e41c-6c8d08b9351d",
+          "is_required": false
+        },
+        {
+          "country_id": "2441219c-f1fe-4e2a-a021-7f92207a8888",
+          "unit_id": "c0814178-7eb3-3cde-f368-4a1da140b422",
+          "is_required": false
+        },
+        {
+          "country_id": "2441219c-f1fe-4e2a-a021-7f92207a8888",
+          "unit_id": "c9fd827b-0ad3-00c8-983f-565c92b71ca0",
+          "is_required": false
+        },
+        {
+          "country_id": "58f72d95-9c30-4bb5-a6fc-bae0c6755b6b",
+          "unit_id": "1b829d7e-32b9-4bdf-a21e-c03272f52962",
+          "is_required": true
+        },
+        {
+          "country_id": "58f72d95-9c30-4bb5-a6fc-bae0c6755b6b",
+          "unit_id": "531834cc-9151-4f36-b8e4-b27cf9e05ada",
+          "is_required": true
+        },
+        {
+          "country_id": "58f72d95-9c30-4bb5-a6fc-bae0c6755b6b",
+          "unit_id": "5ba31a7f-11c3-4c10-bb2a-42063762d6c3",
+          "is_required": true
+        },
+        {
+          "country_id": "58f72d95-9c30-4bb5-a6fc-bae0c6755b6b",
+          "unit_id": "6fa3790a-9162-4f49-98e9-3bf1148d7e10",
+          "is_required": true
+        },
+        {
+          "country_id": "58f72d95-9c30-4bb5-a6fc-bae0c6755b6b",
+          "unit_id": "823607f1-d712-42fc-a348-a217fa864627",
+          "is_required": true
+        },
+        {
+          "country_id": "58f72d95-9c30-4bb5-a6fc-bae0c6755b6b",
+          "unit_id": "9d07d6c4-2c88-4f48-9bb8-aecdc22dd304",
+          "is_required": true
+        },
+        {
+          "country_id": "58f72d95-9c30-4bb5-a6fc-bae0c6755b6b",
+          "unit_id": "b735bff3-2b4f-4ad9-9a42-5dc3f907eb63",
+          "is_required": true
+        },
+        {
+          "country_id": "58f72d95-9c30-4bb5-a6fc-bae0c6755b6b",
+          "unit_id": "f08cef95-0ad9-41cb-9c3f-94c051ad62b2",
+          "is_required": true
+        },
+        {
+          "country_id": "90d4d0d2-f22d-4fb5-972c-f2610b31ab75",
+          "unit_id": "0faff5e4-4aae-f364-7f71-95d14eceba85",
+          "is_required": false
+        },
+        {
+          "country_id": "90d4d0d2-f22d-4fb5-972c-f2610b31ab75",
+          "unit_id": "956ec7eb-275f-e088-9f54-21d98aec639b",
+          "is_required": false
+        },
+        {
+          "country_id": "90d4d0d2-f22d-4fb5-972c-f2610b31ab75",
+          "unit_id": "e9fc2408-2439-d88d-ed9b-013085192ca9",
+          "is_required": false
+        },
+        {
+          "country_id": "c916622f-87e8-42b4-9368-6c2bf1c07764",
+          "unit_id": "5abf61e2-50cf-d495-fb7f-ab0f213bf97f",
+          "is_required": false
+        },
+        {
+          "country_id": "c916622f-87e8-42b4-9368-6c2bf1c07764",
+          "unit_id": "82f3fd45-10c8-92f2-c3b8-b60ddc5ae346",
+          "is_required": false
+        },
+        {
+          "country_id": "c916622f-87e8-42b4-9368-6c2bf1c07764",
+          "unit_id": "f681e2a1-5065-8421-c097-fefb532e1b48",
+          "is_required": false
+        },
+        {
+          "country_id": "d3c981a5-9bf7-469c-93de-8a7c5105c6eb",
+          "unit_id": "98d95d0e-8e1d-05f2-7444-8bdf625939bb",
+          "is_required": false
+        },
+        {
+          "country_id": "d3c981a5-9bf7-469c-93de-8a7c5105c6eb",
+          "unit_id": "e33f7bfa-d32c-c894-1d1b-127883930e64",
+          "is_required": false
+        },
+        {
+          "country_id": "d3c981a5-9bf7-469c-93de-8a7c5105c6eb",
+          "unit_id": "fabe8308-7264-47f2-b659-061eb43993ca",
+          "is_required": false
+        },
+        {
+          "country_id": "ea10d8c1-db4d-4e36-9ec4-52c8e430cc81",
+          "unit_id": "9f1779b7-b612-fd3e-17da-c1558561f11c",
+          "is_required": false
+        },
+        {
+          "country_id": "ea10d8c1-db4d-4e36-9ec4-52c8e430cc81",
+          "unit_id": "a96fd4a3-bc2d-400d-c3e7-521a610cca00",
+          "is_required": false
+        },
+        {
+          "country_id": "ea10d8c1-db4d-4e36-9ec4-52c8e430cc81",
+          "unit_id": "f21cffd4-29d5-38e9-de23-dffc64e84b92",
+          "is_required": false
+        }
+      ]
+    },
+    "writing_characters": {
+      "count": 0,
+      "rows": []
+    },
+    "travel_country_languages": {
+      "count": 7,
+      "rows": [
+        {
+          "country_id": "0e4133d6-714d-4096-a5c5-1679f208f01c",
+          "language_id": "4c115a43-7e8d-4be4-bf28-1583c56be5ef"
+        },
+        {
+          "country_id": "2441219c-f1fe-4e2a-a021-7f92207a8888",
+          "language_id": "35d0196e-6f22-48f9-a808-c8c3dacec702"
+        },
+        {
+          "country_id": "58f72d95-9c30-4bb5-a6fc-bae0c6755b6b",
+          "language_id": "9e3b5bd7-f38e-42cc-8301-100e0fad7873"
+        },
+        {
+          "country_id": "90d4d0d2-f22d-4fb5-972c-f2610b31ab75",
+          "language_id": "9d6f7422-233d-47ca-a1fc-9e2049aa721e"
+        },
+        {
+          "country_id": "c916622f-87e8-42b4-9368-6c2bf1c07764",
+          "language_id": "ebb5af43-ee3e-4080-912d-4c6ca55e7b3a"
+        },
+        {
+          "country_id": "d3c981a5-9bf7-469c-93de-8a7c5105c6eb",
+          "language_id": "c3792eee-2458-45aa-859e-81e243a78c17"
+        },
+        {
+          "country_id": "ea10d8c1-db4d-4e36-9ec4-52c8e430cc81",
+          "language_id": "04c4d0aa-855a-4f14-927a-9845657c4952"
+        }
+      ]
+    },
+    "travel_countries": {
+      "count": 7,
+      "rows": [
+        {
+          "id": "0e4133d6-714d-4096-a5c5-1679f208f01c",
+          "code": "de",
+          "name": "Germany",
+          "flag_emoji": "🇩🇪",
+          "capital": "Berlin",
+          "welcome_message": "Willkommen in Deutschland!",
+          "cover_image_url": "/dashboard/germany.jpg",
+          "is_active": true,
+          "created_at": "2026-10-18T03:15:12.835429+00:00"
+        },
+        {
+          "id": "2441219c-f1fe-4e2a-a021-7f92207a8888",
+          "code": "cn",
+          "name": "China",
+          "flag_emoji": "🇨🇳",
+          "capital": "Beijing",
+          "welcome_message": "欢迎来到中国!",
+          "cover_image_url": "/dashboard/china.jpg",
+          "is_active": true,
+          "created_at": "2026-10-18T03:15:12.835429+00:00"
+        },
+        {
+          "id": "58f72d95-9c30-4bb5-a6fc-bae0c6755b6b",
+          "code": "jp",
+          "name": "Japan",
+          "flag_emoji": "🇯🇵",
+          "capital": "Tokyo",
+          "welcome_message": "日本へようこそ!",
+          "cover_image_url": "/dashboard/japan.jpg",
+          "is_active": true,
+          "created_at": "2026-10-18T03:15:12.835429+00:00"
+        },
+        {
+          "id": "90d4d0d2-f22d-4fb5-972c-f2610b31ab75",
+          "code": "th",
+          "name": "Thailand",
+          "flag_emoji": "🇹🇭",
+          "capital": "Bangkok",
+          "welcome_message": "ยินดีต้อนรับสู่ประเทศไทย!",
+          "cover_image_url": "/dashboard/thai.jpg",
+          "is_active": true,
+          "created_at": "2026-10-18T03:15:12.835429+00:00"
+        },
+        {
+          "id": "c916622f-87e8-42b4-9368-6c2bf1c07764",
+          "code": "es",
+          "name": "Spain",
+          "flag_emoji": "🇪🇸",
+          "capital": "Madrid",
+          "welcome_message": "¡Bienvenidos a España!",
+          "cover_image_url": "/dashboard/spain.jpg",
+          "is_active": true,
+          "created_at": "2026-10-18T03:15:12.835429+00:00"
+        },
+        {
+          "id": "d3c981a5-9bf7-469c-93de-8a7c5105c6eb",
+          "code": "kr",
+          "name": "South Korea",
+          "flag_emoji": "🇰🇷",
+          "capital": "Seoul",
+          "welcome_message": "한국에 오신 것을 환영합니다!",
+          "cover_image_url": "/dashboard/korea.jpg",
+          "is_active": true,
+          "created_at": "2026-10-18T03:15:12.835429+00:00"
+        },
+        {
+          "id": "ea10d8c1-db4d-4e36-9ec4-52c8e430cc81",
+          "code": "fr",
+          "name": "France",
+          "flag_emoji": "🇫🇷",
+          "capital": "Paris",
+          "welcome_message": "Bienvenue en France!",
+          "cover_image_url": "/dashboard/france.jpg",
+          "is_active": true,
+          "created_at": "2026-10-18T03:15:12.835429+00:00"
+        }
+      ]
+    },
+    "travel_unit_curriculum": {
+      "error": {
+        "code": "42501",
+        "message": "permission denied for table travel_unit_curriculum"
+      }
+    }
+  }
+}

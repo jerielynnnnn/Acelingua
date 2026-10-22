@@ -17,7 +17,7 @@ export default function ActivityScreen({ step, words, languageCode, answer, chec
     <p className="text-xs font-bold uppercase tracking-widest text-[#3558AE]">Activity {activity.activity_order} · {activity.activity_type}</p>
     <h1 className="mt-3 text-2xl font-extrabold">{activity.title}</h1>
     {!question ? <>
-      {activity.instructions && <p className="mt-5 leading-7">{activity.instructions}</p>}
+      {activity.instructions && <p className={languageCode === "ko" ? "mt-5 whitespace-pre-line leading-7" : "mt-5 leading-7"}>{activity.instructions}</p>}
       {activity.activity_type === "listening" && <><ListenAndChoose words={words} languageCode={languageCode} /><p className="mt-3 text-xs">Supplementary vocabulary practice; no extra lesson rewards.</p></>}
       {activity.activity_type === "speaking" && <>{words.map(word => <SpeakingPractice key={word.id} text={word.word} languageCode={languageCode} />)}</>}
       <button type="button" className={button} disabled={saving} onClick={next}>{saving ? "Saving..." : "Continue"}<ArrowRight size={18} /></button>

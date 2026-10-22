@@ -56,22 +56,22 @@ export default function WritingWorkbook({ languageCode, lessonSlug }: { language
         <div className={styles.hero}><span className={styles.badge}>{lesson.stage} · Lesson {index + 1} / {workbook.lessons.length}</span><h1>{lesson.title}</h1><p>{lesson.description}</p></div>
         <p className={styles.notice}>{workbook.local ? "Workbook practice saves in this browser only." : "Workbook practice saves to your account."} Ordinary lessons and rewards are separate.</p>
         <div className={styles.workbookGuide}><Image src="/icon head.png" alt="Ace, your writing guide" width={70} height={70} /><p>Read, listen, and try it yourself. Small steps count!</p></div>
-        {lesson.blocks.map((block, i) => <ReadingBlock key={`${lesson.slug}/${i}`} block={block} />)}
+        {lesson.blocks.map((block, i) => <ReadingBlock key={`${lesson.slug}/${i}`} block={block} languageCode={languageCode} />)}
         <section className={styles.card}><h2>Your lesson practice</h2><p>{complete} / {lesson.exercises.length} activities completed</p><progress className={styles.workbookProgress} aria-label="Lesson practice completion" max={lesson.exercises.length || 1} value={complete} /></section>
         {lesson.exercises.map(exercise => <div key={`${lesson.slug}/${exercise.slug}`}>
           {progress?.completed_activities.includes(exercise.slug) && <p className={styles.completeActivity}>✓ Activity completed — you can review it again.</p>}
-          <WorkbookExercise exercise={exercise} character={data.characters.find(c => c.slug === exercise.characterSlug && data.systems.some(s => s.id === c.writing_system_id && s.slug === "hiragana"))} onAttempt={(response, correct, mode) => onAttempt(exercise.slug, response, correct, mode)} />
+          <WorkbookExercise exercise={{...exercise, languageCode: languageCode === "ko" ? "ko" : "ja"}} character={data.characters.find(c => c.slug === exercise.characterSlug && data.systems.some(s => s.id === c.writing_system_id && s.slug === (exercise.characterSystem ?? (languageCode === "ja" ? "hiragana" : "consonants"))))} onAttempt={(response, correct, mode) => onAttempt(exercise.slug, response, correct, mode)} />
         </div>)}
         {progress?.completed && <p role="status" className={styles.notice}>Lesson complete. Nice work! Continue when you feel ready.</p>}
         <nav className={styles.characterNav} aria-label="Workbook lesson navigation">
           {index > 0 ? <Link href={`/writing/${languageCode}/course/${workbook.lessons[index - 1].slug}?${query}`}><ArrowLeft size={18} /> Previous lesson</Link> : <Link href={home}>Studio home</Link>}
-          {index < workbook.lessons.length - 1 ? <Link href={`/writing/${languageCode}/course/${workbook.lessons[index + 1].slug}?${query}`}>Continue <ArrowRight size={18} /></Link> : <Link href={`/writing/ja/hiragana/3042?${query}`}>Practice more characters <ArrowRight size={18} /></Link>}
+          {index < workbook.lessons.length - 1 ? <Link href={`/writing/${languageCode}/course/${workbook.lessons[index + 1].slug}?${query}`}>Continue <ArrowRight size={18} /></Link> : <Link href={languageCode === "ja" ? `/writing/ja/hiragana/3042?${query}` : home}>Practice more characters <ArrowRight size={18} /></Link>}
         </nav>
       </>}
   </main>;
 }
 
-function ReadingBlock({ block }: { block: WritingBlock }) {
+function ReadingBlock({ block, languageCode }: { block: WritingBlock; languageCode: string }) {
   const [selected, setSelected] = useState<"hiragana" | "katakana" | "kanji" | null>(null);
   const [vertical, setVertical] = useState(false);
   const directions = block.title === "Two writing directions";
@@ -83,8 +83,8 @@ function ReadingBlock({ block }: { block: WritingBlock }) {
     </> : directions ? <>
       <div className={styles.actions}><button type="button" aria-pressed={!vertical} onClick={() => setVertical(false)}>Horizontal</button><button type="button" aria-pressed={vertical} onClick={() => setVertical(true)}>Vertical</button></div>
       <div className={styles.directionExample} lang="ja" style={{ writingMode: vertical ? "vertical-rl" : "horizontal-tb" }}><div>あいうえお</div><div>かきくけこ</div></div>
-    </> : block.japanese && <p className={styles.exampleJapanese} lang="ja">{block.japanese}</p>}
+    </> : (block.korean || block.japanese) && <p className={styles.exampleJapanese} lang={languageCode}>{block.korean || block.japanese}</p>}
     {block.reading && <p>{block.reading}</p>}{block.translation && <p>{block.translation}</p>}
-    {block.japanese && !directions && <LanguageAudio languageCode="ja" text={block.japanese} hideText />}
+    {(block.korean || block.japanese) && !directions && <LanguageAudio languageCode={languageCode} text={(block.korean || block.japanese)!} hideText />}
   </section>;
 }

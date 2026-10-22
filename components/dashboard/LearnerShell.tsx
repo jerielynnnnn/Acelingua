@@ -8,6 +8,8 @@ import { isAuthSessionMissingError } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import DashboardSidebar from "./DashboardSidebar";
 import DashboardHeader from "./DashboardHeader";
+import PublicHeader from "@/components/PublicHeader";
+import GameDashboardHeader from "./GameDashboardHeader";
 
 const LearnerContext = createContext<string | null>(null);
 export function useLearnerId() {
@@ -15,10 +17,10 @@ export function useLearnerId() {
   if (!userId) throw new Error("Learner page requires the authenticated shell.");
   return userId;
 }
-type HeaderData = { streak: number; hearts: number; gems: number; coins: number; achievements: number };
+type HeaderData = { streak: number; hearts: number; gems: number; coins: number; achievements: number; lessons?: number };
 
 /** Reuses the existing dashboard navigation and real profile status values. */
-export default function LearnerShell({ children, fitScreen = false }: { children: ReactNode; fitScreen?: boolean }) {
+export default function LearnerShell({ children, fitScreen = false, simpleHeader = false }: { children: ReactNode; fitScreen?: boolean; simpleHeader?: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
   const [session, setSession] = useState<{ userId: string; header: HeaderData | null } | null>(null);
@@ -32,14 +34,19 @@ export default function LearnerShell({ children, fitScreen = false }: { children
         const { data: { user }, error: authError } = await supabase.auth.getUser();
         if (authError && !isAuthSessionMissingError(authError)) throw authError;
         if (!user) { if (!cancelled) router.replace("/login"); return; }
-        const [profile, achievements] = await Promise.all([
+        if (simpleHeader && user.user_metadata.acelingua_onboarding && user.user_metadata.acelingua_onboarding.completed !== true) {
+          if (!cancelled) router.replace("/onboarding/continue"); return;
+        }
+        const [profile, achievements, lessons] = await Promise.all([
           supabase.from("profiles").select("streak, hearts, gems, coins").eq("id", user.id).maybeSingle(),
           supabase.from("user_achievements").select("*", { count: "exact", head: true }).eq("user_id", user.id),
+          simpleHeader ? supabase.from("lesson_progress").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("status", "completed") : Promise.resolve(null),
         ]);
         if (profile.error) throw profile.error;
         if (achievements.error) throw achievements.error;
+        if (lessons?.error) throw lessons.error;
         if (!cancelled) setSession({ userId: user.id, header: profile.data && achievements.count !== null
-          ? { ...profile.data, achievements: achievements.count } : null });
+          ? { ...profile.data, achievements: achievements.count, ...(lessons ? { lessons: lessons.count ?? 0 } : {}) } : null });
       } catch (cause) {
         if (!cancelled) setError(cause instanceof Error ? cause.message : "We couldn't load your learner account. Please retry.");
       }
@@ -48,13 +55,13 @@ export default function LearnerShell({ children, fitScreen = false }: { children
     const refreshBalance = () => { void load(); };
     window.addEventListener("acelingua:balance-updated", refreshBalance);
     return () => { cancelled = true; window.removeEventListener("acelingua:balance-updated", refreshBalance); };
-  }, [router, attempt]);
-  return <div className={`${fitScreen ? "md:h-dvh md:overflow-hidden" : "min-h-screen"} bg-[#F4F9FD] text-[#071A4A]`}>
+  }, [router, attempt, simpleHeader]);
+  return <div className={`${fitScreen && simpleHeader ? "h-dvh overflow-hidden" : fitScreen ? "md:h-dvh md:overflow-hidden" : "min-h-screen"} bg-[#F4F9FD] text-[#071A4A]`}>
     <DashboardSidebar />
-    <div className={`${fitScreen ? "md:flex md:h-full md:min-h-0 md:flex-col [&>header]:shrink-0" : "min-h-screen"} md:pl-19`}>
-      {session?.header && <DashboardHeader {...session.header} />}
-      <nav aria-label="Learner navigation" className="flex gap-2 overflow-x-auto border-b border-[#071A4A]/5 bg-white p-3 md:hidden">
-        {[['Dashboard', '/dashboard'], ['Quests', '/missions'], ['Streak', '/streak'], ['Awards', '/achievements'], ['Learn', '/learn'], ['Avatar', '/avatar'], ['World', '/world'], ['Passport', '/passport'], ['Store', '/store']].map(([name, href]) => <Link key={href} href={href} aria-current={pathname === href || pathname.startsWith(href + '/') ? "page" : undefined} className="rounded-xl px-3 py-2 text-sm font-bold aria-[current=page]:bg-[#EAF5FF] focus-visible:outline-2 focus-visible:outline-[#3558AE]">{name}</Link>)}
+    <div className={`${fitScreen && simpleHeader ? "flex h-full min-h-0 flex-col [&>header]:shrink-0" : fitScreen ? "md:flex md:h-full md:min-h-0 md:flex-col [&>header]:shrink-0" : "min-h-screen"} md:pl-19`}>
+      {session?.header ? simpleHeader ? <GameDashboardHeader userId={session.userId} {...session.header} /> : <DashboardHeader {...session.header} /> : <PublicHeader learner />}
+      <nav aria-label="Learner navigation" className="flex shrink-0 gap-2 overflow-x-auto border-b border-[#071A4A]/5 bg-white p-3 md:hidden">
+        {[['Dashboard', '/dashboard'], ['Quests', '/missions'], ['Streak', '/streak'], ['Awards', '/achievements'], ['Learn', '/learn'], ['Avatar', '/avatar'], ['Passport', '/passport'], ['Store', '/store']].map(([name, href]) => <Link key={href} href={href} aria-current={pathname === href || pathname.startsWith(href + '/') ? "page" : undefined} className="rounded-xl px-3 py-2 text-sm font-bold aria-[current=page]:bg-[#EAF5FF] focus-visible:outline-2 focus-visible:outline-[#3558AE]">{name}</Link>)}
       </nav>
       {error ? <main className="mx-auto max-w-xl p-8"><h1 className="text-2xl font-bold">Let&apos;s try again</h1><p role="alert" className="mt-4">{error}</p><button onClick={() => { setError(""); setAttempt(n => n + 1); }} className="mt-5 rounded-full bg-[#071A4A] px-6 py-3 font-bold text-white">Retry</button></main>
         : !session ? <main role="status" className="flex min-h-[70vh] flex-col items-center justify-center gap-4"><Loader2 className="animate-spin" /><p>Loading your journey...</p></main>
